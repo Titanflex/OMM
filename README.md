@@ -1,9 +1,9 @@
-# Group Project for Online Multimedia: Meme Generator
+# Online Multimedia Group Project: Meme Generator
 
 # Team Members
 
-Mari Kruse
-Vera Volk
-Felix Grelka
-Tabea Blenk
+- Mari Kruse
+- Vera Volk
+- Felix Grelka
+- Tabea Blenk
 
