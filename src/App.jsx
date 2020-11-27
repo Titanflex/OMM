@@ -6,12 +6,13 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 
 function App() {
+
   return (
     <Container class="AppContainer">
       <h1>Best Meme Generator</h1>
       <Row>
-        <Col><MemeContainer></MemeContainer></Col>
-        <Col><FormContainer></FormContainer></Col>
+        <Col><MemeContainer /></Col>
+        <Col><FormContainer /></Col>
       </Row>
     </Container>
   );
