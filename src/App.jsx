@@ -11,7 +11,6 @@ function App() {
     <Container class="AppContainer">
       <h1>Best Meme Generator</h1>
       <Row>
-        <Col><MemeContainer /></Col>
         <Col><FormContainer /></Col>
       </Row>
     </Container>
