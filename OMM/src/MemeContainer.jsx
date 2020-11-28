@@ -11,9 +11,9 @@ export default class MemeContainer extends Component {
   render() {
     return (
       <Container class="memeContainer">
-        <p class = "memeText upper" >Upper Text</p>
+        <p class = "memeText upper" >{this.props.caption1}</p>
         <img src={meme} alt="Meme"></img>
-        <p class = "memeText lower" >Lower Text</p>
+        <p class = "memeText lower" >{this.props.caption2}</p>
       </Container>
     );
   }
