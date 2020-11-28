@@ -10,9 +10,7 @@ function App() {
   return (
     <Container class="AppContainer">
       <h1>Best Meme Generator</h1>
-      <Row>
-        <Col><FormContainer /></Col>
-      </Row>
+      <FormContainer />
     </Container>
   );
 }
