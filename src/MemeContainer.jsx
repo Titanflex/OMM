@@ -3,7 +3,7 @@ import "./css/Meme.css";
 import React, { Component } from "react";
 import meme from "./img/placeHolderMeme.jpg";
 import Container from "react-bootstrap/Container";
-import Button from "react-bootstrap/Button";
+import Button from "@material-ui/core";
 
 
 window.addEventListener('DOMContentLoaded', function () {
