@@ -3,7 +3,8 @@ import "./css/Meme.css";
 import React, { Component } from "react";
 import meme from "./img/placeHolderMeme.jpg";
 import Container from "react-bootstrap/Container";
-import Button from "@material-ui/core";
+import { Button } from '@material-ui/core';
+import Icon from '@material-ui/core/Icon';
 
 
 window.addEventListener('DOMContentLoaded', function () {
@@ -60,11 +61,11 @@ export default class MemeContainer extends Component {
     return (
       <Container >
           <div className='navigation'>
-              <Button variant = 'info' id='loadFromServer'>Ich will mehr Memes!</Button>
+              <Button variant="outlined" color="primary"  id='loadFromServer'>Ich will mehr Memes!</Button>
           </div>
           <div className='navigation'>
-              <Button id="backButton">❮</Button>
-              <Button id="nextButton">❯</Button>
+              <Button variant="outlined" color="secondary" id="backButton">❮</Button>
+              <Button variant="outlined" color="secondary" id="nextButton">❯</Button>
           </div>
 
           <div className ="memeContainer">
