@@ -1,0 +1,15 @@
+.btn-nextprev {
+    height: 2em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    background-color: rgb(0, 119, 255);
+    color: #251d1d;
+    flex: 1;
+    outline: 1px solid #293944;
+}
+
+.btn-nextprev:active:hover {
+    background-color: #EEE;
+}
