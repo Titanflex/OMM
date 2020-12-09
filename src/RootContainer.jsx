@@ -15,13 +15,17 @@ export default class RootContainer extends Component {
     };
   }
 
+  changeCaptions(upper, lower) {
+    this.setState({ caption1: upper, caption2: lower });
+  }
+
   render() {
     return (
       <Container class="AppContainer">
         <h1>Best Meme Generator</h1>
         <Row>
           <Col>
-            <MemeContainer
+            <MemeContainer changeHandler={this.changeCaptions.bind(this)}
               caption1={this.state.caption1}
               caption2={this.state.caption2}
             />
