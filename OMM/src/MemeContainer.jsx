@@ -18,19 +18,17 @@ export default class MemeContainer extends Component {
     }
 
     nextMeme = () => {
-        if (this.state.numberOfImages > 0) {
+        if (this.state.numberOfImages > 1) {
             this.setState({ currentMemeIndex: this.state.currentMemeIndex === 0 ? this.state.numberOfImages - 1 : this.state.currentMemeIndex - 1 })
+            this.props.changeHandler(this.state.memes[this.state.currentMemeIndex].upper, this.state.memes[this.state.currentMemeIndex].lower)
         }
-        console.log(this.props.caption1);
-        this.props.changeHandler(this.state.memes[this.state.currentMemeIndex].upper, this.state.memes[this.state.currentMemeIndex].lower)
     };
 
     previousMeme = () => {
-        if (this.state.numberOfImages > 0) {
+        if (this.state.numberOfImages > 1) {
             this.setState({ currentMemeIndex: this.state.currentMemeIndex === this.state.numberOfImages - 1 ? 0 : this.state.currentMemeIndex + 1 })
+            this.props.changeHandler(this.state.memes[this.state.currentMemeIndex].upper, this.state.memes[this.state.currentMemeIndex].lower)
         }
-        this.setState({ caption1: this.state.memes[this.state.currentMemeIndex].upper, caption2: this.state.memes[this.state.currentMemeIndex].lower })
-        this.props.changeHandler(this.state.memes[this.state.currentMemeIndex].upper, this.state.memes[this.state.currentMemeIndex].lower)
     };
 
     getMoreMemes = async () => {
@@ -50,7 +48,6 @@ export default class MemeContainer extends Component {
     loadMeme = async () => {
         const res = await fetch('http://localhost:3030/memeIO/get-memes');
         const json = await res.json();
-        console.log(json)
         this.setState({ numberOfImages: json.memes.length, memes: json.memes, currentMemeIndex: 0 });
     }
 
@@ -69,7 +66,6 @@ export default class MemeContainer extends Component {
         }).then(res => {
             this.loadMeme();
         })
-        console.log('save');
     }
 
     render() {
