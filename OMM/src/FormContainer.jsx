@@ -19,7 +19,7 @@ export default class FormContainer extends Component {
   render() {
     return (
       <Container>
-        <Form>
+        {/*<Form>
           <Form.Group id='captionInput'>
             <Form.Control
               type="email"
@@ -38,7 +38,7 @@ export default class FormContainer extends Component {
               }}
             />
           </Form.Group>
-        </Form>
+        </Form>*/}
       </Container>
     );
   }

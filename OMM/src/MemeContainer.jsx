@@ -11,23 +11,38 @@ export default class MemeContainer extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            upper: "",
+            lower: "",
             currentMemeIndex: 0,
             numberOfImages: 1,
             memes: []
         }
+        this.handleChangeCaption1 = this.handleChangeCaption1.bind(this);
+        this.handleChangeCaption2 = this.handleChangeCaption2.bind(this);
+    }
+
+
+    handleChangeCaption1(event) {
+        this.setState({upper: event.target.value});
+    }
+
+    handleChangeCaption2(event) {
+        this.setState({lower: event.target.value});
     }
 
     nextMeme = () => {
+        let current = this.state.currentMemeIndex
         if (this.state.numberOfImages > 1) {
-            this.setState({ currentMemeIndex: this.state.currentMemeIndex === 0 ? this.state.numberOfImages - 1 : this.state.currentMemeIndex - 1 })
-            this.props.changeHandler(this.state.memes[this.state.currentMemeIndex].upper, this.state.memes[this.state.currentMemeIndex].lower)
+            current = this.state.currentMemeIndex === this.state.numberOfImages - 1 ? 0 : this.state.currentMemeIndex + 1
+            this.setState({currentMemeIndex: current, upper: this.state.memes[current].upper, lower: this.state.memes[current].lower})
         }
     };
 
     previousMeme = () => {
+        let current = this.state.currentMemeIndex
         if (this.state.numberOfImages > 1) {
-            this.setState({ currentMemeIndex: this.state.currentMemeIndex === this.state.numberOfImages - 1 ? 0 : this.state.currentMemeIndex + 1 })
-            this.props.changeHandler(this.state.memes[this.state.currentMemeIndex].upper, this.state.memes[this.state.currentMemeIndex].lower)
+            current = this.state.currentMemeIndex === 0 ? this.state.numberOfImages-1 : this.state.currentMemeIndex - 1
+            this.setState({currentMemeIndex: current, upper: this.state.memes[current].upper, lower: this.state.memes[current].lower})
         }
     };
 
@@ -48,11 +63,12 @@ export default class MemeContainer extends Component {
     loadMeme = async () => {
         const res = await fetch('http://localhost:3030/memeIO/get-memes');
         const json = await res.json();
-        this.setState({ numberOfImages: json.memes.length, memes: json.memes, currentMemeIndex: 0 });
+        this.setState({ numberOfImages: json.memes.length, memes: json.memes, currentMemeIndex: 0, upper: json.memes[0].upper, lower: json.memes[0].lower});
+
     }
 
     saveMeme = () => {
-        fetch('http://localhost:3030/memeIO/save-meme', {
+         fetch('http://localhost:3030/memeIO/save-meme', {
             method: 'POST',
             mode: 'cors',
             headers: {
@@ -60,8 +76,8 @@ export default class MemeContainer extends Component {
             },
             body: JSON.stringify({
                 url: this.state.memes[this.state.currentMemeIndex].url,
-                upper: this.props.caption1,
-                lower: this.props.caption2
+                upper: this.state.upper,
+                lower: this.state.lower
             })
         }).then(res => {
             this.loadMeme();
@@ -78,6 +94,7 @@ export default class MemeContainer extends Component {
                 <div className='navigation'>
                     <NextPrevButton handleClick={this.previousMeme} variant="outlined" color="secondary">❮</NextPrevButton>
                     <NextPrevButton handleClick={this.nextMeme} variant="outlined" color="secondary">❯</NextPrevButton>
+
                 </div>
                 <div className='navigation'>
                     <Button onClick={this.loadMeme} variant="outlined" color="secondary">Load</Button>
@@ -85,12 +102,16 @@ export default class MemeContainer extends Component {
                 </div>
 
                 <div className="memeContainer">
-                    <p className="memeText upper" id='upper' >{this.props.caption1}</p>
+                    <textarea type = "text" className="memeText upper" placeholder="Upper text"
+                           value={this.state.upper} onChange={this.handleChangeCaption1}/>
                     <div id='memeDiv'>
                         <img src={currentMeme} alt={this.meme} />
                     </div>
-                    <p className="memeText lower" id='lower'>{this.props.caption2}</p>
+                    <textarea className="memeText lower" placeholder="Lower text"
+                           value={this.state.lower} onChange={this.handleChangeCaption2}/>
+
                 </div>
+
             </Container>
         );
     }

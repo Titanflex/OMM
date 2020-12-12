@@ -7,8 +7,16 @@ img {
 }
 
 .memeContainer {
+    width: 400px;
+    height: auto;
     position: relative;
     text-align: center;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+Container{
 
 }
 
@@ -18,16 +26,31 @@ img {
     color: white;
     font-size: 30px;
     -webkit-text-stroke: 1px black;
+    background-color: transparent;
+    border: none;
+    text-align: center;
+    resize: none;
+}
+
+.memeText:focus{
+    outline: none;
+}
+
+::placeholder{
+    color: white;
+    text-align: center;
 }
 
 .upper {
-    top: 5%;
+    width:90%;
+    top: 15%;
     left: 50%;
     transform: translate(-50%, -50%);
 }
 
 .lower {
-    bottom: -10%;
+    width: 90%;
+    bottom: -15%;
     left: 50%;
     transform: translate(-50%, -50%);
 }
@@ -39,3 +62,4 @@ img {
     padding: 10px;
     text-align: center;
 }
+
