@@ -23,33 +23,33 @@ export default class MemeContainer extends Component {
 
 
     handleChangeCaption1(event) {
-        this.setState({upper: event.target.value});
+        this.setState({ upper: event.target.value });
     }
 
     handleChangeCaption2(event) {
-        this.setState({lower: event.target.value});
+        this.setState({ lower: event.target.value });
     }
 
     nextMeme = () => {
         let current = this.state.currentMemeIndex
         if (this.state.numberOfImages > 1) {
             current = this.state.currentMemeIndex === this.state.numberOfImages - 1 ? 0 : this.state.currentMemeIndex + 1
-            this.setState({currentMemeIndex: current, upper: this.state.memes[current].upper, lower: this.state.memes[current].lower})
+            this.setState({ currentMemeIndex: current, upper: this.state.memes[current].upper, lower: this.state.memes[current].lower })
         }
     };
 
     previousMeme = () => {
         let current = this.state.currentMemeIndex
         if (this.state.numberOfImages > 1) {
-            current = this.state.currentMemeIndex === 0 ? this.state.numberOfImages-1 : this.state.currentMemeIndex - 1
-            this.setState({currentMemeIndex: current, upper: this.state.memes[current].upper, lower: this.state.memes[current].lower})
+            current = this.state.currentMemeIndex === 0 ? this.state.numberOfImages - 1 : this.state.currentMemeIndex - 1
+            this.setState({ currentMemeIndex: current, upper: this.state.memes[current].upper, lower: this.state.memes[current].lower })
         }
     };
 
     getMoreMemes = async () => {
         const res = await fetch('https://api.imgflip.com/get_memes');
         const json = await res.json();
-        this.setState({ numberOfImages: json.data.memes.length, memes: json.data.memes });
+        this.setState({ numberOfImages: json.data.memes.length, memes: json.data.memes, upper: '', lower: '' });
     };
 
     renderMeme = () => {
@@ -63,12 +63,12 @@ export default class MemeContainer extends Component {
     loadMeme = async () => {
         const res = await fetch('http://localhost:3030/memeIO/get-memes');
         const json = await res.json();
-        this.setState({ numberOfImages: json.memes.length, memes: json.memes, currentMemeIndex: 0, upper: json.memes[0].upper, lower: json.memes[0].lower});
+        this.setState({ numberOfImages: json.memes.length, memes: json.memes, currentMemeIndex: 0, upper: json.memes[0].upper, lower: json.memes[0].lower });
 
     }
 
     saveMeme = () => {
-         fetch('http://localhost:3030/memeIO/save-meme', {
+        fetch('http://localhost:3030/memeIO/save-meme', {
             method: 'POST',
             mode: 'cors',
             headers: {
@@ -102,13 +102,13 @@ export default class MemeContainer extends Component {
                 </div>
 
                 <div className="memeContainer">
-                    <textarea type = "text" className="memeText upper" placeholder="Upper text"
-                           value={this.state.upper} onChange={this.handleChangeCaption1}/>
+                    <textarea type="text" className="memeText upper" placeholder="Upper text"
+                        value={this.state.upper} onChange={this.handleChangeCaption1} />
                     <div id='memeDiv'>
                         <img src={currentMeme} alt={this.meme} />
                     </div>
                     <textarea className="memeText lower" placeholder="Lower text"
-                           value={this.state.lower} onChange={this.handleChangeCaption2}/>
+                        value={this.state.lower} onChange={this.handleChangeCaption2} />
 
                 </div>
 
