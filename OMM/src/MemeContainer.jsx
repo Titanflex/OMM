@@ -63,8 +63,8 @@ export default class MemeContainer extends Component {
     loadMeme = async () => {
         const res = await fetch('http://localhost:3030/memeIO/get-memes');
         const json = await res.json();
-        this.setState({ numberOfImages: json.memes.length, memes: json.memes, currentMemeIndex: 0, upper: json.memes[0].upper, lower: json.memes[0].lower });
-
+        this.setState({ numberOfImages: json.docs.length, memes: json.docs, currentMemeIndex: 0, upper: json.docs[0].upper, lower: json.docs[0].lower });
+        
     }
 
     saveMeme = () => {

@@ -1,6 +1,7 @@
 var express = require('express');
 var memeIO = express.Router();
 
+/*
 let memes = [{
   'upper': 'THE AMOUNT OF OMM TASKS',
   'lower': 'IS TOO DAMN HIGH',
@@ -27,10 +28,13 @@ let memes = [{
   'url': 'https://i.imgflip.com/1bip.jpg'
 }
 ]
+*/
 
 memeIO.use(function (req, res, next) {
   // Website you wish to allow to connect
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+
+  // res.setHeader('Access-Control-Allow-Origin', '*');
 
   // Request methods you wish to allow
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
@@ -47,13 +51,28 @@ memeIO.use(function (req, res, next) {
 });
 
 /* GET home page. */
+/*
 memeIO.get("/get-memes", (req, res) => {
   res.json({
     code: 200,
     memes
   })
 });
+*/
 
+memeIO.get('/get-memes', (req, res) => {
+  let db = req.db;
+  let memeData = db.get('memes');
+
+  memeData.find()
+    .then((docs) => res.json({ code: 200, docs }))
+    .catch((e) => res.status(500).send())
+
+});
+
+
+
+/*
 memeIO.post("/save-meme", (req, res) => {
   const meme = req.body;
   memes.push(meme);
@@ -61,6 +80,33 @@ memeIO.post("/save-meme", (req, res) => {
     code: 201,
     message: 'saved'
   })
+});
+*/
+
+
+
+memeIO.post("/save-meme", (req, res) => {
+  let db = req.db;
+  let memeData = db.get('memes');
+  let meme = {
+    upper: req.body.upper,
+    lower: req.body.lower,
+    url: req.body.url
+  };
+
+  memeData.insert(meme)
+    .then((docs) => {
+      // docs contains the documents inserted with added **_id** fields
+      // Inserted 3 documents into the document collection
+    }).catch((err) => {
+      // An error happened while inserting
+    })
+
+  res.json({
+    code: 201,
+    message: 'saved'
+  })
+
 });
 
 module.exports = memeIO;

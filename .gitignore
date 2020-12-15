@@ -24,3 +24,5 @@ yarn-debug.log*
 yarn-error.log*
 .eslintcache
 .idea/
+node_modules/.bin/acorn
+node_modules
