@@ -7,7 +7,6 @@ import SaveIcon from "@material-ui/icons/Save";
 import LoadIcon from "@material-ui/icons/Refresh";
 import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
-import ConfirmationPopUp from "./ConfirmationPopUp"
 
 import "./../../css/MemeCreator/memeCreator.css";
 
