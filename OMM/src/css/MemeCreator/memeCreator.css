@@ -1,23 +1,21 @@
 img {
-    width: 400px;
+    width: 350px;
     height: auto;
     display: block;
-    margin-left: auto;
-    margin-right: auto;
+}
+
+.memeCreatorContainer {
+    margin-top: 64px;
 }
 
 .memeContainer {
-    width: 400px;
+    width: 350px;
     height: auto;
     position: relative;
     text-align: center;
     display: block;
     margin-left: auto;
     margin-right: auto;
-}
-
-Container{
-
 }
 
 .memeText {
@@ -32,17 +30,17 @@ Container{
     resize: none;
 }
 
-.memeText:focus{
+.memeText:focus {
     outline: none;
 }
 
-::placeholder{
+::placeholder {
     color: white;
     text-align: center;
 }
 
 .upper {
-    width:90%;
+    width: 90%;
     top: 15%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -55,11 +53,14 @@ Container{
     transform: translate(-50%, -50%);
 }
 
-.navigation{
-    display: flex;
-    margin: auto;
-    width: 50%;
-    padding: 10px;
-    text-align: center;
+.saveButton {
+    margin-left: 16px;
 }
 
+.dataBaseControls {
+    margin-top: 100%;
+}
+
+.MuiButton-containedSecondary {
+    margin-left: 16px !important;
+}
