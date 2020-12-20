@@ -12,7 +12,7 @@
 
 ### DataBase
 
-- create MongoDB dataBase 'memes' locally with "use meme"
+- create MongoDB database 'memes' locally with "use memes"
 
 
 You will need `node` and `npm` installed globally on your machine. 
