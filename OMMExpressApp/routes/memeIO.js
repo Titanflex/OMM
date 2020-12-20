@@ -50,15 +50,6 @@ memeIO.use(function (req, res, next) {
   next();
 });
 
-/* GET home page. */
-/*
-memeIO.get("/get-memes", (req, res) => {
-  res.json({
-    code: 200,
-    memes
-  })
-});
-*/
 
 memeIO.get('/get-memes', (req, res) => {
   let db = req.db;
@@ -69,19 +60,6 @@ memeIO.get('/get-memes', (req, res) => {
     .catch((e) => res.status(500).send())
 
 });
-
-
-
-/*
-memeIO.post("/save-meme", (req, res) => {
-  const meme = req.body;
-  memes.push(meme);
-  res.json({
-    code: 201,
-    message: 'saved'
-  })
-});
-*/
 
 
 
