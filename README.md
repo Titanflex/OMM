@@ -1,6 +1,6 @@
 # Online Multimedia Group Project: Meme Generator
 
-# Team Members
+## Team Members
 
 - Mari Kruse
 - Vera Volk
@@ -13,6 +13,7 @@
 ### DataBase
 
 - create MongoDB dataBase 'memes' locally with "use meme"
+
 
 You will need `node` and `npm` installed globally on your machine. 
 
