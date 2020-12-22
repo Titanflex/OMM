@@ -7,6 +7,7 @@ import SaveIcon from "@material-ui/icons/Save";
 import LoadIcon from "@material-ui/icons/Refresh";
 import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
+import ImageSelection from "../ImageSelection/ImageSelection";
 
 import "./../../css/MemeCreator/memeCreator.css";
 
@@ -15,6 +16,7 @@ function MemeCreator() {
   const [lower, setLower] = useState("");
   const [memes, setMemes] = useState([{url: "https://image.stern.de/7528150/t/sU/v3/w1440/r0/-/harold-hide-the-pain-meme-09.jpg"}]);
   const [currentMemeIndex, setCurrentMemeIndex] = useState(0);
+
 
   function nextMeme() {
     let current = currentMemeIndex;
@@ -37,16 +39,6 @@ function MemeCreator() {
         setCurrentMemeIndex(current);
     }
   }
-
-  async function getMoreMemes() {
-    const res = await fetch("https://api.imgflip.com/get_memes");
-    const json = await res.json();
-    console.log(json.data.memes);
-    setUpper("");
-    setLower("");
-    setMemes(json.data.memes);
-  }
-
 
   async function loadMeme() {
     const res = await fetch("http://localhost:3030/memeIO/get-memes");
@@ -76,6 +68,7 @@ function MemeCreator() {
 
   return (
     <Container className = "memeCreatorContainer" >
+
     <Grid container spacing={1}>
       <Grid item s={1}  alignItems="center">
         <IconButton onClick={previousMeme} aria-label="previous">
@@ -111,15 +104,8 @@ function MemeCreator() {
         </IconButton>
       </Grid>
       <Grid item s={4}>
-        <Button
-          className = "classes.buttonStyle"
-          variant="contained"
-          onClick={() => getMoreMemes()}
-          color="secondary"
-          s
-        >
-          Ich will mehr Memes!
-        </Button>
+
+        <ImageSelection setMemes={setMemes} setUpper={setUpper} setLower={setLower} />
         <div className = "dataBaseControls">
         <Button
           className = "classes.buttonStyle"
