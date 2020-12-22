@@ -6,6 +6,7 @@ import TextField from "@material-ui/core/TextField";
 import CameraIcon from "@material-ui/icons/Camera";
 import {CloudDownload, FolderOpen, Gesture} from "@material-ui/icons";
 
+
 import "./../../css/ImageSelection/imageSelection.css";
 
 
@@ -45,15 +46,45 @@ const ImageSelection = params => {
   };
 
   const [url, setUrl] = useState((''));
+
+  /*const handleUpload = (event) =>{
+    let file = event.target.files[0];
+    let reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      setUrl(reader.result)
+      console.log(url);
+      params.setMemes([{url: url}]);
+      handleClose();
+    }
+    reader.onerror = function (error) {
+      console.log('Error: ', error);
+    }
+  }*/
+
+  function handleUpload() {
+    fetch("http://localhost:3030/memeIO/upload", {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }).then((res) => {
+      console.log(res);
+      //TODO implement upload
+      console.log('not working yet')
+    });
+  }
+
   const handleChange = ({target}) => {
     setUrl((prev) => target.value);
   }
   const handleSubmit = (event) =>{
-    console.log(`Pressed keyCode ${event.key}`);
     if (event.key === 'Enter') {
       params.setMemes([{url: url}]);
+      console.log(url);
       event.preventDefault();
-      handleClose();
+      handleClose()
     }
   }
 
@@ -81,16 +112,13 @@ const ImageSelection = params => {
        aria-describedby="simple-modal-description">
      <div style={modalStyle} className={classes.paper}>
        <h2 id="simple-modal-title">Select your image</h2>
-       <Button
-           className = "classes.buttonStyle modal"
-           startIcon={<FolderOpen />}
-           variant="contained"
-           //onClick={loadMeme}
-           color="secondary"
-           disabled
-       >
-         Upload own pictures
-       </Button>
+       <label htmlFor="fileUploaded" className="custom-file-upload" color="secondary">
+         <FolderOpen /> upload your own
+       </label>
+       <input id="fileUploaded" type="file" name="sampleFile" onChange={handleUpload}/>
+
+
+
        <Button
            className = "classes.buttonStyle modal"
            startIcon={<CloudDownload />}
@@ -120,11 +148,13 @@ const ImageSelection = params => {
        >
          Draw your own
        </Button>
-
-       <TextField name="url" className ="modal" id="standard-basic" label="Load Image from URL" onChange={handleChange} onKeyPress={handleSubmit}/>
-
-
-
+       <TextField
+           name="url"
+           className ="modal"
+           id="standard-basic"
+           label="Load Image from URL"
+           onChange={handleChange}
+           onKeyPress={handleSubmit}/>
      </div>
    </Modal>
       </div>

@@ -1,6 +1,9 @@
 var express = require('express');
 var memeIO = express.Router();
 
+const fileUpload = require('express-fileupload')
+memeIO.use(fileUpload());
+
 /*
 let memes = [{
   'upper': 'THE AMOUNT OF OMM TASKS',
@@ -51,6 +54,7 @@ memeIO.use(function (req, res, next) {
 });
 
 
+
 memeIO.get('/get-memes', (req, res) => {
   let db = req.db;
   let memeData = db.get('memes');
@@ -60,6 +64,27 @@ memeIO.get('/get-memes', (req, res) => {
     .catch((e) => res.status(500).send())
 
 });
+
+memeIO.post('/upload', (req, res) =>{
+  console.log(req);
+  if (!req.files || Object.keys(req.files).length === 0) {
+    return res.status(400).send('No files were uploaded.');
+  }
+
+  // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
+  let sampleFile = req.files.sampleFile;
+  const fileName = req.files.sampleFile.name;
+  const path =__dirname + '/public/uploadedImages/' + fileName;
+
+  // Use the mv() method to place the file somewhere on your server
+  sampleFile.mv(path, function(err) {
+    if (err)
+      return res.status(500).send(err);
+
+    res.send('File uploaded!');
+  });
+});
+
 
 
 
@@ -71,6 +96,7 @@ memeIO.post("/save-meme", (req, res) => {
     lower: req.body.lower,
     url: req.body.url
   };
+
 
   memeData.insert(meme)
     .then((docs) => {
