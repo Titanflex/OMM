@@ -48,4 +48,15 @@ To Visit App:
 
 `localhost:3000`  
 
-
+## Implemented Features
+| Feature  | Status |Points|
+| -------------- | -------------------- |-----|
+|Provide images stored locally on the server AND uploaded by the user|in progress|1|
+|Provide images downloaded from ImgFlip API|done|1|
+|Display available images/options to the user (slide show)|done|1|
+||||
+|Show the current state of the meme to th user|done|1|
+|Provide two text inputs for top and bottom and corresponding coordinate fields to adjust the position. Additionally one textbox for an image title|in progress|1|
+|Next / Previous button to cycle through templates (keep other settings, e.g. already entered text)|done|1|
+||||
+| |  sum |6 |
