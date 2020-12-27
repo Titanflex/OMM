@@ -10,6 +10,28 @@ const theme = createMuiTheme({
             main: "#333333" // Grey
         }
     },
+    typography: {
+        h3: {
+            color: "#FFFF"
+        },
+        h6: {
+            color: "#FFFF"
+        },
+        subtitle1: {
+            color: "#FFFF",
+        },
+        h4: {
+            textAlign: 'center'
+        }
+    },
+    overrides: {
+        MuiButton: {
+            raisedPrimary: {
+                color: 'white',
+            },
+        },
+    }
 });
+
 
 export default theme

@@ -10,7 +10,6 @@ import {CloudDownload, FolderOpen, Gesture} from "@material-ui/icons";
 import "./../../css/ImageSelection/imageSelection.css";
 
 
-
 function getModalStyle() {
   const top = 50;
   const left = 50;
