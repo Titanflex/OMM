@@ -1,37 +1,12 @@
 var express = require('express');
 var memeIO = express.Router();
 
-const fileUpload = require('express-fileupload')
-memeIO.use(fileUpload());
+const mongoose = require('mongoose');
+const Meme = require('../models/memeSchema');
 
-/*
-let memes = [{
-  'upper': 'THE AMOUNT OF OMM TASKS',
-  'lower': 'IS TOO DAMN HIGH',
-  'url': 'https://i.imgflip.com/1bik.jpg'
-},
-{
-  'upper': 'LOOK AT ME',
-  'lower': 'IM THE OMM TUTOR NOW',
-  'url': 'https://i.imgflip.com/hlmst.jpg'
-},
-{
-  'upper': 'WE JUST TAKE THE GET REQUEST',
-  'lower': 'AND PUSH IT ELSEWHERE',
-  'url': 'https://i.imgflip.com/1bil.jpg'
-},
-{
-  'upper': 'WHEN YOU SAY YOU ARE GOOD AT PROGRAMMING',
-  'lower': 'BUT JUST COPY EVERYTHING FROM THE WEB',
-  'url': 'https://i.imgflip.com/jrj7.jpg'
-},
-{
-  'upper': 'CODES A BEAUTIFUL OMM EXERCISE',
-  'lower': '"UNI2WORK IS NOT AVAILABLE AT THE MOMENT"',
-  'url': 'https://i.imgflip.com/1bip.jpg'
-}
-]
-*/
+const fileUpload = require('express-fileupload');
+const { default: MemeCreator } = require('../../OMM/src/components/MemeCreator/MemeCreator');
+memeIO.use(fileUpload());
 
 memeIO.use(function (req, res, next) {
   // Website you wish to allow to connect
@@ -56,16 +31,17 @@ memeIO.use(function (req, res, next) {
 
 
 memeIO.get('/get-memes', (req, res) => {
-  let db = req.db;
-  let memeData = db.get('memes');
 
-  memeData.find()
-    .then((docs) => res.json({ code: 200, docs }))
-    .catch((e) => res.status(500).send())
+  Meme.find({}, function (err, docs) {
+    if (err)
+      return res.status(500).send(err);
+
+    res.json({ code: 200, docs })
+  })
 
 });
 
-memeIO.post('/upload', (req, res) =>{
+memeIO.post('/upload', (req, res) => {
   console.log(req);
   if (!req.files || Object.keys(req.files).length === 0) {
     return res.status(400).send('No files were uploaded.');
@@ -74,10 +50,10 @@ memeIO.post('/upload', (req, res) =>{
   // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
   let sampleFile = req.files.sampleFile;
   const fileName = req.files.sampleFile.name;
-  const path =__dirname + '/public/uploadedImages/' + fileName;
+  const path = __dirname + '/public/uploadedImages/' + fileName;
 
   // Use the mv() method to place the file somewhere on your server
-  sampleFile.mv(path, function(err) {
+  sampleFile.mv(path, function (err) {
     if (err)
       return res.status(500).send(err);
 
@@ -89,22 +65,14 @@ memeIO.post('/upload', (req, res) =>{
 
 
 memeIO.post("/save-meme", (req, res) => {
-  let db = req.db;
-  let memeData = db.get('memes');
-  let meme = {
+
+  const newMeme = Meme.create({
     upper: req.body.upper,
     lower: req.body.lower,
     url: req.body.url
-  };
-
-
-  memeData.insert(meme)
-    .then((docs) => {
-      // docs contains the documents inserted with added **_id** fields
-      // Inserted 3 documents into the document collection
-    }).catch((err) => {
-      // An error happened while inserting
-    })
+  }).catch((err) => {
+    // An error happened while inserting
+  });
 
   res.json({
     code: 201,

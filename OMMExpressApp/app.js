@@ -3,8 +3,16 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-const db = require('monk')('localhost/memes');
 const fileUpload = require('express-fileupload')
+
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/memes', { useNewUrlParser: true });
+
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function () {
+  // we're connected!
+});
 
 
 var indexRouter = require('./routes/index');
@@ -23,11 +31,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(fileUpload())
-
-app.use(function (req, res, next) {
-  req.db = db;
-  next();
-});
 
 
 app.use('/', indexRouter);

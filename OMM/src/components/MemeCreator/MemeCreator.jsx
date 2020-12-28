@@ -67,7 +67,7 @@ function MemeCreator() {
   }
 
   return (
-    <Container className = "memeCreatorContainer" >
+      <Container className = "memeCreatorContainer" >
 
     <Grid container spacing={1}>
       <Grid item s={1}  alignItems="center">

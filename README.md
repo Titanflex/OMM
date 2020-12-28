@@ -11,8 +11,9 @@
 ## Installation and SetUp Instructions
 
 ### DataBase
-
-- create MongoDB database 'memes' locally with "use memes"
+- start mongod
+- start mongo
+- if not done so, create MongoDB database 'memes' locally with "use memes"
 - in the folder "dump" you can find the meme database. 
     - Please restore the database on your machine with "mongorestore --nsInclude 'memes.*' --drop C:\Users\Mari\Documents\Studium\Master\OMM\OMM\dump". 
     - When updating the database use "mongodump --db DataBaseName" and put it to the shared folder.
