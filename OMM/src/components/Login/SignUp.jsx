@@ -61,7 +61,7 @@ export default function SignUp() {
   return (
     <div className="signing-container">
       <Typography className={classes.spacing} variant="h4">
-        Sign Up
+      Create Account
       </Typography>
       <form>
         <TextField
