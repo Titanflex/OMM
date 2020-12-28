@@ -32,13 +32,13 @@ function MemeView() {
 
             <Grid container spacing={2}>
                 <Grid item xs>
-                    <ButtonBase id="memeDiv">
+                    <ButtonBase id="memeViewDiv">
                         <Typography variant="body1"
                             className="memeText upper"
                             placeholder="Upper text"
                             value={upper}
                         />
-                        <img className="memeImg" alt="complex" src={memes[currentMemeIndex].url} />
+                        <img className="memeViewImg" alt="complex" src={memes[currentMemeIndex].url} />
                         <Typography variant="body1"
                             className="memeText lower"
                             placeholder="Lower text"

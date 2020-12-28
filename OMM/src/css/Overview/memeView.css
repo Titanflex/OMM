@@ -2,7 +2,7 @@
     margin: 10px;
 }
 
-#memeDiv {
+#memeViewDiv {
     width: auto;
     max-width: 450px;
     height: auto;
@@ -11,7 +11,7 @@
     
 }
 
-.memeImg {
+.memeViewImg {
     margin: auto;
     display: block;
     width: 100%;
