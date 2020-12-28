@@ -119,7 +119,7 @@ export default function SignUp() {
           />
         </FormControl>
         <Button fullWidth variant="contained" color="primary" onClick={signUp}>
-          Create Account
+          Sign Up
         </Button>
       </form>
     </div>

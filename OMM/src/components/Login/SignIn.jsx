@@ -91,7 +91,7 @@ export default function SignIn() {
           Login
         </Button>
         <Button className={classes.spacing} fullWidth color="primary" >
-          Reset Password
+          Passwort vergessen?
         </Button>
       </form>
     </div>

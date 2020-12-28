@@ -37,7 +37,7 @@ const LoginContainer = () => {
         ) : (
           <LeftSideComponent
             handleClick={handleChangeSigning}
-            subtitle="Already have an account?"
+            subtitle="Do you already have an account?"
             button="Sign In"
           />
         )}
