@@ -21,7 +21,7 @@ img {
 .memeText {
     position: absolute;
     font-family: Impact;
-    color: white;
+   -webkit-text-fill-color: white;
     font-size: 30px;
     -webkit-text-stroke: 1px black;
     background-color: transparent;
@@ -59,4 +59,21 @@ img {
 
 .dataBaseControls {
     margin-top: 100%;
+}
+
+.arrows{
+    margin-top: 200% !important;
+}
+
+.textFormatButton{
+    margin-bottom: 5px !important;
+}
+
+.textFormatButton:focus{
+    outline: none;
+}
+
+.textFormatSelect{
+    margin-left: 10px !important;
+    margin-top: 5px !important;
 }
