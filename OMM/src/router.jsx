@@ -1,5 +1,6 @@
 import React from "react";
 import Home from "./Home";
+import Overview from "./Overview";
 import LoginContainer from "./components/Login/LoginContainer";
 
 // all the routes and the corresponding components are defined here
@@ -7,6 +8,7 @@ import LoginContainer from "./components/Login/LoginContainer";
 const routes = {
   "/": () => <LoginContainer />,
   "/home": () => <Home />,
+  "/overview": () => <Overview />,
 };
 
 export default routes;
