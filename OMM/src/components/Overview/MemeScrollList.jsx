@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
     Grid,
     Container,
@@ -9,9 +9,7 @@ import Searchbar from "./Searchbar";
 
 function MemeScrollList() {
 
-    const [memes, setMemes] = useState([{ url: "https://image.stern.de/7528150/t/sU/v3/w1440/r0/-/harold-hide-the-pain-meme-09.jpg" }]);
-    const [currentMemeIndex, setCurrentMemeIndex] = useState(0);
-
+    const [memes, setMemes] = useState([{ url: null }]);
 
     async function loadMeme() {
         const res = await fetch("http://localhost:3030/memeIO/get-memes");
@@ -19,6 +17,29 @@ function MemeScrollList() {
         setMemes(json.docs);
     }
 
+    const useComponentWillMount = () => {
+        const willMount = useRef(true);
+        if (willMount.current) {
+            loadMeme();
+        }
+        useComponentDidMount(() => {
+            willMount.current = false;
+        });
+    };
+
+    const useComponentDidMount = func => useEffect(func, []);
+
+    const ListMemes = ({ listmemes }) => (
+        <Grid container spacing={1}>
+            {
+                listmemes.map(meme => (
+                    <MemeView memeInfo={meme} key={meme.id} />
+                ))}
+        </Grid>
+    );
+
+    useComponentWillMount(() => console.log("Runs only once before component mounts"));
+    useComponentDidMount(() => console.log("didMount"));
 
     return (
         <Container className="memeScrollListContainer" >
@@ -29,13 +50,13 @@ function MemeScrollList() {
                 <Grid item xs></Grid>
             </Grid>
             <Grid container spacing={1}>
-                <MemeView />
-            </Grid>
-            <Grid container spacing={1}>
-                <MemeView />
+                <ListMemes listmemes={memes} />
             </Grid>
         </Container>
     );
 }
+
+
+
 
 export default MemeScrollList;

@@ -13,15 +13,15 @@ import {
     Share,
 } from "@material-ui/icons";
 
-
 import "./../../css/Overview/memeView.css";
 
-function MemeView() {
 
-    const [upper, setUpper] = useState("hallo");
-    const [lower, setLower] = useState("hi");
-    const [memes, setMemes] = useState([{ url: "https://image.stern.de/7528150/t/sU/v3/w1440/r0/-/harold-hide-the-pain-meme-09.jpg" }]);
-    const [currentMemeIndex, setCurrentMemeIndex] = useState(0);
+const MemeView = props => {
+
+    const [memeInfo, setMemeInfo] = useState(props.memeInfo);
+    const [likes, setLikes] = useState(2);
+    const [comments, setComments] = useState([{ comment: "jjkdfhkjh" }]);
+
 
     function likeMeme() {
 
@@ -36,13 +36,13 @@ function MemeView() {
                         <Typography variant="body1"
                             className="memeText upper"
                             placeholder="Upper text"
-                            value={upper}
+                            value={memeInfo.upper}
                         />
-                        <img className="memeViewImg" alt="complex" src={memes[currentMemeIndex].url} />
+                        <img className="memeViewImg" alt="complex" src={memeInfo.url} />
                         <Typography variant="body1"
                             className="memeText lower"
                             placeholder="Lower text"
-                            value={lower}
+                            value={memeInfo.lower}
                         />
 
                     </ButtonBase>
@@ -51,8 +51,8 @@ function MemeView() {
                     <Grid item xs>
                         <div className="memeInfo">
                             <Typography gutterBottom variant="h6" id="meme-title">
-                                MemeTitle
-                        </Typography>
+                                {memeInfo.lower}
+                            </Typography>
                             <Typography gutterBottom variant="body1">
                                 Author: TabBle
                         </Typography>
@@ -60,11 +60,11 @@ function MemeView() {
                                 Created: 23.12.2020
                         </Typography>
                             <Typography variant="body2">
-                                Likes: 234
-                        </Typography>
+                                Likes: {likes}
+                            </Typography>
                             <Typography variant="body2">
-                                Comments: 47
-                        </Typography>
+                                Comments: 7
+                            </Typography>
                         </div>
                     </Grid>
                     <Grid>
