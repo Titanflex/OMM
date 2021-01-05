@@ -54,7 +54,7 @@ const MemeView = props => {
                                 {memeInfo.lower}
                             </Typography>
                             <Typography gutterBottom variant="body1">
-                                Author: TabBle
+                                Author: OMMTutor1
                         </Typography>
                             <Typography variant="body2">
                                 Created: 23.12.2020
