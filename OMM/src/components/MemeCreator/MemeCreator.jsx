@@ -22,7 +22,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 function MemeCreator() {
     const [upper, setUpper] = useState("");
     const [lower, setLower] = useState("");
-    const [memes, setMemes] = useState([{ url: "https://image.stern.de/7528150/t/sU/v3/w1440/r0/-/harold-hide-the-pain-meme-09.jpg" }]);
+    const [memes, setMemes] = useState([{ url: "https://image.stern.de/7528150/t/sU/v3/w1440/r0/-/harold-hide-the-pain-meme-09.jpg", name: "Hide the pain Harold" }]);
     const [currentMemeIndex, setCurrentMemeIndex] = useState(0);
     const [bold, setBold] = useState(false);
     const [italic, setItalic] = useState(false);
@@ -190,7 +190,7 @@ function MemeCreator() {
 
 
                     <ImageSelection setMemes={setMemes} setUpper={setUpper} setLower={setLower} />
-                    <TemplateOverview />
+                    <TemplateOverview memeTemplates={memes} setCurrentMemeIndex={setCurrentMemeIndex} />
                     <TextField
                         id="standard-basic"
                         label="Meme Title"
