@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from "@material-ui/core/Button";
@@ -35,8 +35,9 @@ const ImageSelection = params => {
   const [modalStyle] = React.useState(getModalStyle);
   const [open, setOpen] = React.useState(false);
 
+  const fileField = useRef(null);
+
   const handleOpen = () => {
-    console.log('open');
     setOpen(true);
   };
 
@@ -61,17 +62,24 @@ const ImageSelection = params => {
     }
   }*/
 
-  function handleUpload() {
-    fetch("http://localhost:3030/memeIO/upload", {
+  async function handleUpload(event) {
+      const files = Array.from(event.target.files);
+    //console.log("files:", files[0].name)
+    const input = document.getElementById('fileUploaded');
+
+    //const file = fileField.files[0];
+    const formData = new FormData();
+    formData.append(files[0].name, event.target.files[0]);
+    //console.log(formData);
+    await fetch("http://localhost:3030/memeIO/upload", {
       method: "POST",
       mode: "cors",
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+      headers: {"Content-Type": "multipart/form-data"},
+      body: formData,
     }).then((res) => {
-      console.log(res);
+      //console.log(res.body);
       //TODO implement upload
-      console.log('not working yet')
+      //console.log('not working yet')
     });
   }
 
@@ -81,7 +89,7 @@ const ImageSelection = params => {
   const handleSubmit = (event) =>{
     if (event.key === 'Enter') {
       params.setMemes([{url: url}]);
-      console.log(url);
+      //console.log(url);
       event.preventDefault();
       handleClose()
     }
@@ -90,7 +98,6 @@ const ImageSelection = params => {
   async function getMoreMemes() {
     const res = await fetch("https://api.imgflip.com/get_memes");
     const json = await res.json();
-    console.log(json.data.memes);
     params.setMemes(json.data.memes);
     handleClose();
   }
@@ -109,15 +116,14 @@ const ImageSelection = params => {
        onClose={handleClose}
        aria-labelledby="simple-modal-title"
        aria-describedby="simple-modal-description">
+
+
      <div style={modalStyle} className={classes.paper}>
        <h2 id="simple-modal-title">Select your image</h2>
        <label htmlFor="fileUploaded" className="custom-file-upload" color="secondary">
          <FolderOpen /> upload your own
        </label>
-       <input id="fileUploaded" type="file" name="sampleFile" onChange={handleUpload}/>
-
-
-
+       <input  id="fileUploaded" type="file" name="sampleFile" onChange={handleUpload}/>
        <Button
            className = "classes.buttonStyle modal"
            startIcon={<CloudDownload />}

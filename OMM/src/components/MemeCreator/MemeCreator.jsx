@@ -12,7 +12,7 @@ import ImageSelection from "../ImageSelection/ImageSelection";
 
 import "./../../css/MemeCreator/memeCreator.css";
 import TextField from "@material-ui/core/TextField";
-import {FormatBold, FormatColorText, FormatSize, FormatItalic} from "@material-ui/icons";
+import {FormatBold, FormatItalic} from "@material-ui/icons";
 import {makeStyles} from "@material-ui/core";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
@@ -99,7 +99,7 @@ function MemeCreator() {
     function toggleItalic() {
         italic ? setItalic(false) : setItalic(true)
     }
-    
+
     const changeTextColor = (event) => {
         setColor(event.target.value);
     }
@@ -156,15 +156,13 @@ function MemeCreator() {
                         </Select>
                     </FormControl>
                     <div className="memeContainer">
-                        <div>
-             <textarea
-                 type="text"
-                 className={classes.textFormat + " memeText " + " upper "}
-                 placeholder="Upper text"
-                 value={upper}
-                 onChange={(event) => setUpper(event.target.value)}
-             />
-                        </div>
+                         <textarea
+                             type="text"
+                             className={classes.textFormat + " memeText " + " upper "}
+                             placeholder="Upper text"
+                             value={upper}
+                             onChange={(event) => setUpper(event.target.value)}
+                         />
                         <div id="memeDiv">
                             <img
                                 src={memes[currentMemeIndex].url}
