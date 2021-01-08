@@ -5,46 +5,47 @@ const mongoose = require('mongoose');
 const Meme = require('../models/memeSchema');
 
 const fileUpload = require('express-fileupload');
-var multer = require('multer');
-const upload = multer();
-//const { default: MemeCreator } = require('../../OMM/src/components/MemeCreator/MemeCreator');
 
-memeIO.use(function (req, res, next) {
-  // Website you wish to allow to connect
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+memeIO.use(fileUpload());
 
-  // res.setHeader('Access-Control-Allow-Origin', '*');
 
-  // Request methods you wish to allow
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+memeIO.use(function(req, res, next) {
+    // Website you wish to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
 
-  // Request headers you wish to allow
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    // res.setHeader('Access-Control-Allow-Origin', '*');
 
-  // Set to true if you need the website to include cookies in the requests sent
-  // to the API (e.g. in case you use sessions)
-  res.setHeader('Access-Control-Allow-Credentials', true);
+    // Request methods you wish to allow
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
-  // Pass to next layer of middleware
-  next();
+    // Request headers you wish to allow
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+    // Set to true if you need the website to include cookies in the requests sent
+    // to the API (e.g. in case you use sessions)
+    res.setHeader('Access-Control-Allow-Credentials', true);
+
+    // Pass to next layer of middleware
+    next();
 });
 
 
 
 memeIO.get('/get-memes', (req, res) => {
 
-  Meme.find({}, function (err, docs) {
-    if (err)
-      return res.status(500).send(err);
+    Meme.find({}, function(err, docs) {
+        if (err)
+            return res.status(500).send(err);
 
-    res.json({ code: 200, docs })
-  })
+        res.json({ code: 200, docs })
+    })
 
 });
 memeIO.use(fileUpload());
 memeIO.use(upload.array());
 
 memeIO.post('/upload', (req, res) => {
+
   console.log(req.files);
   if (!req.files || Object.keys(req.files).length === 0) {
     return res.status(400).send('No files were uploaded.');
@@ -66,6 +67,7 @@ memeIO.post('/upload', (req, res) => {
 
     res.send('File uploaded!');
   });
+
 });
 
 
@@ -73,18 +75,18 @@ memeIO.post('/upload', (req, res) => {
 
 memeIO.post("/save-meme", (req, res) => {
 
-  const newMeme = Meme.create({
-    upper: req.body.upper,
-    lower: req.body.lower,
-    url: req.body.url
-  }).catch((err) => {
-    // An error happened while inserting
-  });
+    const newMeme = Meme.create({
+        upper: req.body.upper,
+        lower: req.body.lower,
+        url: req.body.url
+    }).catch((err) => {
+        // An error happened while inserting
+    });
 
-  res.json({
-    code: 201,
-    message: 'saved'
-  })
+    res.json({
+        code: 201,
+        message: 'saved'
+    })
 
 });
 
