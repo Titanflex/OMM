@@ -10,15 +10,14 @@ const User = require('../models/userSchema')
 /* POST /users */
 /* Register new user */
 router.post('/', (req, res, next) => {
-    const { name, email, password } = req.body;
+    const { name, password } = req.body;
 
-    User.findOne({ email })
+    User.findOne({ name })
         .then(user => {
             if (user) return res.status(400).json({ msg: 'User already exists' });
 
             const newUser = new User({
                 name,
-                email,
                 password
             });
 
@@ -40,8 +39,7 @@ router.post('/', (req, res, next) => {
                                     token,
                                     user: {
                                         id: user.id,
-                                        name: user.name,
-                                        email: user.email
+                                        name: user.name
                                     }
                                 });
                             })

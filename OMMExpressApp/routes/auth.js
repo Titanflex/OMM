@@ -10,7 +10,7 @@ const User = require('../models/userSchema')
 
 /* POST /auth */
 /* Authenticate the User */
-router.post('/', (req, res, next) => {
+router.post('/login', (req, res, next) => {
     const { name, password } = req.body;
 
     User.findOne({ name })
@@ -31,7 +31,6 @@ router.post('/', (req, res, next) => {
                             user: {
                                 id: user.id,
                                 name: user.name,
-                                email: user.email
                             }
                         });
                     })

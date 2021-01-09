@@ -6,7 +6,7 @@ var logger = require('morgan');
 const fileUpload = require('express-fileupload')
 
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/memes', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb://localhost/', { useNewUrlParser: true, useUnifiedTopology: true });
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));

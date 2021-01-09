@@ -1,7 +1,7 @@
 import React from "react";
 import Home from "./Home";
 import Overview from "./Overview";
-import LoginContainer from "./components/Login/LoginContainer";
+import LoginContainer from "./components/Authentication/LoginContainer";
 
 // all the routes and the corresponding components are defined here
 

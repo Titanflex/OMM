@@ -10,6 +10,7 @@
     "@testing-library/user-event": "^12.2.2",
     "antd": "^4.9.1",
     "bootstrap": "^4.5.3",
+    "cors": "^2.8.5",
     "hookrouter": "^1.2.5",
     "mongoose": "^5.11.8",
     "react": "^17.0.1",

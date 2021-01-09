@@ -12,9 +12,7 @@ import {
 } from "@material-ui/core";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
-import { navigate } from "hookrouter";
-import { useHistory } from "react-router-dom";
-
+import AuthService from "../../services/auth.service";
 
 const useStyles = makeStyles((theme) => ({
   spacing: {
@@ -24,11 +22,10 @@ const useStyles = makeStyles((theme) => ({
 
 
 export default function SignUp() {
-  const history = useHistory();
   const classes = useStyles();
 
   const [values, setValues] = useState({
-    email: "",
+    name: "",
     password: "",
     password2: "",
     weight: "",
@@ -54,8 +51,8 @@ export default function SignUp() {
   };
 
   const signUp = () => {
-    navigate("/home", true);
-    window.location.reload();
+    AuthService.register(values.name, values.password).then(() => {
+    })
   };
 
   return (
@@ -66,8 +63,8 @@ export default function SignUp() {
       <form>
         <TextField
           className={classes.spacing}
-          id="email"
-          label="E-Mail"
+          id="name"
+          label="Name"
           placeholder=""
           helperText=""
           fullWidth

@@ -1,11 +1,11 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core';
-import { Container, AppBar, Toolbar, Typography, List, ListItem, ListItemText } from "@material-ui/core"
+import { AppBar, Toolbar, Typography, List, ListItem, ListItemText } from "@material-ui/core"
 import { navigate } from "hookrouter";
 
 const navLinks = [
-  { title: 'overview', path: '/overview' },
-  { title: 'generator', path: '/home' },
+  { title: 'overview', path: 'overview' },
+  { title: 'generator', path: '' },
 ]
 const useStyles = makeStyles({
   navbarDisplayFlex: {
