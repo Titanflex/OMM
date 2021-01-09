@@ -1,10 +1,12 @@
-import React, {useState} from 'react';
+
+import React, { useState, useRef } from 'react';
+
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import CameraIcon from "@material-ui/icons/Camera";
-import {CloudDownload, FolderOpen, Gesture} from "@material-ui/icons";
+import { CloudDownload, FolderOpen, Gesture } from "@material-ui/icons";
 
 
 import "./../../css/ImageSelection/imageSelection.css";
@@ -35,8 +37,9 @@ const ImageSelection = params => {
   const [modalStyle] = React.useState(getModalStyle);
   const [open, setOpen] = React.useState(false);
 
+  const fileField = useRef(null);
+
   const handleOpen = () => {
-    console.log('open');
     setOpen(true);
   };
 
@@ -61,27 +64,34 @@ const ImageSelection = params => {
     }
   }*/
 
-  function handleUpload() {
-    fetch("http://localhost:3030/memeIO/upload", {
+  async function handleUpload(event) {
+      const files = Array.from(event.target.files);
+    //console.log("files:", files[0].name)
+    const input = document.getElementById('fileUploaded');
+
+    //const file = fileField.files[0];
+    const formData = new FormData();
+    formData.append(files[0].name, event.target.files[0]);
+    //console.log(formData);
+    await fetch("http://localhost:3030/memeIO/upload", {
       method: "POST",
       mode: "cors",
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
+      headers: {"Content-Type": "multipart/form-data"},
+      body: formData,
     }).then((res) => {
-      console.log(res);
+      //console.log(res.body);
       //TODO implement upload
-      console.log('not working yet')
+      //console.log('not working yet')
     });
   }
 
-  const handleChange = ({target}) => {
+  const handleChange = ({ target }) => {
     setUrl((prev) => target.value);
   }
-  const handleSubmit = (event) =>{
+  const handleSubmit = (event) => {
     if (event.key === 'Enter') {
+
       params.setMemes([{url: url}]);
-      console.log(url);
       event.preventDefault();
       handleClose()
     }
@@ -90,34 +100,32 @@ const ImageSelection = params => {
   async function getMoreMemes() {
     const res = await fetch("https://api.imgflip.com/get_memes");
     const json = await res.json();
-    console.log(json.data.memes);
     params.setMemes(json.data.memes);
     handleClose();
   }
 
   return (
-      <div>
+    <div>
       <Button
-          className = "classes.buttonStyle"
-          variant="contained"
-          color="secondary"
-          onClick={handleOpen}>
-        Ich will mehr memes!
+        className="classes.buttonStyle"
+        variant="contained"
+        color="secondary"
+        onClick={handleOpen}>
+        I want more memes!
       </Button>
+
    <Modal
        open ={open}
        onClose={handleClose}
        aria-labelledby="simple-modal-title"
        aria-describedby="simple-modal-description">
+
      <div style={modalStyle} className={classes.paper}>
        <h2 id="simple-modal-title">Select your image</h2>
        <label htmlFor="fileUploaded" className="custom-file-upload" color="secondary">
          <FolderOpen /> upload your own
        </label>
-       <input id="fileUploaded" type="file" name="sampleFile" onChange={handleUpload}/>
-
-
-
+       <input  id="fileUploaded" type="file" name="sampleFile" onChange={handleUpload}/>
        <Button
            className = "classes.buttonStyle modal"
            startIcon={<CloudDownload />}
@@ -126,37 +134,38 @@ const ImageSelection = params => {
            color="secondary"
        >
          Get Images form ImageFlip
+
        </Button>
-       <Button
-           className = "classes.buttonStyle modal"
-           startIcon={<CameraIcon />}
-           variant="contained"
-           //onClick={saveMeme}
-           color="secondary"
-           disabled
-       >
-        Photo from camera
+          <Button
+            className="classes.buttonStyle modal"
+            startIcon={<CameraIcon />}
+            variant="contained"
+            //onClick={saveMeme}
+            color="secondary"
+            disabled
+          >
+            Photo from camera
        </Button>
-       <Button
-           className = "classes.buttonStyle modal"
-           startIcon={<Gesture />}
-           variant="contained"
-           //onClick={saveMeme}
-           color="secondary"
-           disabled
-       >
-         Draw your own
+          <Button
+            className="classes.buttonStyle modal"
+            startIcon={<Gesture />}
+            variant="contained"
+            //onClick={saveMeme}
+            color="secondary"
+            disabled
+          >
+            Draw your own
        </Button>
-       <TextField
-           name="url"
-           className ="modal"
-           id="standard-basic"
-           label="Load Image from URL"
-           onChange={handleChange}
-           onKeyPress={handleSubmit}/>
-     </div>
-   </Modal>
-      </div>
+          <TextField
+            name="url"
+            className="modal"
+            id="standard-basic"
+            label="Load Image from URL"
+            onChange={handleChange}
+            onKeyPress={handleSubmit} />
+        </div>
+      </Modal>
+    </div>
   );
 }
 
