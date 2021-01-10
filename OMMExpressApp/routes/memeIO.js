@@ -1,13 +1,13 @@
+
 var express = require('express');
 var memeIO = express.Router();
 
 const mongoose = require('mongoose');
 const Meme = require('../models/memeSchema');
 
-const fileUpload = require('express-fileupload');
 
-memeIO.use(fileUpload());
 
+const imageMimeTypes = ['image/jpeg', 'image/png', 'images/gif']
 
 memeIO.use(function(req, res, next) {
     // Website you wish to allow to connect
@@ -41,12 +41,35 @@ memeIO.get('/get-memes', (req, res) => {
     })
 
 });
-memeIO.use(fileUpload());
-memeIO.use(upload.array());
 
-memeIO.post('/upload', (req, res) => {
 
-  console.log(req.files);
+memeIO.post('/upload', async(req, res) => {
+    console.log(req.body)
+    if(req.body.fileImage === null){
+        return
+    }
+    const meme = Meme.create({
+        upper: "",
+        lower: "",
+        url: "",
+    });
+   const image = req.body
+    if(image !=null && imageMimeTypes.includes(image.type)){
+         meme.image =  new Buffer.from(image.data, 'base64')
+         meme.imageType =  image.type
+        console.log("Hallo"+ image.type)
+    }
+    //console.log(meme.image.toString("base64"));
+    /*try{
+        const newMeme = await meme.save()
+        console.log("Hallo")
+        res.redirect(`/`)
+    }catch(err){
+        console.log("Error:", err)
+    }
+
+*/
+  /*console.log(req.files);
   if (!req.files || Object.keys(req.files).length === 0) {
     return res.status(400).send('No files were uploaded.');
   }
@@ -66,7 +89,7 @@ memeIO.post('/upload', (req, res) => {
       return res.status(500).send(err);
 
     res.send('File uploaded!');
-  });
+  });*/
 
 });
 

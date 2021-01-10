@@ -7,9 +7,23 @@ import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import CameraIcon from "@material-ui/icons/Camera";
 import { CloudDownload, FolderOpen, Gesture } from "@material-ui/icons";
+import { FilePond, File, registerPlugin } from "react-filepond";
+import "filepond/dist/filepond.min.css";
 
+
+
+import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
+import FilePondPluginImagePreview from "filepond-plugin-image-preview";
+import FilePondPluginFileEncode from 'filepond-plugin-file-encode';
+import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 
 import "./../../css/ImageSelection/imageSelection.css";
+
+// Register the plugins
+registerPlugin(FilePondPluginImagePreview, FilePondPluginFileEncode);
+
+
+
 
 
 function getModalStyle() {
@@ -48,6 +62,7 @@ const ImageSelection = params => {
   };
 
   const [url, setUrl] = useState((''));
+  const [files, setFiles] = useState([]);
 
   /*const handleUpload = (event) =>{
     let file = event.target.files[0];
@@ -122,10 +137,29 @@ const ImageSelection = params => {
 
      <div style={modalStyle} className={classes.paper}>
        <h2 id="simple-modal-title">Select your image</h2>
-       <label htmlFor="fileUploaded" className="custom-file-upload" color="secondary">
+
+       {/*<label htmlFor="fileUploaded" className="custom-file-upload" color="secondary">
          <FolderOpen /> upload your own
        </label>
-       <input  id="fileUploaded" type="file" name="sampleFile" onChange={handleUpload}/>
+       <input  id="fileUploaded" type="file" name="sampleFile" onChange={handleUpload}/>*/}
+       <FilePond
+           files={files}
+           onupdatefiles={setFiles}
+           allowMultiple={true}
+           maxFiles={3}
+           server={{
+               url: "http://localhost:3030/memeIO",
+                process: {
+                    url:'/upload',
+                    method: 'POST',
+                    headers: {},
+                    }
+
+           }}
+           name="files"
+           labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
+       />
+
        <Button
            className = "classes.buttonStyle modal"
            startIcon={<CloudDownload />}
