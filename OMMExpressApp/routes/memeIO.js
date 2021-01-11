@@ -4,10 +4,9 @@ var memeIO = express.Router();
 const mongoose = require('mongoose');
 const Meme = require('../models/memeSchema');
 
-const fileUpload = require('express-fileupload');
 
-memeIO.use(fileUpload());
 
+const imageMimeTypes = ['image/jpeg', 'image/png', 'images/gif']
 
 memeIO.use(function(req, res, next) {
     // Website you wish to allow to connect
@@ -41,32 +40,53 @@ memeIO.get('/get-memes', (req, res) => {
     })
 
 });
-memeIO.use(fileUpload());
-//memeIO.use(upload.array());
 
-memeIO.post('/upload', (req, res) => {
 
-    console.log(req.files);
+memeIO.post('/upload', async(req, res) => {
+    console.log(req.body)
+    if (req.body.fileImage === null) {
+        return
+    }
+    const meme = Meme.create({
+        upper: "",
+        lower: "",
+        url: "",
+    });
+    const image = req.body
+    if (image != null && imageMimeTypes.includes(image.type)) {
+        meme.image = new Buffer.from(image.data, 'base64')
+        meme.imageType = image.type
+        console.log("Hallo" + image.type)
+    }
+    //console.log(meme.image.toString("base64"));
+    /*try{
+        const newMeme = await meme.save()
+        console.log("Hallo")
+        res.redirect(`/`)
+    }catch(err){
+        console.log("Error:", err)
+    }
+
+*/
+    /*console.log(req.files);
     if (!req.files || Object.keys(req.files).length === 0) {
-        return res.status(400).send('No files were uploaded.');
+      return res.status(400).send('No files were uploaded.');
     }
     console.log("req2: ", req.body.url);
     // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
     let sampleFile = req.form;
-    console.log("req" + req);
-    console.log("reqfiles" + req.formData.name);
+    console.log("req"+req);
+    console.log("reqfiles"+req.formData.name);
     const fileName = req.files.sampleFile.name;
     const path = __dirname + '/public/uploadedImages/' + fileName;
     console.log(path);
 
     // Use the mv() method to place the file somewhere on your server
-    sampleFile.mv(path, function(err) {
-        console.log(path);
-        if (err)
-            return res.status(500).send(err);
+    sampleFile.mv(path, function (err) {
+      console.log(path);
 
-        res.send('File uploaded!');
-    });
+      res.send('File uploaded!');
+    });*/
 
 });
 
