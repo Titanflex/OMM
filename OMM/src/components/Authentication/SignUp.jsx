@@ -8,13 +8,13 @@ import {
   IconButton,
   InputLabel,
   InputAdornment,
-  makeStyles
+  FormHelperText,
+  makeStyles,
 } from "@material-ui/core";
+import { navigate } from "hookrouter";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
-import { navigate } from "hookrouter";
-import { useHistory } from "react-router-dom";
-
+import AuthService from "../../services/auth.service";
 
 const useStyles = makeStyles((theme) => ({
   spacing: {
@@ -22,13 +22,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-
 export default function SignUp() {
-  const history = useHistory();
   const classes = useStyles();
 
   const [values, setValues] = useState({
-    email: "",
+    name: "",
     password: "",
     password2: "",
     weight: "",
@@ -37,7 +35,31 @@ export default function SignUp() {
     showPassword2: false,
   });
 
+  const [nameError, setNameError] = useState({
+    show: false,
+    text: "",
+  });
+
+  const [passwordError, setPasswordError] = useState({
+    show: false,
+    text: "",
+  });
+
+  const [passwordError2, setPasswordError2] = useState({
+    show: false,
+    text: "",
+  });
+
   const handleChange = (prop) => (event) => {
+    if (prop === "name") {
+      setNameError({ show: false, text: "" });
+    }
+    if (prop === "password") {
+      setPasswordError({ show: false, text: "" });
+    }
+    if (prop === "password2") {
+      setPasswordError2({ show: false, text: "" });
+    }
     setValues({ ...values, [prop]: event.target.value });
   };
 
@@ -54,29 +76,65 @@ export default function SignUp() {
   };
 
   const signUp = () => {
-    navigate("/home", true);
-    window.location.reload();
+    if (validate()) {
+      AuthService.register(values.name, values.password).then((data) => {
+        if (data.token) {
+          //Successful Registration
+          navigate("/");
+        } else {
+          setNameError({
+            show: true,
+            text: data.msg,
+          });
+        }
+      });
+    }
+  };
+
+  const validate = () => {
+    if (values.name === "") {
+      setNameError({ show: true, text: "Please enter a name" });
+      return false;
+    }
+    if (values.password === "") {
+      setPasswordError({ show: true, text: "Please enter a password" });
+      return false;
+    }
+    if (values.password2 === "") {
+      setPasswordError2({ show: true, text: "Please enter a password" });
+      return false;
+    }
+    if (values.password !== values.password2) {
+      setPasswordError({ show: true, text: "" });
+      setPasswordError2({ show: true, text: "The passwords do not match!" });
+      return false;
+    }
+    return true;
   };
 
   return (
     <div className="signing-container">
       <Typography className={classes.spacing} variant="h4">
-      Create Account
+        Create Account
       </Typography>
       <form>
         <TextField
+          error={nameError.show}
+          helperText={nameError.text}
           className={classes.spacing}
-          id="email"
-          label="E-Mail"
+          id="name"
+          label="Name"
           placeholder=""
-          helperText=""
           fullWidth
           margin="normal"
           variant="outlined"
+          value={values.name}
+          onChange={handleChange("name")}
         />
         <FormControl className={classes.spacing} variant="outlined" fullWidth>
           <InputLabel>Password</InputLabel>
           <OutlinedInput
+            error={passwordError.show}
             id="outlined-adornment-password"
             type={values.showPassword ? "text" : "password"}
             value={values.password}
@@ -95,10 +153,14 @@ export default function SignUp() {
             }
             labelWidth={70}
           />
+          <FormHelperText error={passwordError.show}>
+            {passwordError.text}
+          </FormHelperText>
         </FormControl>
         <FormControl className={classes.spacing} variant="outlined" fullWidth>
           <InputLabel>Repeat Password</InputLabel>
           <OutlinedInput
+            error={passwordError2.show}
             id="outlined-adornment-password"
             type={values.showPassword2 ? "text" : "password"}
             value={values.password2}
@@ -117,6 +179,9 @@ export default function SignUp() {
             }
             labelWidth={125}
           />
+          <FormHelperText error={passwordError2.show}>
+            {passwordError2.text}
+          </FormHelperText>
         </FormControl>
         <Button fullWidth variant="contained" color="primary" onClick={signUp}>
           Sign Up

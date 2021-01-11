@@ -1,4 +1,3 @@
-
 var express = require('express');
 var memeIO = express.Router();
 
@@ -45,7 +44,7 @@ memeIO.get('/get-memes', (req, res) => {
 
 memeIO.post('/upload', async(req, res) => {
     console.log(req.body)
-    if(req.body.fileImage === null){
+    if (req.body.fileImage === null) {
         return
     }
     const meme = Meme.create({
@@ -53,11 +52,11 @@ memeIO.post('/upload', async(req, res) => {
         lower: "",
         url: "",
     });
-   const image = req.body
-    if(image !=null && imageMimeTypes.includes(image.type)){
-         meme.image =  new Buffer.from(image.data, 'base64')
-         meme.imageType =  image.type
-        console.log("Hallo"+ image.type)
+    const image = req.body
+    if (image != null && imageMimeTypes.includes(image.type)) {
+        meme.image = new Buffer.from(image.data, 'base64')
+        meme.imageType = image.type
+        console.log("Hallo" + image.type)
     }
     //console.log(meme.image.toString("base64"));
     /*try{
@@ -69,27 +68,25 @@ memeIO.post('/upload', async(req, res) => {
     }
 
 */
-  /*console.log(req.files);
-  if (!req.files || Object.keys(req.files).length === 0) {
-    return res.status(400).send('No files were uploaded.');
-  }
-  console.log("req2: ", req.body.url);
-  // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
-  let sampleFile = req.form;
-  console.log("req"+req);
-  console.log("reqfiles"+req.formData.name);
-  const fileName = req.files.sampleFile.name;
-  const path = __dirname + '/public/uploadedImages/' + fileName;
-  console.log(path);
-
-  // Use the mv() method to place the file somewhere on your server
-  sampleFile.mv(path, function (err) {
+    /*console.log(req.files);
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return res.status(400).send('No files were uploaded.');
+    }
+    console.log("req2: ", req.body.url);
+    // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
+    let sampleFile = req.form;
+    console.log("req"+req);
+    console.log("reqfiles"+req.formData.name);
+    const fileName = req.files.sampleFile.name;
+    const path = __dirname + '/public/uploadedImages/' + fileName;
     console.log(path);
-    if (err)
-      return res.status(500).send(err);
 
-    res.send('File uploaded!');
-  });*/
+    // Use the mv() method to place the file somewhere on your server
+    sampleFile.mv(path, function (err) {
+      console.log(path);
+
+      res.send('File uploaded!');
+    });*/
 
 });
 
