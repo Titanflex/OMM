@@ -9,7 +9,7 @@ import {
   InputLabel,
   InputAdornment,
   FormHelperText,
-  makeStyles
+  makeStyles,
 } from "@material-ui/core";
 import { navigate } from "hookrouter";
 import Visibility from "@material-ui/icons/Visibility";
@@ -21,7 +21,6 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(2),
   },
 }));
-
 
 export default function SignUp() {
   const classes = useStyles();
@@ -38,23 +37,29 @@ export default function SignUp() {
 
   const [nameError, setNameError] = useState({
     show: false,
-    text: ""
+    text: "",
   });
 
   const [passwordError, setPasswordError] = useState({
     show: false,
-    text: ""
+    text: "",
   });
 
   const [passwordError2, setPasswordError2] = useState({
     show: false,
-    text: ""
+    text: "",
   });
 
   const handleChange = (prop) => (event) => {
-    if(prop == "name") {setNameError({show: false, text: ""})};
-    if(prop == "password") {setPasswordError({show: false, text: ""})};
-    if(prop == "password2") {setPasswordError2({show: false, text: ""})};
+    if (prop === "name") {
+      setNameError({ show: false, text: "" });
+    }
+    if (prop === "password") {
+      setPasswordError({ show: false, text: "" });
+    }
+    if (prop === "password2") {
+      setPasswordError2({ show: false, text: "" });
+    }
     setValues({ ...values, [prop]: event.target.value });
   };
 
@@ -71,39 +76,46 @@ export default function SignUp() {
   };
 
   const signUp = () => {
-    if(validate()){
-      AuthService.register(values.name, values.password).then(() => {
-        navigate("/");
-      })
+    if (validate()) {
+      AuthService.register(values.name, values.password).then((data) => {
+        if (data.token) {
+          //Successful Registration
+          navigate("/");
+        } else {
+          setNameError({
+            show: true,
+            text: data.msg,
+          });
+        }
+      });
     }
   };
 
-
   const validate = () => {
     if (values.name === "") {
-      setNameError({show: true, text: "Please enter a name"})
+      setNameError({ show: true, text: "Please enter a name" });
       return false;
     }
-    if (values.password === ""){
-      setPasswordError({show: true, text: "Please enter a password"})
+    if (values.password === "") {
+      setPasswordError({ show: true, text: "Please enter a password" });
       return false;
     }
-    if (values.password2 === ""){
-      setPasswordError2({show: true, text: "Please enter a password"})
+    if (values.password2 === "") {
+      setPasswordError2({ show: true, text: "Please enter a password" });
       return false;
     }
     if (values.password !== values.password2) {
-      setPasswordError({show: true, text: ""})
-      setPasswordError2({show: true, text: "The passwords do not match!"})
+      setPasswordError({ show: true, text: "" });
+      setPasswordError2({ show: true, text: "The passwords do not match!" });
       return false;
     }
     return true;
-  }
+  };
 
   return (
     <div className="signing-container">
       <Typography className={classes.spacing} variant="h4">
-      Create Account
+        Create Account
       </Typography>
       <form>
         <TextField
@@ -113,7 +125,6 @@ export default function SignUp() {
           id="name"
           label="Name"
           placeholder=""
-          helperText=""
           fullWidth
           margin="normal"
           variant="outlined"
@@ -142,7 +153,9 @@ export default function SignUp() {
             }
             labelWidth={70}
           />
-          <FormHelperText error={passwordError.show}>{passwordError.text}</FormHelperText>
+          <FormHelperText error={passwordError.show}>
+            {passwordError.text}
+          </FormHelperText>
         </FormControl>
         <FormControl className={classes.spacing} variant="outlined" fullWidth>
           <InputLabel>Repeat Password</InputLabel>
@@ -166,7 +179,9 @@ export default function SignUp() {
             }
             labelWidth={125}
           />
-        <FormHelperText error={passwordError2.show}>{passwordError2.text}</FormHelperText>
+          <FormHelperText error={passwordError2.show}>
+            {passwordError2.text}
+          </FormHelperText>
         </FormControl>
         <Button fullWidth variant="contained" color="primary" onClick={signUp}>
           Sign Up

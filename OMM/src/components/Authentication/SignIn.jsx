@@ -9,7 +9,7 @@ import {
   InputLabel,
   InputAdornment,
   makeStyles,
-  FormHelperText
+  FormHelperText,
 } from "@material-ui/core";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
@@ -17,11 +17,10 @@ import { navigate } from "hookrouter";
 import AuthService from "../../services/auth.service";
 
 const useStyles = makeStyles((theme) => ({
-    spacing: {
-      marginBottom: theme.spacing(2),
-    },
-  }));
-
+  spacing: {
+    marginBottom: theme.spacing(2),
+  },
+}));
 
 export default function SignIn() {
   const classes = useStyles();
@@ -36,17 +35,20 @@ export default function SignIn() {
 
   const [nameError, setNameError] = useState({
     show: false,
-    text: ""
+    text: "",
   });
   const [passwordError, setPasswordError] = useState({
     show: false,
-    text: ""
+    text: "",
   });
 
-
   const handleChange = (prop) => (event) => {
-    if(prop == "name") {setNameError({show: false, text: ""})};
-    if(prop == "password") {setPasswordError({show: false, text: ""})};
+    if (prop === "name") {
+      setNameError({ show: false, text: "" });
+    }
+    if (prop === "password") {
+      setPasswordError({ show: false, text: "" });
+    }
     setValues({ ...values, [prop]: event.target.value });
   };
 
@@ -59,26 +61,31 @@ export default function SignIn() {
   };
 
   const signIn = () => {
-    if(validate()){
-      AuthService.login(values.name, values.password).then(() => {
-        navigate("/");
-      })
+    console.log("Signing in...");
+    if (validate()) {
+      AuthService.login(values.name, values.password).then((data) => {
+        if (data.token) {
+          //Successful Login
+          navigate("/");
+        } else {
+          setNameError({ show: true, text: "" });
+          setPasswordError({ show: true, text: data.msg });
+        }
+      });
     }
-
   };
 
   const validate = () => {
-    console.log(values.name);
-    if (values.name == "") {
-      setNameError({show: true, text: "Please enter a name"})
+    if (values.name === "") {
+      setNameError({ show: true, text: "Please enter a name" });
       return false;
     }
-    if (values.password == ""){
-      setPasswordError({show: true, text: "Please enter a password"})
+    if (values.password === "") {
+      setPasswordError({ show: true, text: "Please enter a password" });
       return false;
     }
     return true;
-  }
+  };
 
   return (
     <div className="signing-container">
@@ -106,7 +113,6 @@ export default function SignIn() {
             type={values.showPassword ? "text" : "password"}
             value={values.password}
             error={passwordError.show}
-            helperText={passwordError.text}
             onChange={handleChange("password")}
             endAdornment={
               <InputAdornment position="end">
@@ -122,9 +128,17 @@ export default function SignIn() {
             }
             labelWidth={70}
           />
-          <FormHelperText error={passwordError.show}>{passwordError.text}</FormHelperText>
+          <FormHelperText error={passwordError.show}>
+            {passwordError.text}
+          </FormHelperText>
         </FormControl>
-        <Button className={classes.spacing} fullWidth variant="contained" color="primary" onClick={signIn}>
+        <Button
+          className={classes.spacing}
+          fullWidth
+          variant="contained"
+          color="primary"
+          onClick={signIn}
+        >
           Login
         </Button>
       </form>

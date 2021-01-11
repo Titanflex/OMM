@@ -20,10 +20,16 @@ function App() {
   const [logedIn, setLogedIn] = useState(false);
 
   useEffect(() => {
-    //let user = AuthService.getUser();
-    // check if there is user logged in and set loged in to true
-    navigate("/login");
-  }, []);
+    // check if there is a token (user loggedin) and get user 
+    if (localStorage.token) {
+      setLogedIn(true);
+      AuthService.getUser();
+    } else {
+      setLogedIn(false);
+      navigate("/login");
+    }
+
+  });
 
   return (
     <div style={{height: '100%'}}>

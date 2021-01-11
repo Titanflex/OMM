@@ -12,6 +12,7 @@
         "axios": "^0.21.1",
         "bootstrap": "^4.5.3",
         "express-form-data": "^2.0.14",
+        "filepond": "^4.25.1",
         "filepond-plugin-file-encode": "^2.1.9",
         "filepond-plugin-image-exif-orientation": "^1.0.9",
         "filepond-plugin-image-preview": "^4.6.4",
