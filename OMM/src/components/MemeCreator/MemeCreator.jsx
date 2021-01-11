@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import Grid from "@material-ui/core/Grid";
 import ArrowRight from "@material-ui/icons/ChevronRight";
 import ArrowLeft from "@material-ui/icons/ChevronLeft";
@@ -8,15 +8,12 @@ import LoadIcon from "@material-ui/icons/Refresh";
 import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
 import ImageSelection from "../ImageSelection/ImageSelection";
-import TemplateOverview from "../ImageSelection/TemplateOverview";
 
 
 import "./../../css/MemeCreator/memeCreator.css";
 import TextField from "@material-ui/core/TextField";
-
-import { FormatBold, FormatColorText, FormatSize, FormatItalic } from "@material-ui/icons";
-import { makeStyles } from "@material-ui/core";
-
+import {FormatBold, FormatColorText, FormatSize, FormatItalic} from "@material-ui/icons";
+import {makeStyles} from "@material-ui/core";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -24,7 +21,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 function MemeCreator() {
     const [upper, setUpper] = useState("");
     const [lower, setLower] = useState("");
-    const [memes, setMemes] = useState([{ url: "https://image.stern.de/7528150/t/sU/v3/w1440/r0/-/harold-hide-the-pain-meme-09.jpg", name: "Hide the pain Harold" }]);
+    const [memes, setMemes] = useState([{url: "https://image.stern.de/7528150/t/sU/v3/w1440/r0/-/harold-hide-the-pain-meme-09.jpg"}]);
     const [currentMemeIndex, setCurrentMemeIndex] = useState(0);
     const [bold, setBold] = useState(false);
     const [italic, setItalic] = useState(false);
@@ -102,7 +99,7 @@ function MemeCreator() {
     function toggleItalic() {
         italic ? setItalic(false) : setItalic(true)
     }
-
+    
     const changeTextColor = (event) => {
         setColor(event.target.value);
     }
@@ -116,7 +113,7 @@ function MemeCreator() {
             <Grid container spacing={1}>
                 <Grid item s={1} alignItems="center">
                     <IconButton className="arrows" onClick={previousMeme} aria-label="previous">
-                        <ArrowLeft fontSize="large" />
+                        <ArrowLeft fontSize="large"/>
                     </IconButton>
                 </Grid>
                 <Grid item s={6} alignItems="center">
@@ -124,16 +121,16 @@ function MemeCreator() {
                     <IconButton
                         className={'textFormatButton'}
                         onClick={toggleBold}
-                        style={bold ? { background: 'grey' } : { background: 'white' }}
+                        style={bold ? {background: 'grey'} : {background: 'white'}}
                     >
-                        <FormatBold />
+                        <FormatBold/>
                     </IconButton>
                     <IconButton
                         className={'textFormatButton'}
                         onClick={toggleItalic}
-                        style={italic ? { background: 'grey' } : { background: 'white' }}
+                        style={italic ? {background: 'grey'} : {background: 'white'}}
                     >
-                        <FormatItalic />
+                        <FormatItalic/>
                     </IconButton>
                     <FormControl className={'textFormatSelect'}>
                         <Select
@@ -159,15 +156,14 @@ function MemeCreator() {
                         </Select>
                     </FormControl>
                     <div className="memeContainer">
-
                         <div>
-                            <textarea
-                                type="text"
-                                className={classes.textFormat + " memeText " + " upper "}
-                                placeholder="Upper text"
-                                value={upper}
-                                onChange={(event) => setUpper(event.target.value)}
-                            />
+             <textarea
+                 type="text"
+                 className={classes.textFormat + " memeText " + " upper "}
+                 placeholder="Upper text"
+                 value={upper}
+                 onChange={(event) => setUpper(event.target.value)}
+             />
                         </div>
                         <div id="memeDiv">
                             <img
@@ -186,14 +182,13 @@ function MemeCreator() {
                 </Grid>
                 <Grid item s={1} alignItems="center">
                     <IconButton className="arrows" onClick={nextMeme} aria-label="next">
-                        <ArrowRight fontSize="large" />
+                        <ArrowRight fontSize="large"/>
                     </IconButton>
                 </Grid>
                 <Grid item s={4}>
 
 
-                    <ImageSelection setMemes={setMemes} setUpper={setUpper} setLower={setLower} />
-                    <TemplateOverview memeTemplates={memes} setCurrentMemeIndex={setCurrentMemeIndex} />
+                    <ImageSelection setMemes={setMemes} setUpper={setUpper} setLower={setLower}/>
                     <TextField
                         id="standard-basic"
                         label="Meme Title"
@@ -202,7 +197,7 @@ function MemeCreator() {
                     <div className="dataBaseControls">
                         <Button
                             className="classes.buttonStyle"
-                            startIcon={<LoadIcon />}
+                            startIcon={<LoadIcon/>}
                             variant="contained"
                             onClick={loadMeme}
                             color="secondary"
@@ -211,7 +206,7 @@ function MemeCreator() {
                         </Button>
                         <Button
                             className="classes.buttonStyle"
-                            startIcon={<SaveIcon />}
+                            startIcon={<SaveIcon/>}
                             variant="contained"
                             onClick={saveMeme}
                             color="secondary"

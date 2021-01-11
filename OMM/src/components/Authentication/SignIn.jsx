@@ -9,12 +9,12 @@ import {
   InputLabel,
   InputAdornment,
   makeStyles,
+  FormHelperText
 } from "@material-ui/core";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { navigate } from "hookrouter";
 import AuthService from "../../services/auth.service";
-import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
     spacing: {
@@ -25,7 +25,6 @@ const useStyles = makeStyles((theme) => ({
 
 export default function SignIn() {
   const classes = useStyles();
-  let history = useHistory();
 
   const [values, setValues] = useState({
     name: "",
@@ -35,7 +34,19 @@ export default function SignIn() {
     showPassword: false,
   });
 
+  const [nameError, setNameError] = useState({
+    show: false,
+    text: ""
+  });
+  const [passwordError, setPasswordError] = useState({
+    show: false,
+    text: ""
+  });
+
+
   const handleChange = (prop) => (event) => {
+    if(prop == "name") {setNameError({show: false, text: ""})};
+    if(prop == "password") {setPasswordError({show: false, text: ""})};
     setValues({ ...values, [prop]: event.target.value });
   };
 
@@ -48,10 +59,26 @@ export default function SignIn() {
   };
 
   const signIn = () => {
-     AuthService.login(values.name, values.password).then(() => {
-       navigate("/");
-     })
+    if(validate()){
+      AuthService.login(values.name, values.password).then(() => {
+        navigate("/");
+      })
+    }
+
   };
+
+  const validate = () => {
+    console.log(values.name);
+    if (values.name == "") {
+      setNameError({show: true, text: "Please enter a name"})
+      return false;
+    }
+    if (values.password == ""){
+      setPasswordError({show: true, text: "Please enter a password"})
+      return false;
+    }
+    return true;
+  }
 
   return (
     <div className="signing-container">
@@ -60,13 +87,16 @@ export default function SignIn() {
       </Typography>
       <form>
         <TextField
+          error={nameError.show}
+          helperText={nameError.text}
           className={classes.spacing}
           id="name"
           label="Name"
           placeholder=""
-          helperText=""
+          value={values.name}
           fullWidth
           margin="normal"
+          onChange={handleChange("name")}
           variant="outlined"
         />
         <FormControl className={classes.spacing} variant="outlined" fullWidth>
@@ -75,6 +105,8 @@ export default function SignIn() {
             id="outlined-adornment-password"
             type={values.showPassword ? "text" : "password"}
             value={values.password}
+            error={passwordError.show}
+            helperText={passwordError.text}
             onChange={handleChange("password")}
             endAdornment={
               <InputAdornment position="end">
@@ -90,6 +122,7 @@ export default function SignIn() {
             }
             labelWidth={70}
           />
+          <FormHelperText error={passwordError.show}>{passwordError.text}</FormHelperText>
         </FormControl>
         <Button className={classes.spacing} fullWidth variant="contained" color="primary" onClick={signIn}>
           Login

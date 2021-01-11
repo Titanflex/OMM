@@ -2,12 +2,16 @@
 const getUser = () => () => {
 
     fetch("http://localhost:3030/auth/user", {
-        method: "GET",
-        mode: "cors",
-        headers: getTokenHeader()
-    }).then(res => localStorage.setItem("token", JSON.stringify(res.data.token)))
+            method: "GET",
+            mode: "cors",
+            headers: getTokenHeader()
+        }).then(response => response.json())
+        .then(data => {
+            localStorage.setItem("user", data.user);
+        })
+        .catch(err => {
 
-
+        })
 };
 
 // Register User
@@ -15,29 +19,37 @@ const register = ({ name, password }) => (
     dispatch
 ) => {
     fetch("http://localhost:3030/auth/register", {
-        method: "POST",
-        mode: "cors",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, password }),
-    }).then(res => localStorage.setItem("token", JSON.stringify(res.data.token)))
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name, password }),
+        }).then(response => response.json())
+        .then(data => {
+            localStorage.setItem("token", data.token);
+        })
+        .catch(err => {
+
+        })
 };
 
 // Login User
 const login = (name, password) => {
     return fetch("http://localhost:3030/auth/login", {
-        method: "POST",
-        mode: "cors",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, password }),
-    }).then(res => {
-        console.log(res);
-        localStorage.setItem("token", JSON.stringify(res.data.token));
-        return res;
-    })
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name, password }),
+        })
+        .then(response => {
+            response.json()
+        })
+        .then(data => {
+            localStorage.setItem("token", data.token);
+        })
+        .catch(err => {})
 };
 
 // Logout User

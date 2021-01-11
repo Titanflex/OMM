@@ -8,36 +8,55 @@ const auth = require('../middleware/auth')
 // User Model
 const User = require('../models/userSchema')
 
+router.use(function(req, res, next) {
+    // Website you wish to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+
+    // res.setHeader('Access-Control-Allow-Origin', '*');
+
+    // Request methods you wish to allow
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+    // Request headers you wish to allow
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+    // Set to true if you need the website to include cookies in the requests sent
+    // to the API (e.g. in case you use sessions)
+    res.setHeader('Access-Control-Allow-Credentials', true);
+
+    // Pass to next layer of middleware
+    next();
+});
+
 /* POST /auth */
 /* Authenticate the User */
-router.post('/login', (req, res, next) => {
+router.post('/login', async(req, res) => {
     const { name, password } = req.body;
 
-    User.findOne({ name })
-        .then(user => {
-            if (!user) return res.status(400).json({ msg: 'User does not exist' });
+    try {
+        // Check for existing user
+        const user = await User.findOne({ name });
+        if (!user) throw Error('User does not exist');
 
-            //validate password
-            bcrypt.compare(password, user.password)
-                .then(isMatch => {
-                    if (!isMatch) return res.status(400).json({ msg: 'Invalid password' });
-                    //create jwt
-                    jwt.sign({
-                        id: user.id
-                    }, config.get('jwtSecret'), { expiresIn: 3600 }, (err, token) => {
-                        if (err) throw err;
-                        res.json({
-                            token,
-                            user: {
-                                id: user.id,
-                                name: user.name,
-                            }
-                        });
-                    })
-                })
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) throw Error('Invalid credentials');
 
-        })
+        const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: 3600 });
+        if (!token) throw Error('Couldnt sign the token');
+
+        res.status(200).json({
+            token,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email
+            }
+        });
+    } catch (e) {
+        res.status(400).json({ msg: e.message });
+    }
 });
+
 
 /* Get /auth/user */
 /* Get user data */

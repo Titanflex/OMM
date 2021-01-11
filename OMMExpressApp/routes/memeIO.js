@@ -42,7 +42,7 @@ memeIO.get('/get-memes', (req, res) => {
 
 });
 memeIO.use(fileUpload());
-memeIO.use(upload.array());
+//memeIO.use(upload.array());
 
 memeIO.post('/upload', (req, res) => {
 

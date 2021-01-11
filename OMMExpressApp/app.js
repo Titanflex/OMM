@@ -3,9 +3,11 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var bodyParser = require('body-parser')
 
 
 const mongoose = require('mongoose');
+
 mongoose.connect('mongodb://localhost/', { useNewUrlParser: true, useUnifiedTopology: true });
 
 const db = mongoose.connection;
