@@ -27,6 +27,7 @@ import ImageSelection from "../ImageSelection/ImageSelection";
 import AuthService from "../../services/auth.service";
 
 import "./../../css/MemeCreator/memeCreator.css";
+import TemplateOverview from "../ImageSelection/TemplateOverview";
 
 function MemeCreator() {
   const [upper, setUpper] = useState("");
@@ -34,7 +35,7 @@ function MemeCreator() {
   const [memes, setMemes] = useState([
     {
       url:
-        "https://image.stern.de/7528150/t/sU/v3/w1440/r0/-/harold-hide-the-pain-meme-09.jpg",
+        "https://image.stern.de/7528150/t/sU/v3/w1440/r0/-/harold-hide-the-pain-meme-09.jpg", name: "Hide the pain Harold",
     },
   ]);
   const [currentMemeIndex, setCurrentMemeIndex] = useState(0);
@@ -76,7 +77,7 @@ function MemeCreator() {
     heading: {
       textAlign: 'left',
       margin: "16px",
-    } 
+    }
   }));
 
   const classes = useStyles();
@@ -222,6 +223,7 @@ function MemeCreator() {
             setUpper={setUpper}
             setLower={setLower}
           />
+          <TemplateOverview memeTemplates={memes} setCurrentMemeIndex={setCurrentMemeIndex} />
           <TextField id="standard-basic" label="Meme Title" />
 
           <div className="dataBaseControls">
