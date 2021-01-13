@@ -11,6 +11,7 @@
 ## Installation and SetUp Instructions
 
 ### DataBase
+Old:
 - start mongod
 - start mongo
 - if not done so, create MongoDB database 'memes' locally with "use memes"
@@ -18,6 +19,10 @@
     - Please restore the database on your machine with "mongorestore --nsInclude 'memes.*' --drop C:\Users\Mari\Documents\Studium\Master\OMM\OMM\dump". 
     - When updating the database use "mongodump --db DataBaseName" and put it to the shared folder.
 
+
+
+New:
+- No need to start db manually, it gets automatically generated and populated with the start of OMMExpressApp
 
 You will need `node` and `npm` installed globally on your machine. 
 
