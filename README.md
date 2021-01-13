@@ -18,6 +18,9 @@ Old:
 - in the folder "dump" you can find the meme database. 
     - Please restore the database on your machine with "mongorestore --nsInclude 'memes.*' --drop C:\Users\Mari\Documents\Studium\Master\OMM\OMM\dump". 
     - When updating the database use "mongodump --db DataBaseName" and put it to the shared folder.
+
+
+
 New:
 - No need to start db manually, it gets automatically generated and populated with the start of OMMExpressApp
 
