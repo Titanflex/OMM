@@ -8,12 +8,7 @@ const memeSchema = new Schema(
         lower: String,
         //text: [{ body: String, positionX: Number, positionY: Number, Style: String }],
         url: String,
-        image: {
-            type: Buffer
-        },
-        imageType: {
-            type: String
-        }
+
         //creator: String,
         //creationDate: { type: Date, default: Date.now },
         //public: Boolean,
@@ -24,7 +19,7 @@ const memeSchema = new Schema(
     }
 );
 
-memeSchema.virtual('imagePath').get(function() {
+memeSchema.virtual('imagePath').get(function () {
     if (this.image != null && this.imageType != null) {
         return `data:${this.imageType};charset=utf-8;base64,${this.image.toString("base64")}`
     }

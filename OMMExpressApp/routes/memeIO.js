@@ -1,14 +1,21 @@
 var express = require('express');
 var memeIO = express.Router();
+var multer = require("multer");
+var upload = multer({ dest: "../server/public/images/" });
+
+var fs = require('fs');
+var path = require('path');
 
 const mongoose = require('mongoose');
 const Meme = require('../models/memeSchema');
+const template = require('../models/templateSchema');
+
 
 
 
 const imageMimeTypes = ['image/jpeg', 'image/png', 'images/gif']
 
-memeIO.use(function(req, res, next) {
+memeIO.use(function (req, res, next) {
     // Website you wish to allow to connect
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
 
@@ -32,7 +39,7 @@ memeIO.use(function(req, res, next) {
 
 memeIO.get('/get-memes', (req, res) => {
 
-    Meme.find({}, function(err, docs) {
+    Meme.find({}, function (err, docs) {
         if (err)
             return res.status(500).send(err);
 
@@ -42,22 +49,35 @@ memeIO.get('/get-memes', (req, res) => {
 });
 
 
-memeIO.post('/upload', async(req, res) => {
-    console.log(req.body)
+memeIO.post('/upload', upload.array("files", 12), async (req, res) => {
+    console.log(req.files)
+    console.log(req.files[0])
+
+
     if (req.body.fileImage === null) {
         return
     }
-    const meme = Meme.create({
-        upper: "",
-        lower: "",
-        url: "",
-    });
-    const image = req.body
-    if (image != null && imageMimeTypes.includes(image.type)) {
-        meme.image = new Buffer.from(image.data, 'base64')
-        meme.imageType = image.type
-        console.log("Hallo" + image.type)
+
+    var uploadedTemplate = {
+        uploader: "To be done",
+        templateName: req.files[0].filename,
+        img: {
+            data: fs.readFileSync(path.join('../server/public/images/' + req.files[0].filename)),
+            contentType: req.files[0].mimetype
+        }
     }
+
+    console.log(fs.readFileSync(path.join('../server/public/images/' + req.files[0].filename)))
+
+    template.create(uploadedTemplate, (err, item) => {
+        if (err) {
+            console.log(err)
+        } else {
+            item.save();
+            res.send([req.files[0].filename]);
+
+        }
+    })
     //console.log(meme.image.toString("base64"));
     /*try{
         const newMeme = await meme.save()
@@ -94,7 +114,7 @@ memeIO.post('/upload', async(req, res) => {
 
 
 memeIO.post("/save-meme", (req, res) => {
-
+    console.log(req.body)
     const newMeme = Meme.create({
         upper: req.body.upper,
         lower: req.body.lower,
