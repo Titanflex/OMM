@@ -18,6 +18,8 @@ import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 
 
 import Camera from "../ImageSelection/Camera";
+import Paint from "../ImageSelection/Paint";
+
 
 import "./../../css/ImageSelection/imageSelection.css";
 
@@ -174,16 +176,7 @@ const ImageSelection = params => {
 
        </Button>
          <Camera />
-          <Button
-            className="classes.buttonStyle modal"
-            startIcon={<Gesture />}
-            variant="contained"
-            //onClick={saveMeme}
-            color="secondary"
-            disabled
-          >
-            Draw your own
-       </Button>
+          <Paint />
           <TextField
             name="url"
             className="modal"
