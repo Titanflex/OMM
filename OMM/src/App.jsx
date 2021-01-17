@@ -1,5 +1,5 @@
 import { useRoutes, navigate } from "hookrouter";
-import LoginContainer from "./components/Authentication/LoginContainer";
+import LoginContainer from "./components/Login/LoginContainer";
 import MemeCreator from "./components/MemeCreator/MemeCreator";
 import MemeScrollList from "./components/Overview/MemeScrollList";
 import NavBar from "./components/NavBar/NavBar";
@@ -20,15 +20,18 @@ function App() {
   const [logedIn, setLogedIn] = useState(false);
 
   useEffect(() => {
-    // check if there is a token (user loggedin) and get user 
+    // check if there is a token 
     if (localStorage.token) {
-      setLogedIn(true);
       AuthService.getUser();
+      //check if there is there is backend connection
+      if(localStorage.user) {
+        setLogedIn(true);
+      }     
     } else {
+      //navigate to the login page if there is no user logged in
       setLogedIn(false);
       navigate("/login");
     }
-
   });
 
   return (

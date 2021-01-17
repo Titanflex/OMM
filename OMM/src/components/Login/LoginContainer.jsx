@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core";
 import SignIn from "./SignIn";
 import SignUp from "./SignUp";
 import LeftSideComponent from "./LeftSideComponent";
 import Grid from "@material-ui/core/Grid";
+import { navigate } from "hookrouter";
 
 import "./../../css/Login/login.css";
 
@@ -24,6 +25,14 @@ const LoginContainer = () => {
   const handleChangeSigning = () => {
     setSignIn(!signIn);
   };
+
+
+  useEffect(() => {
+    //if there is a user already loged in, navigate back to home
+    if (localStorage.user) {
+      navigate("/");
+    }
+  });
 
   return (
     <Grid container spacing={0}>

@@ -50,6 +50,7 @@ export default function SignUp() {
     text: "",
   });
 
+  //handle input change and set error to false according to the texfield
   const handleChange = (prop) => (event) => {
     if (prop === "name") {
       setNameError({ show: false, text: "" });
@@ -82,31 +83,52 @@ export default function SignUp() {
           //Successful Registration
           navigate("/");
         } else {
-          setNameError({
-            show: true,
-            text: data.msg,
-          });
+          if (data.msg) {
+            //username is already taken
+            setNameError({
+              show: true,
+              text: data.msg,
+            });
+          } else {
+            setNameError({ show: true, text: "" });
+            setPasswordError({ show: true, text: "" });
+            setPasswordError2({
+              show: true,
+              text: "Something went wrong with signing you up :(",
+            });
+          }
         }
       });
     }
   };
 
+  //validated the user input
   const validate = () => {
+    //if name is empty?
     if (values.name === "") {
       setNameError({ show: true, text: "Please enter a name" });
       return false;
     }
+    //if password is empty?
     if (values.password === "") {
       setPasswordError({ show: true, text: "Please enter a password" });
       return false;
     }
+    //if password repeat is empty
     if (values.password2 === "") {
       setPasswordError2({ show: true, text: "Please enter a password" });
       return false;
     }
+    //check is password and password repeat match
     if (values.password !== values.password2) {
       setPasswordError({ show: true, text: "" });
       setPasswordError2({ show: true, text: "The passwords do not match!" });
+      return false;
+    }
+    //check password length
+    if (values.password.length < 8) {
+      setPasswordError({ show: true, text: "" });
+      setPasswordError2({ show: true, text: "The password is too short. It must have at least 8 characters" });
       return false;
     }
     return true;
