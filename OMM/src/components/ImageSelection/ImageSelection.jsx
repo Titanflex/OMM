@@ -5,7 +5,6 @@ import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import CameraIcon from "@material-ui/icons/Camera";
 import { CloudDownload, FolderOpen, Gesture } from "@material-ui/icons";
 import { FilePond, File, registerPlugin } from "react-filepond";
 import "filepond/dist/filepond.min.css";
@@ -16,6 +15,9 @@ import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orien
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import FilePondPluginFileEncode from 'filepond-plugin-file-encode';
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
+
+
+import Camera from "../ImageSelection/Camera";
 
 import "./../../css/ImageSelection/imageSelection.css";
 
@@ -171,16 +173,7 @@ const ImageSelection = params => {
             Get Images form ImageFlip
 
        </Button>
-          <Button
-            className="classes.buttonStyle modal"
-            startIcon={<CameraIcon />}
-            variant="contained"
-            //onClick={saveMeme}
-            color="secondary"
-            disabled
-          >
-            Photo from camera
-       </Button>
+         <Camera />
           <Button
             className="classes.buttonStyle modal"
             startIcon={<Gesture />}
