@@ -1,4 +1,4 @@
-// Load user by token
+// Load user by token 
 const getUser = () => {
     return fetch("http://localhost:3030/auth/user", {
             method: "GET",
@@ -10,7 +10,9 @@ const getUser = () => {
             return data.name;
         })
         .catch(err => {
-
+            console.log("Error occurred while getting the user from the data base")
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
         })
 };
 
