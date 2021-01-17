@@ -82,10 +82,20 @@ export default function SignUp() {
           //Successful Registration
           navigate("/");
         } else {
-          setNameError({
-            show: true,
-            text: data.msg,
-          });
+          if (data.msg) {
+            //username is already taken
+            setNameError({
+              show: true,
+              text: data.msg,
+            });
+          } else {
+            setNameError({ show: true, text: "" });
+            setPasswordError({ show: true, text: "" });
+            setPasswordError2({
+              show: true,
+              text: "Something went wrong with signing you up :(",
+            });
+          }
         }
       });
     }

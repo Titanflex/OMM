@@ -25,6 +25,13 @@ const LoginContainer = () => {
     setSignIn(!signIn);
   };
 
+
+  useEffect(() => { 
+    if (localStorage.token) {
+      navigate("/");
+    }
+  });
+
   return (
     <Grid container spacing={0}>
       <Grid className={classes.leftSide} item s={1} alignItems="center">

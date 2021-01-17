@@ -74,7 +74,7 @@ const logout = () => {
     console.log("User is logged out");
 };
 
-// Setup headers with token
+// Setup headers with token to get user data
 const getTokenHeader = () => {
 
     // Get token from localstorage

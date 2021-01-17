@@ -68,8 +68,16 @@ export default function SignIn() {
           //Successful Login
           navigate("/");
         } else {
-          setNameError({ show: true, text: "" });
-          setPasswordError({ show: true, text: data.msg });
+          if (data.msg) {
+            setNameError({ show: true, text: "" });
+            setPasswordError({ show: true, text: data.msg });
+          } else {
+            setNameError({ show: true, text: "" });
+            setPasswordError({
+              show: true,
+              text: "Something went wrong with signing you in :(",
+            });
+          }
         }
       });
     }

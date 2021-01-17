@@ -1,33 +1,33 @@
 {
-  "name": "ommexpressapp",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "prestart": "start mongod && mongorestore --drop -d memes_db -c memes ../dump/memes/memes.bson",
-    "start": "node ./bin/www",
-    "poststart": "start mongo"
-  },
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "body-parser": "^1.19.0",
-    "config": "^3.3.3",
-    "connect-busboy": "0.0.2",
-    "cookie-parser": "~1.4.4",
-    "debug": "~2.6.9",
-    "express": "~4.16.1",
-    "express-fileupload": "^1.2.0",
-    "fs-extra": "^9.0.1",
-    "http-errors": "~1.6.3",
-    "jade": "~1.11.0",
-    "jsonwebtoken": "^8.5.1",
-    "method-override": "^3.0.0",
-    "mongodb": "^3.6.3",
-    "mongoose": "^5.11.8",
-    "monk": "^7.3.2",
-    "morgan": "~1.9.1",
-    "multer-gridfs-storage": "^4.2.0"
-  },
-  "devDependencies": {
-    "formidable": "^1.2.2"
-  }
+    "name": "ommexpressapp",
+    "version": "0.0.0",
+    "private": true,
+    "scripts": {
+        "prestart": "mongod && mongorestore --drop -d memes_db -c memes ../dump/memes/memes.bson",
+        "start": "node ./bin/www",
+        "poststart": "start mongo"
+    },
+    "dependencies": {
+        "bcryptjs": "^2.4.3",
+        "body-parser": "^1.19.0",
+        "config": "^3.3.3",
+        "connect-busboy": "0.0.2",
+        "cookie-parser": "~1.4.4",
+        "debug": "~2.6.9",
+        "express": "~4.16.1",
+        "express-fileupload": "^1.2.0",
+        "fs-extra": "^9.0.1",
+        "http-errors": "~1.6.3",
+        "jade": "~1.11.0",
+        "jsonwebtoken": "^8.5.1",
+        "method-override": "^3.0.0",
+        "mongodb": "^3.6.3",
+        "mongoose": "^5.11.8",
+        "monk": "^7.3.2",
+        "morgan": "~1.9.1",
+        "multer-gridfs-storage": "^4.2.0"
+    },
+    "devDependencies": {
+        "formidable": "^1.2.2"
+    }
 }
