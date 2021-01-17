@@ -153,6 +153,7 @@ function MemeCreator() {
       <Typography className={classes.heading} variant="h4">
         Hello {localStorage.user}!
       </Typography>
+      <TemplateOverview memeTemplates={memes} setCurrentMemeIndex={setCurrentMemeIndex} />
       <Grid container spacing={1}>
         <Grid item s={1} alignItems="center">
           <IconButton onClick={previousMeme} aria-label="previous">
@@ -223,7 +224,6 @@ function MemeCreator() {
             setUpper={setUpper}
             setLower={setLower}
           />
-          <TemplateOverview memeTemplates={memes} setCurrentMemeIndex={setCurrentMemeIndex} />
           <TextField id="standard-basic" label="Meme Title" />
 
           <div className="dataBaseControls">

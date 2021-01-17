@@ -5,7 +5,6 @@ import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import CameraIcon from "@material-ui/icons/Camera";
 import { CloudDownload, FolderOpen, Gesture } from "@material-ui/icons";
 import { FilePond, File, registerPlugin } from "react-filepond";
 import "filepond/dist/filepond.min.css";
@@ -17,12 +16,13 @@ import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import FilePondPluginFileEncode from 'filepond-plugin-file-encode';
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 
+
+import Camera from "../ImageSelection/Camera";
+
 import "./../../css/ImageSelection/imageSelection.css";
 
 // Register the plugins
 registerPlugin(FilePondPluginImagePreview, FilePondPluginFileEncode);
-
-
 
 
 
@@ -80,7 +80,7 @@ const ImageSelection = params => {
   }*/
 
   async function handleUpload(event) {
-      const files = Array.from(event.target.files);
+    const files = Array.from(event.target.files);
     //console.log("files:", files[0].name)
     const input = document.getElementById('fileUploaded');
 
@@ -91,7 +91,7 @@ const ImageSelection = params => {
     await fetch("http://localhost:3030/memeIO/upload", {
       method: "POST",
       mode: "cors",
-      headers: {"Content-Type": "multipart/form-data"},
+      headers: { "Content-Type": "multipart/form-data" },
       body: formData,
     }).then((res) => {
       //console.log(res.body);
@@ -106,7 +106,7 @@ const ImageSelection = params => {
   const handleSubmit = (event) => {
     if (event.key === 'Enter') {
 
-      params.setMemes([{url: url}]);
+      params.setMemes([{ url: url }]);
       event.preventDefault();
       handleClose()
     }
@@ -119,6 +119,7 @@ const ImageSelection = params => {
     handleClose();
   }
 
+
   return (
     <div>
       <Button
@@ -129,57 +130,50 @@ const ImageSelection = params => {
         I want more memes!
       </Button>
 
-   <Modal
-       open ={open}
-       onClose={handleClose}
-       aria-labelledby="simple-modal-title"
-       aria-describedby="simple-modal-description">
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description">
 
-     <div style={modalStyle} className={classes.paper}>
-       <h2 id="simple-modal-title">Select your image</h2>
+        <div style={modalStyle} className={classes.paper}>
+          <h2 id="simple-modal-title">Select your image</h2>
 
-       {/*<label htmlFor="fileUploaded" className="custom-file-upload" color="secondary">
+          {/*<label htmlFor="fileUploaded" className="custom-file-upload" color="secondary">
          <FolderOpen /> upload your own
        </label>
        <input  id="fileUploaded" type="file" name="sampleFile" onChange={handleUpload}/>*/}
-       <FilePond
-           files={files}
-           onupdatefiles={setFiles}
-           allowMultiple={true}
-           maxFiles={3}
-           server={{
-               url: "http://localhost:3030/memeIO",
-                process: {
-                    url:'/upload',
-                    method: 'POST',
-                    headers: {},
-                    }
+          <FilePond
+            files={files}
+            onupdatefiles={setFiles}
+            server="http://localhost:3030/memeIO/upload"
+            /*
+            server={{
+            url: "http://localhost:3030/memeIO",
+            process: {
+              url: '/upload',
+              method: 'POST',
+              headers: {},
+            }, onload: () => {
+              console.log("Uploaded" + files);
+            },
 
-           }}
-           name="files"
-           labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
-       />
+          }}*/
+            name="files"
+            labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
+          />
 
-       <Button
-           className = "classes.buttonStyle modal"
-           startIcon={<CloudDownload />}
-           variant="contained"
-           onClick={() => {getMoreMemes()}}
-           color="secondary"
-       >
-         Get Images form ImageFlip
-
-       </Button>
           <Button
             className="classes.buttonStyle modal"
-            startIcon={<CameraIcon />}
+            startIcon={<CloudDownload />}
             variant="contained"
-            //onClick={saveMeme}
+            onClick={() => { getMoreMemes() }}
             color="secondary"
-            disabled
           >
-            Photo from camera
+            Get Images form ImageFlip
+
        </Button>
+         <Camera />
           <Button
             className="classes.buttonStyle modal"
             startIcon={<Gesture />}
