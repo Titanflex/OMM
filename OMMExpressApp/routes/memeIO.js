@@ -5,6 +5,7 @@ var upload = multer({ dest: "../server/public/images/" });
 
 var fs = require('fs');
 var path = require('path');
+const captureWebsite = require('capture-website');
 
 const mongoose = require('mongoose');
 const Meme = require('../models/memeSchema');
@@ -110,7 +111,19 @@ memeIO.post('/upload', upload.array("files", 12), async (req, res) => {
 
 });
 
+memeIO.post("/webshot", (req, res) => {
+    let url = req.body.url;
+    let shortUrl = url.replace(/(^http[s]?:\/\/)|[.\/\\]/ig, '') + '.png';
+    (async () => {
+        await captureWebsite.file(url, '../server/public/images/' + shortUrl).then(() =>{
+            console.log("screenshot is saved");
+            res.send("todo")
+        }).catch((err) => console.log(err));
+    })();
 
+
+
+});
 
 
 memeIO.post("/save-meme", (req, res) => {
