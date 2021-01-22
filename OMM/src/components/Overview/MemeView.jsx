@@ -62,7 +62,7 @@ const MemeView = props => {
                                 Created: {memeInfo.hasOwnProperty('creationDate') ? Moment(memeInfo.creationDate).format('MMM Do YY') : "No date"}
                             </Typography>
                             <Typography variant="body2">
-                                Likes: {likes}
+                                Likes: {memeInfo.hasOwnProperty('likes') ? memeInfo.likes : "No likes"}
                             </Typography>
 
                         </div>
