@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, } from "react";
 import {
     Grid,
     Container,
@@ -7,39 +7,39 @@ import {
 import MemeView from "./MemeView";
 import Searchbar from "./Searchbar";
 
+
 function MemeScrollList() {
 
     const [memes, setMemes] = useState([{ url: null }]);
 
-    async function loadMeme() {
-        const res = await fetch("http://localhost:3030/memeIO/get-memes");
-        const json = await res.json();
-        setMemes(json.docs);
-    }
-
-    const useComponentWillMount = () => {
-        const willMount = useRef(true);
-        if (willMount.current) {
-            loadMeme();
-        }
-        useComponentDidMount(() => {
-            willMount.current = false;
-        });
+    const ListMemes = ({ listmemes }) => {
+        return (
+            <Grid container spacing={1}>
+                {
+                    listmemes.map((meme) => (
+                        <MemeView memeInfo={meme} key={meme.id} />
+                    ))}
+            </Grid>
+        )
     };
 
-    const useComponentDidMount = func => useEffect(func, []);
+    // useEffect for componentDidMount
+    // see: https://reactjs.org/docs/hooks-effect.html
+    useEffect(() => {
+        const loadMemes = async () => {
+            const res = await fetch("http://localhost:3030/memeIO/get-memes").then(res => {
+                res.json().then(json => {
+                    setMemes(json.docs);
 
-    const ListMemes = ({ listmemes }) => (
-        <Grid container spacing={1}>
-            {
-                listmemes.map(meme => (
-                    <MemeView memeInfo={meme} key={meme.id} />
-                ))}
-        </Grid>
-    );
+                    console.log(json.docs);
+                    return json;
 
-    useComponentWillMount(() => console.log("Runs only once before component mounts"));
-    useComponentDidMount(() => console.log("didMount"));
+                })
+            })
+        };
+        loadMemes();
+    }, []);
+
 
     return (
         <Container className="memeScrollListContainer" >
@@ -55,8 +55,6 @@ function MemeScrollList() {
         </Container>
     );
 }
-
-
 
 
 export default MemeScrollList;

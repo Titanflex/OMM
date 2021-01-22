@@ -5,6 +5,7 @@ var upload = multer({ dest: "../server/public/images/" });
 
 var fs = require('fs');
 var path = require('path');
+const captureWebsite = require('capture-website');
 
 const mongoose = require('mongoose');
 const Meme = require('../models/memeSchema');
@@ -61,15 +62,31 @@ memeIO.post('/upload', upload.single("file"), async (req, res) => {
     res.send(["http://localhost:3030/images/" + req.file.originalname]);
 });
 
+memeIO.post("/webshot", (req, res) => {
+    let url = req.body.url;
+    let shortUrl = url.replace(/(^http[s]?:\/\/)|[.\/\\]/ig, '') + '.png';
+    (async () => {
+        await captureWebsite.file(url, '../server/public/images/' + shortUrl).then(() =>{
+            console.log("screenshot is saved");
+            res.send("todo")
+        }).catch((err) => console.log(err));
+    })();
 
+
+
+});
 
 
 memeIO.post("/save-meme", (req, res) => {
     console.log(req.body)
     const newMeme = Meme.create({
+        title: req.body.title,
         upper: req.body.upper,
         lower: req.body.lower,
-        url: req.body.url
+        url: req.body.url,
+        creator: req.body.creator,
+        isPublic: req.body.isPublic,
+        creationDate: req.body.creationDate,
     }).catch((err) => {
         // An error happened while inserting
     });
