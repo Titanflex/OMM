@@ -21,7 +21,7 @@ img {
 .memeText {
     position: absolute;
     font-family: Impact;
-   -webkit-text-fill-color: white;
+    -webkit-text-fill-color: white;
     font-size: 30px;
     -webkit-text-stroke: 1px black;
     background-color: transparent;
@@ -58,22 +58,30 @@ img {
 }
 
 .dataBaseControls {
-    margin-top: 100%;
+    margin-top: 20%;
 }
 
-.arrows{
+.arrows {
     margin-top: 200% !important;
 }
 
-.textFormatButton{
+.textFormatButton {
     margin-bottom: 5px !important;
 }
 
-.textFormatButton:focus{
+.textFormatButton:focus {
     outline: none;
 }
 
-.textFormatSelect{
+.textFormatSelect {
     margin-left: 10px !important;
     margin-top: 5px !important;
+}
+
+.radioButtonFormat {
+    margin-top: 10% !important;
+}
+
+.textFieldTitleFormat {
+    margin-top: 5% !important;
 }

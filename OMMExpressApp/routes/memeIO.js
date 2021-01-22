@@ -116,9 +116,13 @@ memeIO.post('/upload', upload.array("files", 12), async (req, res) => {
 memeIO.post("/save-meme", (req, res) => {
     console.log(req.body)
     const newMeme = Meme.create({
+        title: req.body.title,
         upper: req.body.upper,
         lower: req.body.lower,
-        url: req.body.url
+        url: req.body.url,
+        creator: req.body.creator,
+        isPublic: req.body.isPublic,
+        creationDate: req.body.creationDate,
     }).catch((err) => {
         // An error happened while inserting
     });

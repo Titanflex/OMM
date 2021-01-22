@@ -10,6 +10,10 @@ import {
   Select,
   makeStyles,
   IconButton,
+  FormLabel,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
 } from "@material-ui/core";
 
 import ArrowRight from "@material-ui/icons/ChevronRight";
@@ -30,6 +34,8 @@ import "./../../css/MemeCreator/memeCreator.css";
 import TemplateOverview from "../ImageSelection/TemplateOverview";
 
 function MemeCreator() {
+  const [title, setTitle] = useState("");
+  const [isPublic, setIsPublic] = useState(true);
   const [upper, setUpper] = useState("");
   const [lower, setLower] = useState("");
   const [memes, setMemes] = useState([
@@ -121,14 +127,23 @@ function MemeCreator() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        title: title,
         url: memes[currentMemeIndex].url,
         upper: upper,
         lower: lower,
+        creator: localStorage.user,
+        isPublic: isPublic,
+        creationDate: Date.now,
       }),
     }).then((res) => {
       loadMeme();
     });
   }
+
+  const handleRadioChange = (event) => {
+    event.target.value === 'public' ? setIsPublic(true) : setIsPublic(false);
+  }
+
 
   function toggleBold() {
     bold ? setBold(false) : setBold(true);
@@ -183,6 +198,7 @@ function MemeCreator() {
               <MenuItem value={"grey"}>Grey</MenuItem>
             </Select>
           </FormControl>
+
           <FormControl className={"textFormatSelect"}>
             <Select value={fontSize} onChange={changeFontSize}>
               {fontSizes.map((size) => (
@@ -192,6 +208,7 @@ function MemeCreator() {
               ))}
             </Select>
           </FormControl>
+
           <div className="memeContainer">
             <div>
               <textarea
@@ -224,7 +241,28 @@ function MemeCreator() {
             setUpper={setUpper}
             setLower={setLower}
           />
-          <TextField id="standard-basic" label="Meme Title" />
+
+          {/* Text Field for Meme Title*/}
+          <TextField
+            className="textFieldTitleFormat"
+            id="standard-basic"
+            label="Meme Title"
+            placeholder="Meme Title"
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+          />
+
+          {/* Radio Button for selecting public/private/unlisted*/}
+          <Grid>
+            <FormControl component="fieldset" className={"radioButtonFormat"}>
+              <FormLabel component="legend">Publicity</FormLabel>
+              <RadioGroup aria-label="publicity" name="publicity" defaultValue="public" onChange={handleRadioChange}>
+                <FormControlLabel className="radioButton" value="public" control={<Radio />} label="public" />
+                <FormControlLabel className="radioButton" value="private" control={<Radio />} label="private" />
+                <FormControlLabel className="radioButton" value="unlisted" control={<Radio />} label="unlisted" />
+              </RadioGroup>
+            </FormControl>
+          </Grid>
 
           <div className="dataBaseControls">
             <Button
