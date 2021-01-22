@@ -121,6 +121,11 @@ const ImageSelection = params => {
     handleClose();
   }
 
+  function showOwnTemplate(response) {
+    console.log(response)
+    params.setMemes([{ upper: "test", lower: "one", url: response }])
+    handleClose();
+  }
 
   return (
     <div>
@@ -148,20 +153,17 @@ const ImageSelection = params => {
           <FilePond
             files={files}
             onupdatefiles={setFiles}
-            server="http://localhost:3030/memeIO/upload"
-            /*
             server={{
-            url: "http://localhost:3030/memeIO",
-            process: {
-              url: '/upload',
-              method: 'POST',
-              headers: {},
-            }, onload: () => {
-              console.log("Uploaded" + files);
-            },
+              url: "http://localhost:3030/memeIO",
+              process: {
+                url: '/upload',
+                method: 'POST',
+                onload: (response) =>
+                  showOwnTemplate(response)
 
-          }}*/
-            name="files"
+              }
+            }}
+            name="file"
             labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
           />
 
@@ -175,7 +177,7 @@ const ImageSelection = params => {
             Get Images form ImageFlip
 
        </Button>
-         <Camera />
+          <Camera />
           <Paint />
           <TextField
             name="url"
