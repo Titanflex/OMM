@@ -59,6 +59,12 @@ memeIO.get('/get-memes', (req, res) => {
 
 
 memeIO.post('/upload', upload.single("file"), async (req, res) => {
+    const newTemplate = Template.create({
+        uploader: res.header.author,
+        templateName: res.header.templateName,
+        url: "http://localhost:3030/images/" + req.file.originalname
+    })
+
     res.send(["http://localhost:3030/images/" + req.file.originalname]);
 });
 
@@ -66,7 +72,7 @@ memeIO.post("/webshot", (req, res) => {
     let url = req.body.url;
     let shortUrl = url.replace(/(^http[s]?:\/\/)|[.\/\\]/ig, '') + '.png';
     (async () => {
-        await captureWebsite.file(url, '../server/public/images/' + shortUrl).then(() =>{
+        await captureWebsite.file(url, '../server/public/images/' + shortUrl).then(() => {
             console.log("screenshot is saved");
             res.send("todo")
         }).catch((err) => console.log(err));

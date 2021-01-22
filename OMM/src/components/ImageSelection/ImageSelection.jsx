@@ -5,7 +5,7 @@ import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import { CloudDownload, FolderOpen, Gesture } from "@material-ui/icons";
+import { CloudDownload, FolderOpen, Gesture, LocalHospitalTwoTone } from "@material-ui/icons";
 import { FilePond, File, registerPlugin } from "react-filepond";
 import "filepond/dist/filepond.min.css";
 
@@ -177,6 +177,10 @@ const ImageSelection = params => {
               process: {
                 url: '/upload',
                 method: 'POST',
+                headers: {
+                  'author': localStorage.user,
+                  'templateName': "test"
+                },
                 onload: (response) =>
                   showOwnTemplate(response)
 

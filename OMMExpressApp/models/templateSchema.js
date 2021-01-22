@@ -5,10 +5,7 @@ const templateSchema = new Schema(
     {
         uploader: String,
         templateName: String,
-        img: {
-            data: Buffer,
-            contentType: String
-        }
+        url: String
 
     }
 );
