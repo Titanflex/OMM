@@ -47,7 +47,9 @@ const MemeView = props => {
 
             <Grid container spacing={2}>
                 <Grid item xs>
-                    <Meme memeData={memeInfo} />
+                    <ButtonBase id="memeViewDiv" onClick={handleClickShowMemeDetails}>
+                        <Meme memeData={memeInfo} />
+                    </ButtonBase>
                 </Grid>
                 <Grid item xs container direction="column" spacing={2}>
                     <Grid item xs>

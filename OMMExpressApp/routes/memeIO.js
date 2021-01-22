@@ -39,15 +39,23 @@ memeIO.use(function (req, res, next) {
 
 
 memeIO.get('/get-memes', (req, res) => {
-
     Meme.find({}, function (err, docs) {
         if (err)
             return res.status(500).send(err);
 
         res.json({ code: 200, docs })
     })
-
 });
+
+/* Get public memes data */
+memeIO.get('/get-public-memes', auth, (req, res) => {
+    Meme.find({ isPublic: true }, function (err, docs) {
+        if (err)
+            return res.status(500).send(err);
+
+        res.json({ code: 200, docs })
+    })
+})
 
 
 memeIO.post('/upload', upload.array("files", 12), async (req, res) => {
@@ -82,7 +90,6 @@ memeIO.post('/upload', upload.array("files", 12), async (req, res) => {
     //console.log(meme.image.toString("base64"));
     /*try{
         const newMeme = await meme.save()
-        console.log("Hallo")
         res.redirect(`/`)
     }catch(err){
         console.log("Error:", err)
@@ -115,7 +122,7 @@ memeIO.post("/webshot", (req, res) => {
     let url = req.body.url;
     let shortUrl = url.replace(/(^http[s]?:\/\/)|[.\/\\]/ig, '') + '.png';
     (async () => {
-        await captureWebsite.file(url, '../server/public/images/' + shortUrl).then(() =>{
+        await captureWebsite.file(url, '../server/public/images/' + shortUrl).then(() => {
             console.log("screenshot is saved");
             res.send("todo")
         }).catch((err) => console.log(err));
