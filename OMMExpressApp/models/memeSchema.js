@@ -10,7 +10,7 @@ const memeSchema = new Schema(
         url: String,
 
         creator: String,
-        creationDate: { type: Date, default: Date.now },
+        creationDate: Date,
         isPublic: Boolean,
 
         //likes: Number,

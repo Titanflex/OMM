@@ -12,7 +12,7 @@ import {
     GetApp,
     Share,
 } from "@material-ui/icons";
-
+import Moment from 'moment';
 import { navigate } from "hookrouter";
 
 import Meme from "./Meme";
@@ -53,14 +53,14 @@ const MemeView = props => {
                     <Grid item xs>
                         <div className="memeInfo">
                             <Typography gutterBottom variant="h6" id="meme-title">
-                                {memeInfo.title}
+                                {memeInfo.hasOwnProperty('title') ? memeInfo.title : "No Title"}
                             </Typography>
                             <Typography gutterBottom variant="body1">
-                                Author: {memeInfo.creator}
+                                Author: {memeInfo.hasOwnProperty('creator') ? memeInfo.creator : "Anonymous"}
                             </Typography>
                             <Typography variant="body2">
-                                Created: 23.12.2020
-                        </Typography>
+                                Created: {memeInfo.hasOwnProperty('creationDate') ? Moment(memeInfo.creationDate).format('MMM Do YY') : "No date"}
+                            </Typography>
                             <Typography variant="body2">
                                 Likes: {likes}
                             </Typography>
