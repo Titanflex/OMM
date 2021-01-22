@@ -30,10 +30,7 @@ function MemeScrollList() {
             const res = await fetch("http://localhost:3030/memeIO/get-memes").then(res => {
                 res.json().then(json => {
                     setMemes(json.docs);
-
-                    console.log(json.docs);
                     return json;
-
                 })
             })
         };
