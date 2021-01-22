@@ -55,15 +55,6 @@ memeIO.get('/get-memes', (req, res) => {
     })
 });
 
-/* Get public memes data */
-memeIO.get('/get-public-memes', auth, (req, res) => {
-    Meme.find({ isPublic: true }, function (err, docs) {
-        if (err)
-            return res.status(500).send(err);
-
-        res.json({ code: 200, docs })
-    })
-})
 
 
 memeIO.post('/upload', upload.single("file"), async (req, res) => {
