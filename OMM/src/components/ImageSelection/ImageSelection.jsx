@@ -140,6 +140,11 @@ const ImageSelection = params => {
     handleClose();
   }
 
+  function showOwnTemplate(response) {
+    console.log(response)
+    params.setMemes([{ upper: "test", lower: "one", url: response }])
+    handleClose();
+  }
 
   return (
     <div>
@@ -167,20 +172,17 @@ const ImageSelection = params => {
           <FilePond
             files={files}
             onupdatefiles={setFiles}
-            server="http://localhost:3030/memeIO/upload"
-            /*
             server={{
-            url: "http://localhost:3030/memeIO",
-            process: {
-              url: '/upload',
-              method: 'POST',
-              headers: {},
-            }, onload: () => {
-              console.log("Uploaded" + files);
-            },
+              url: "http://localhost:3030/memeIO",
+              process: {
+                url: '/upload',
+                method: 'POST',
+                onload: (response) =>
+                  showOwnTemplate(response)
 
-          }}*/
-            name="files"
+              }
+            }}
+            name="file"
             labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
           />
 
@@ -194,8 +196,8 @@ const ImageSelection = params => {
             Get Images form ImageFlip
 
        </Button>
-         <Camera />
-         <Paint />
+          <Camera />
+          <Paint />
           <TextField
             name="url"
             className="modal"
@@ -203,11 +205,11 @@ const ImageSelection = params => {
             onChange={handleChange}
             onKeyPress={handleSubmit} />
           <TextField
-              name="url"
-              className="modal"
-              label="Screenshot Image from URL"
-              onChange={handleChange}
-              onKeyPress={handleScreenshot} />
+            name="url"
+            className="modal"
+            label="Screenshot Image from URL"
+            onChange={handleChange}
+            onKeyPress={handleScreenshot} />
         </div>
       </Modal>
     </div>

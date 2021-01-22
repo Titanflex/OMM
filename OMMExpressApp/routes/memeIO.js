@@ -11,8 +11,18 @@ const mongoose = require('mongoose');
 const Meme = require('../models/memeSchema');
 const template = require('../models/templateSchema');
 
+var upload = multer({ storage: storage });
 
-
+var storage = multer.diskStorage(
+    {
+        destination: 'public/images',
+        filename: function (req, file, cb) {
+            //req.body is empty...
+            //How could I get the new_file_name property sent from client here?
+            cb(null, file.originalname);
+        }
+    }
+);
 
 const imageMimeTypes = ['image/jpeg', 'image/png', 'images/gif']
 
@@ -36,8 +46,6 @@ memeIO.use(function (req, res, next) {
     next();
 });
 
-
-
 memeIO.get('/get-memes', (req, res) => {
     Meme.find({}, function (err, docs) {
         if (err)
@@ -58,64 +66,8 @@ memeIO.get('/get-public-memes', auth, (req, res) => {
 })
 
 
-memeIO.post('/upload', upload.array("files", 12), async (req, res) => {
-    console.log(req.files)
-    console.log(req.files[0])
-
-
-    if (req.body.fileImage === null) {
-        return
-    }
-
-    var uploadedTemplate = {
-        uploader: "To be done",
-        templateName: req.files[0].filename,
-        img: {
-            data: fs.readFileSync(path.join('../server/public/images/' + req.files[0].filename)),
-            contentType: req.files[0].mimetype
-        }
-    }
-
-    console.log(fs.readFileSync(path.join('../server/public/images/' + req.files[0].filename)))
-
-    template.create(uploadedTemplate, (err, item) => {
-        if (err) {
-            console.log(err)
-        } else {
-            item.save();
-            res.send([req.files[0].filename]);
-
-        }
-    })
-    //console.log(meme.image.toString("base64"));
-    /*try{
-        const newMeme = await meme.save()
-        res.redirect(`/`)
-    }catch(err){
-        console.log("Error:", err)
-    }
-
-*/
-    /*console.log(req.files);
-    if (!req.files || Object.keys(req.files).length === 0) {
-      return res.status(400).send('No files were uploaded.');
-    }
-    console.log("req2: ", req.body.url);
-    // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
-    let sampleFile = req.form;
-    console.log("req"+req);
-    console.log("reqfiles"+req.formData.name);
-    const fileName = req.files.sampleFile.name;
-    const path = __dirname + '/public/uploadedImages/' + fileName;
-    console.log(path);
-
-    // Use the mv() method to place the file somewhere on your server
-    sampleFile.mv(path, function (err) {
-      console.log(path);
-
-      res.send('File uploaded!');
-    });*/
-
+memeIO.post('/upload', upload.single("file"), async (req, res) => {
+    res.send(["http://localhost:3030/images/" + req.file.originalname]);
 });
 
 memeIO.post("/webshot", (req, res) => {

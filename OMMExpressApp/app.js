@@ -26,6 +26,7 @@ var memeRouter = require('./routes/memeIO');
 
 var app = express();
 
+
 app.use(function (req, res, next) {
     // Website you wish to allow to connect
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
@@ -57,7 +58,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-
+app.use(express.static(__dirname + "/public"))
+console.log(__dirname + "/public")
 
 app.use('/', indexRouter);
 app.use('/memeIO', memeRouter);
