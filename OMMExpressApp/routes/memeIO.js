@@ -1,7 +1,6 @@
 var express = require('express');
 var memeIO = express.Router();
 var multer = require("multer");
-var upload = multer({ dest: "../server/public/images/" });
 
 var fs = require('fs');
 var path = require('path');
@@ -11,11 +10,10 @@ const mongoose = require('mongoose');
 const Meme = require('../models/memeSchema');
 const template = require('../models/templateSchema');
 
-var upload = multer({ storage: storage });
 
 var storage = multer.diskStorage(
     {
-        destination: 'public/images',
+        destination: './public/images',
         filename: function (req, file, cb) {
             //req.body is empty...
             //How could I get the new_file_name property sent from client here?
@@ -23,6 +21,8 @@ var storage = multer.diskStorage(
         }
     }
 );
+
+var upload = multer({ storage: storage });
 
 const imageMimeTypes = ['image/jpeg', 'image/png', 'images/gif']
 
@@ -36,7 +36,7 @@ memeIO.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
     // Request headers you wish to allow
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,author,templateName');
 
     // Set to true if you need the website to include cookies in the requests sent
     // to the API (e.g. in case you use sessions)
@@ -58,13 +58,20 @@ memeIO.get('/get-memes', (req, res) => {
 
 
 memeIO.post('/upload', upload.single("file"), async (req, res) => {
-    const newTemplate = Template.create({
-        uploader: res.header.author,
-        templateName: res.header.templateName,
-        url: "http://localhost:3030/images/" + req.file.originalname
+    let url = "http://localhost:3030/images/" + req.file.originalname
+    var uploadedTemplate = {
+        uploader: req.body.author,
+        templateName: req.body.templateName,
+        url: url
+    }
+    template.create(uploadedTemplate, (err, item) => {
+        if (err)
+            console.log(err)
+        else {
+            item.save();
+            res.send(url);
+        }
     })
-
-    res.send(["http://localhost:3030/images/" + req.file.originalname]);
 });
 
 memeIO.post("/webshot", (req, res) => {

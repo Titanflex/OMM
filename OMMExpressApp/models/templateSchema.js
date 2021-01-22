@@ -5,7 +5,10 @@ const templateSchema = new Schema(
     {
         uploader: String,
         templateName: String,
-        url: String
+        url: {
+            type: String,
+            unique: true
+        }
 
     }
 );
