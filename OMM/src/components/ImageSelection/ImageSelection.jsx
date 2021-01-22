@@ -114,6 +114,25 @@ const ImageSelection = params => {
     }
   }
 
+  async function handleScreenshot() {
+    await fetch("http://localhost:3030/memeIO/webshot", {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        url: url,
+      }),
+    }).then((res) => {
+      let response = res.text();
+      return response;
+    }).then((data) => {
+      console.log("data: " + data);
+      handleClose();
+    });
+  }
+
   async function getMoreMemes() {
     const res = await fetch("https://api.imgflip.com/get_memes");
     const json = await res.json();
@@ -176,14 +195,19 @@ const ImageSelection = params => {
 
        </Button>
          <Camera />
-          <Paint />
+         <Paint />
           <TextField
             name="url"
             className="modal"
-            id="standard-basic"
             label="Load Image from URL"
             onChange={handleChange}
             onKeyPress={handleSubmit} />
+          <TextField
+              name="url"
+              className="modal"
+              label="Screenshot Image from URL"
+              onChange={handleChange}
+              onKeyPress={handleScreenshot} />
         </div>
       </Modal>
     </div>
