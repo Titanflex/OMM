@@ -20,12 +20,13 @@ import ArrowRight from "@material-ui/icons/ChevronRight";
 import ArrowLeft from "@material-ui/icons/ChevronLeft";
 import SaveIcon from "@material-ui/icons/Save";
 import LoadIcon from "@material-ui/icons/Refresh";
+import FormatColorTextIcon from '@material-ui/icons/FormatColorText';
 import {
   FormatBold,
-  FormatColorText,
-  FormatSize,
   FormatItalic,
 } from "@material-ui/icons";
+
+import { SketchPicker } from 'react-color';
 
 import ImageSelection from "../ImageSelection/ImageSelection";
 import AuthService from "../../services/auth.service";
@@ -50,6 +51,7 @@ function MemeCreator() {
   const [color, setColor] = useState("white");
   const [fontSize, setFontSize] = useState("30");
 
+  const [displayColorPicker, setDisplayColorPicker] = useState(false);
   const fontSizes = [
     10,
     12,
@@ -162,6 +164,12 @@ function MemeCreator() {
     setFontSize(event.target.value);
   };
 
+  const handleColorChange = (color) => {
+    setColor(color.hex);
+    setDisplayColorPicker(false);
+  }
+
+
 
   return (
     <Container className="memeCreatorContainer">
@@ -190,15 +198,20 @@ function MemeCreator() {
           >
             <FormatItalic />
           </IconButton>
-          <FormControl className={"textFormatSelect"}>
-            <Select label={"white"} value={color} onChange={changeTextColor}>
-              <MenuItem value="white">White</MenuItem>
-              <MenuItem value={"red"}>Red</MenuItem>
-              <MenuItem value={"black"}>Black</MenuItem>
-              <MenuItem value={"grey"}>Grey</MenuItem>
-            </Select>
-          </FormControl>
-
+          <IconButton
+            className={"textFormatButton"}
+            onClick={() => {
+              if(displayColorPicker){
+                setDisplayColorPicker(false)
+              }else{
+                setDisplayColorPicker(true)}}}>
+            <FormatColorTextIcon />
+          </IconButton>
+          {displayColorPicker &&
+          <SketchPicker
+              className="colorPicker"
+              onChange={handleColorChange}
+          />}
           <FormControl className={"textFormatSelect"}>
             <Select value={fontSize} onChange={changeFontSize}>
               {fontSizes.map((size) => (

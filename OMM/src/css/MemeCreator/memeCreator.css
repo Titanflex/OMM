@@ -85,3 +85,8 @@ img {
 .textFieldTitleFormat {
     margin-top: 5% !important;
 }
+
+.colorPicker{
+    z-index: 2;
+    position: absolute !important;
+}
