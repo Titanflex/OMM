@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
 
 
 
-const Paint = () => {
+const Paint = params => {
     const classes = useStyles();
     const [modalStyle] = useState(getModalStyle);
     const [open, setOpen] = useState(false);
@@ -46,7 +46,9 @@ const Paint = () => {
         setOpen(false);
     };
 
-
+    function handleSave(title, url){
+        params.handleSave(title, url, false);
+    }
 
     return (
         <div>
@@ -66,7 +68,9 @@ const Paint = () => {
                 aria-labelledby="simple-modal-title"
                 aria-describedby="simple-modal-description">
                 <div style={modalStyle} className={classes.paper}>
-                    <PaintCanvas />
+                    <PaintCanvas
+                        handleSave={handleSave}
+                    />
                 </div>
             </Modal>
 

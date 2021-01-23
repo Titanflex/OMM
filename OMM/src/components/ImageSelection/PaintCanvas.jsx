@@ -3,10 +3,12 @@ import Button from "@material-ui/core/Button";
 
 import "./../../css/ImageSelection/imageSelection.css";
 import ClearIcon from "@material-ui/icons/Clear";
+import {TextField} from "@material-ui/core";
 
 
-const PaintCanvas = () => {
+const PaintCanvas = params => {
     const [isDrawing, setIsDrawing] = useState(false);
+    const [templateTitle, setTemplateTitle] = useState("")
 
     const canvasRef = useRef(null);
     const contextRef = useRef(null);
@@ -54,22 +56,14 @@ const PaintCanvas = () => {
     }
 
     function saveDrawing() {
+        if(templateTitle === ""){
+            alert("Enter a title for your new template");
+            return;
+        }
         let paintingSrc = canvasRef.current.toDataURL();
-        console.log(paintingSrc);
-        fetch("http://localhost:3030/memeIO/save-meme", {
-            method: "POST",
-            mode: "cors",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                upper: "",
-                lower: "",
-                url: paintingSrc,
-            }),
-        }).then((res) => {
-            clearCanvas();
-        });
+        params.handleSave(templateTitle, paintingSrc);
+        clearCanvas();
+
     }
 
     return (
@@ -85,9 +79,15 @@ const PaintCanvas = () => {
                     onMouseDown={startDrawing}
                     onMouseUp={stopDrawing}
                     onMouseMove={draw}/>
+            <TextField
+                id="standard-basic"
+                label="Template Title"
+                placeholder="Template Title"
+                value={templateTitle}
+                onChange={(event) => setTemplateTitle(event.target.value)}
+            />
             <Button
-                className="classes.buttonStyle"
-
+                className="classes.buttonStyle modal"
                 variant="contained"
                 onClick={saveDrawing}
                 color="secondary"

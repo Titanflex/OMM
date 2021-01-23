@@ -24,7 +24,6 @@ var storage = multer.diskStorage(
 
 var upload = multer({ storage: storage });
 
-const imageMimeTypes = ['image/jpeg', 'image/png', 'images/gif']
 
 memeIO.use(function (req, res, next) {
     // Website you wish to allow to connect
@@ -68,24 +67,64 @@ memeIO.post('/upload', upload.single("file"), async (req, res) => {
         if (err)
             console.log(err)
         else {
+            console.log(item);
             item.save();
             res.send(url);
         }
     })
 });
 
-memeIO.post("/webshot", (req, res) => {
+memeIO.post("/save-template", async (req, res) => {
+    let title = req.body.title + ".png";
+    let url;
+
+    if(!req.body.internetSource){  //save base64 string to file
+        let base64String = req.body.url;
+        let base64Image = base64String.split(';base64,').pop();
+        url = "http://localhost:3030/images/" + title;
+        fs.writeFile('public/images/' + title, base64Image, {encoding:'base64'}, function (err){
+            if(err) console.log(err);
+        })
+    }else{ //keep internet address
+         url = req.body.url;
+    }
+
+    let newTemplate = {
+        uploader: req.body.author,
+        templateName: title,
+        url: url,
+    }
+    template.create(newTemplate, (err, item) => {
+        if (err)
+            console.log(err)
+        else {
+            item.save();
+            res.send(url);
+        }
+    })
+})
+memeIO.post("/webshot", async (req, res) => {
     let url = req.body.url;
     let shortUrl = url.replace(/(^http[s]?:\/\/)|[.\/\\]/ig, '') + '.png';
-    (async () => {
-        await captureWebsite.file(url, '../server/public/images/' + shortUrl).then(() => {
-            console.log("screenshot is saved");
-            res.send("todo")
-        }).catch((err) => console.log(err));
-    })();
-
-
-
+    let filePath = "http://localhost:3030/images/" + shortUrl;
+    var screenshotTemplate = {
+        uploader: req.body.author,
+        templateName: shortUrl,
+        url: filePath,
+    }
+    template.create(screenshotTemplate, (err, item) => {
+        if (err)
+            console.log(err)
+        else {
+            console.log(item);
+            item.save();
+        }
+    })
+    //make screenshot of provided url and save to public/images
+    await captureWebsite.file(url, 'public/images/' + shortUrl).then(() => {
+      console.log("savedFile")
+    }).catch((err) => console.log(err));
+    res.send(filePath);
 });
 
 

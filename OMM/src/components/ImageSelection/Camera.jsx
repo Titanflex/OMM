@@ -3,10 +3,10 @@ import {makeStyles} from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Button from "@material-ui/core/Button";
 import CameraIcon from "@material-ui/icons/Camera";
-
 import "./../../css/ImageSelection/imageSelection.css";
 
 import Webcam from "react-webcam";
+import {TextField} from "@material-ui/core";
 
 
 function getModalStyle() {
@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const Camera = () => {
+const Camera = params => {
     const classes = useStyles();
     const [modalStyle] = React.useState(getModalStyle);
     const [open, setOpen] = React.useState(false);
@@ -37,6 +37,7 @@ const Camera = () => {
 
     const webcamRef = React.useRef(null);
     const [imgSrc, setImgSrc] = React.useState(null);
+    const [templateTitle, setTemplateTitle] = useState("")
 
     const handleOpen = () => {
         setOpen(true);
@@ -53,20 +54,11 @@ const Camera = () => {
     }, [webcamRef, setImgSrc]);
 
     function saveCapturedPicture() {
-        fetch("http://localhost:3030/memeIO/save-meme", {
-            method: "POST",
-            mode: "cors",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                upper: "",
-                lower: "",
-                url: imgSrc,
-            }),
-        }).then((res) => {
-            handleClose();
-        });
+        if(templateTitle === ""){
+            alert("Enter a title for your new template");
+            return;
+        }
+        params.handleSave(templateTitle, imgSrc, false);
     }
 
 
@@ -95,13 +87,22 @@ const Camera = () => {
                             ref={webcamRef}
                             screenshotFormat="image/jpeg"
                         />
+                        <TextField
+                            id="standard-basic"
+                            label="Template Title"
+                            placeholder="Template Title"
+                            value={templateTitle}
+                            onChange={(event) => setTemplateTitle(event.target.value)}
+                        />
                         <Button
-                            className="classes.buttonStyle"
+                            className="classes.buttonStyle modal"
+                            variant="contained"
                             onClick={capture}
                             color="secondary"
                         >
                             Cheese!
                         </Button>
+
                         {imgSrc && (
                             <img
                                 className="camera"
@@ -110,7 +111,8 @@ const Camera = () => {
                             />
                         )}
                         <Button
-                            className="classes.buttonStyle"
+                            className="classes.buttonStyle modal"
+                            variant="contained"
                             onClick={saveCapturedPicture}
                             color="secondary"
                             disabled={save}

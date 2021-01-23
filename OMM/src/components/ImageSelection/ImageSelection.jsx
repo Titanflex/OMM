@@ -11,7 +11,6 @@ import "filepond/dist/filepond.min.css";
 
 
 
-import FilePondPluginImageExifOrientation from "filepond-plugin-image-exif-orientation";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import FilePondPluginFileEncode from 'filepond-plugin-file-encode';
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
@@ -53,7 +52,7 @@ const ImageSelection = params => {
   const [modalStyle] = React.useState(getModalStyle);
   const [open, setOpen] = React.useState(false);
 
-  const fileField = useRef(null);
+
 
   const handleOpen = () => {
     setOpen(true);
@@ -65,6 +64,7 @@ const ImageSelection = params => {
 
   const [url, setUrl] = useState((''));
   const [files, setFiles] = useState([]);
+
 
   /*const handleUpload = (event) =>{
     let file = event.target.files[0];
@@ -107,10 +107,7 @@ const ImageSelection = params => {
   }
   const handleSubmit = (event) => {
     if (event.key === 'Enter') {
-
-      params.setMemes([{ url: url }]);
-      event.preventDefault();
-      handleClose()
+      saveTemplate("title", url, true);
     }
   }
 
@@ -123,15 +120,35 @@ const ImageSelection = params => {
       },
       body: JSON.stringify({
         url: url,
+        author: localStorage.user
       }),
     }).then((res) => {
-      let response = res.text();
-      return response;
+      return res.text();
     }).then((data) => {
-      console.log("data: " + data);
-      handleClose();
+      showOwnTemplate(data);
     });
   }
+
+  async function saveTemplate(title, src, internetSource){
+    fetch("http://localhost:3030/memeIO/save-template", {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        internetSource : internetSource,
+        author: localStorage.user,
+        title: title,
+        url: src,
+      }),
+    }).then((res) => {
+      return res.text();
+    }).then((data) => {
+      showOwnTemplate(data);
+    });
+  }
+
 
   async function getMoreMemes() {
     const res = await fetch("https://api.imgflip.com/get_memes");
@@ -200,8 +217,12 @@ const ImageSelection = params => {
             Get Images form ImageFlip
 
        </Button>
-          <Camera />
-          <Paint />
+          <Camera
+            handleSave={saveTemplate}
+          />
+          <Paint
+            handleSave={saveTemplate}
+          />
           <TextField
             name="url"
             className="modal"
