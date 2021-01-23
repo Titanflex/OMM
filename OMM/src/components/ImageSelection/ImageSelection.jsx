@@ -1,12 +1,12 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState} from 'react';
 
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import { CloudDownload, FolderOpen, Gesture, LocalHospitalTwoTone } from "@material-ui/icons";
-import { FilePond, File, registerPlugin } from "react-filepond";
+import { CloudDownload} from "@material-ui/icons";
+import { FilePond, registerPlugin } from "react-filepond";
 import "filepond/dist/filepond.min.css";
 
 
@@ -66,41 +66,6 @@ const ImageSelection = params => {
   const [files, setFiles] = useState([]);
 
 
-  /*const handleUpload = (event) =>{
-    let file = event.target.files[0];
-    let reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      setUrl(reader.result)
-      console.log(url);
-      params.setMemes([{url: url}]);
-      handleClose();
-    }
-    reader.onerror = function (error) {
-      console.log('Error: ', error);
-    }
-  }*/
-
-  async function handleUpload(event) {
-    const files = Array.from(event.target.files);
-    //console.log("files:", files[0].name)
-    const input = document.getElementById('fileUploaded');
-
-    //const file = fileField.files[0];
-    const formData = new FormData();
-    formData.append(files[0].name, event.target.files[0]);
-    //console.log(formData);
-    await fetch("http://localhost:3030/memeIO/upload", {
-      method: "POST",
-      mode: "cors",
-      headers: { "Content-Type": "multipart/form-data" },
-      body: formData,
-    }).then((res) => {
-      //console.log(res.body);
-      //TODO implement upload
-      //console.log('not working yet')
-    });
-  }
 
   const handleChange = ({ target }) => {
     setUrl((prev) => target.value);
@@ -181,11 +146,7 @@ const ImageSelection = params => {
 
         <div style={modalStyle} className={classes.paper}>
           <h2 id="simple-modal-title">Select your image</h2>
-
-          {/*<label htmlFor="fileUploaded" className="custom-file-upload" color="secondary">
-         <FolderOpen /> upload your own
-       </label>
-       <input  id="fileUploaded" type="file" name="sampleFile" onChange={handleUpload}/>*/}
+          
           <FilePond
             files={files}
             onupdatefiles={setFiles}

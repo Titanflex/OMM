@@ -67,7 +67,6 @@ memeIO.post('/upload', upload.single("file"), async (req, res) => {
         if (err)
             console.log(err)
         else {
-            console.log(item);
             item.save();
             res.send(url);
         }
@@ -77,7 +76,6 @@ memeIO.post('/upload', upload.single("file"), async (req, res) => {
 memeIO.post("/save-template", async (req, res) => {
     let title = req.body.title + ".png";
     let url;
-
     if(!req.body.internetSource){  //save base64 string to file
         let base64String = req.body.url;
         let base64Image = base64String.split(';base64,').pop();
