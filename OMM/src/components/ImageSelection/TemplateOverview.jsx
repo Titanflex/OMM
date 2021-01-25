@@ -3,7 +3,7 @@ import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from "@material-ui/core/Button";
 import { Grid, GridList, GridListTile, GridListTileBar } from "@material-ui/core";
-import MemeCreator from '../MemeCreator/MemeCreator'
+
 
 
 import "./../../css/ImageSelection/imageSelection.css";
@@ -84,7 +84,7 @@ const TemplateOverview = params => {
     return (
         <div>
             <Button
-                className="classes.buttonStyle"
+                className="classes.buttonStyle modal"
                 variant="contained"
                 color="secondary"
                 onClick={handleOpen}>

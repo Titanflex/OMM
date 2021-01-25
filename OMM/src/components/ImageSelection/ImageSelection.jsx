@@ -21,6 +21,7 @@ import Paint from "../ImageSelection/Paint";
 
 
 import "./../../css/ImageSelection/imageSelection.css";
+import LoadIcon from "@material-ui/icons/Refresh";
 
 // Register the plugins
 registerPlugin(FilePondPluginImagePreview, FilePondPluginFileEncode);
@@ -70,10 +71,22 @@ const ImageSelection = params => {
   const handleChange = ({ target }) => {
     setUrl((prev) => target.value);
   }
-  const handleSubmit = (event) => {
+  const getTemplateFromURL = (event) => {
     if (event.key === 'Enter') {
       saveTemplate("title", url, true);
     }
+  }
+  async function loadTemplate() {
+    const res = await fetch("http://localhost:3030/memeIO/get-templates");
+    const json = await res.json();
+    params.setTemplates(json.docs);
+    handleClose();
+  }
+
+  function showOwnTemplate(response) {
+    console.log(response)
+    params.setTemplates([{ url: response }])
+    handleClose();
   }
 
   async function handleScreenshot() {
@@ -115,16 +128,16 @@ const ImageSelection = params => {
   }
 
 
-  async function getMoreMemes() {
+  async function getTemplatesFromImgFlip() {
     const res = await fetch("https://api.imgflip.com/get_memes");
     const json = await res.json();
-    params.setMemes(json.data.memes);
+    params.setTemplates(json.data.memes);
     handleClose();
   }
 
   function showOwnTemplate(response) {
     console.log(response)
-    params.setMemes([{ upper: "test", lower: "one", url: response }])
+    params.setTemplates([{ url: response }])
     setFiles([]);
     handleClose();
   }
@@ -132,11 +145,11 @@ const ImageSelection = params => {
   return (
     <div>
       <Button
-        className="classes.buttonStyle"
+        className="classes.buttonStyle modal"
         variant="contained"
         color="secondary"
         onClick={handleOpen}>
-        I want more memes!
+        I want more templates!
       </Button>
 
       <Modal
@@ -168,12 +181,20 @@ const ImageSelection = params => {
             name="file"
             labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
           />
-
+          <Button
+            className="classes.buttonStyle modal"
+            startIcon={<LoadIcon />}
+            variant="contained"
+            onClick={loadTemplate}
+            color="secondary"
+          >
+            Load
+          </Button>
           <Button
             className="classes.buttonStyle modal"
             startIcon={<CloudDownload />}
             variant="contained"
-            onClick={() => { getMoreMemes() }}
+            onClick={() => { getTemplatesFromImgFlip() }}
             color="secondary"
           >
             Get Images form ImageFlip
@@ -190,7 +211,7 @@ const ImageSelection = params => {
             className="modal"
             label="Load Image from URL"
             onChange={handleChange}
-            onKeyPress={handleSubmit} />
+            onKeyPress={getTemplateFromURL} />
           <TextField
             name="url"
             className="modal"

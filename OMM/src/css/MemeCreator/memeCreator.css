@@ -9,7 +9,7 @@ img {
 }
 
 .memeContainer {
-    width: 350px;
+    width: auto;
     height: auto;
     position: relative;
     text-align: center;
@@ -40,17 +40,17 @@ img {
 }
 
 .upper {
+    position: absolute;
     width: 90%;
     top: 15%;
     left: 50%;
-    transform: translate(-50%, -50%);
 }
 
 .lower {
+    position:absolute;
     width: 90%;
     bottom: -15%;
     left: 50%;
-    transform: translate(-50%, -50%);
 }
 
 .saveButton {
@@ -58,7 +58,7 @@ img {
 }
 
 .dataBaseControls {
-    margin-top: 20%;
+    margin-top: 10%;
 }
 
 .arrows {
@@ -89,4 +89,18 @@ img {
 .colorPicker{
     z-index: 2;
     position: absolute !important;
+}
+
+.hidden{
+    display:none;
+    width: 350px;
+    height: auto;
+}
+
+.selection{
+    margin-top: 16px !important;
+    margin-right: 16px !important;
+    margin-left: 16px !important;
+    width: 200px !important;
+    height: 35px;
 }
