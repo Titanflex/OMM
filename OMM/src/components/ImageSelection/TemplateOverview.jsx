@@ -70,9 +70,9 @@ const TemplateOverview = params => {
                 < GridListTile key={tile.name} cols={tile.cols || 1}
                     onClick={() => { changeMeme(tile) }}
                 >
-                    <img src={tile.url} alt={tile.name} />
+                    <img src={tile.url} alt={(tile.name)?tile.name:tile.templateName} />
                     <GridListTileBar
-                        title={tile.name}
+                        title={(tile.name)?tile.name:tile.templateName}
                         titlePosition="top"
                     />
                 </GridListTile>
