@@ -4,11 +4,7 @@ const Schema = mongoose.Schema;
 const memeSchema = new Schema(
     {
         title: String,
-        upper: String,
-        lower: String,
-        //text: [{ body: String, positionX: Number, positionY: Number, Style: String }],
         url: String,
-
         creator: String,
         creationDate: {
             type: Date,

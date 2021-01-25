@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect, useRef} from "react";
 import {
   Typography,
   Grid,
@@ -18,8 +18,6 @@ import {
 
 import ArrowRight from "@material-ui/icons/ChevronRight";
 import ArrowLeft from "@material-ui/icons/ChevronLeft";
-import SaveIcon from "@material-ui/icons/Save";
-import LoadIcon from "@material-ui/icons/Refresh";
 import FormatColorTextIcon from '@material-ui/icons/FormatColorText';
 import {
   FormatBold,
@@ -29,27 +27,36 @@ import {
 import { SketchPicker } from 'react-color';
 
 import ImageSelection from "../ImageSelection/ImageSelection";
+import Generator from "../MemeCreator/Generator";
 import AuthService from "../../services/auth.service";
 
 import "./../../css/MemeCreator/memeCreator.css";
 import TemplateOverview from "../ImageSelection/TemplateOverview";
+import html2canvas from 'html2canvas';
+import domtoimage from 'dom-to-image';
 
 function MemeCreator() {
   const [title, setTitle] = useState("");
-  const [isPublic, setIsPublic] = useState(true);
+
   const [upper, setUpper] = useState("");
-  const [lower, setLower] = useState("");
-  const [memes, setMemes] = useState([
+  const [templates, setTemplates] = useState([
     {
       url:
         "https://image.stern.de/7528150/t/sU/v3/w1440/r0/-/harold-hide-the-pain-meme-09.jpg", name: "Hide the pain Harold",
     },
   ]);
-  const [currentMemeIndex, setCurrentMemeIndex] = useState(0);
+  const [currentTemplateIndex, setCurrentTemplateIndex] = useState(0);
   const [bold, setBold] = useState(false);
   const [italic, setItalic] = useState(false);
   const [color, setColor] = useState("white");
   const [fontSize, setFontSize] = useState("30");
+
+  const [canvasWidth, setCanvasWidth] = useState(350);
+  const [canvasHeight, setCanvasHeight] = useState(200);
+  const [amountImages, setAmountImages] = useState(1);
+
+  const [posUpperTop, setPosUpperTop] = useState(20);
+  const [posUpperLeft, setPosUpperLeft] = useState(10);
 
   const [displayColorPicker, setDisplayColorPicker] = useState(false);
   const fontSizes = [
@@ -85,80 +92,61 @@ function MemeCreator() {
     heading: {
       textAlign: 'left',
       margin: "16px",
+    },
+    upperText: {
+      position: 'absolute',
+      left: "0px",
+      width: '100%',
+      height:'100%',
+      overflow:'hidden',
+    }, memeCanvas:{
+      width: canvasWidth +"px",
+      'min-width': '350px',
+      'min-height': '200px',
+      'max-width':'1000px',
+      'max-height':'1000px',
+      height: (amountImages === 1) ? 'auto' : (canvasHeight +"px"),
+      border: '1px solid grey',
+    },memeImg:{
+      width: (amountImages === 1) ? (canvasWidth +"px") : "350px",
+      'min-width': '350px',
+      'min-height': '200px',
+      'max-width':'1000px',
+      'max-height':'1000px',
+      height: 'auto',
+      display: 'block',
     }
   }));
 
   const classes = useStyles();
 
   function nextMeme() {
-    let current = currentMemeIndex;
-    if (memes.length > 1) {
+    let current = currentTemplateIndex;
+    if (templates.length > 1) {
       current =
-        currentMemeIndex === memes.length - 1 ? 0 : currentMemeIndex + 1;
-      setUpper(memes[current].upper);
-      setLower(memes[current].lower);
-      setCurrentMemeIndex(current);
+        currentTemplateIndex === templates.length - 1 ? 0 : currentTemplateIndex + 1;
+      setCurrentTemplateIndex(current);
     }
   }
 
   function previousMeme() {
-    let current = currentMemeIndex;
-    if (memes.length > 1) {
+    let current = currentTemplateIndex;
+    if (templates.length > 1) {
       current =
-        currentMemeIndex === 0 ? memes.length - 1 : currentMemeIndex - 1;
-      setUpper(memes[current].upper);
-      setLower(memes[current].lower);
-      setCurrentMemeIndex(current);
+        currentTemplateIndex === 0 ? templates.length - 1 : currentTemplateIndex - 1;
+      setUpper(templates[current].upper);
+      setCurrentTemplateIndex(current);
     }
-  }
-
-  async function loadMeme() {
-    const res = await fetch("http://localhost:3030/memeIO/get-memes");
-    const json = await res.json();
-    setUpper(json.docs[0].upper);
-    setLower(json.docs[0].lower);
-    setMemes(json.docs);
-    setCurrentMemeIndex(0);
-  }
-
-  function saveMeme() {
-    fetch("http://localhost:3030/memeIO/save-meme", {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        title: title,
-        url: memes[currentMemeIndex].url,
-        upper: upper,
-        lower: lower,
-        creator: localStorage.user,
-        isPublic: isPublic,
-        creationDate: Date.now,
-      }),
-    }).then((res) => {
-      loadMeme();
-    });
-  }
-
-  const handleRadioChange = (event) => {
-    event.target.value === 'public' ? setIsPublic(true) : setIsPublic(false);
   }
 
 
   function toggleBold() {
     bold ? setBold(false) : setBold(true);
-    console.log(bold);
   }
 
   function toggleItalic() {
     italic ? setItalic(false) : setItalic(true);
   }
-
-  const changeTextColor = (event) => {
-    setColor(event.target.value);
-  };
 
   const changeFontSize = (event) => {
     setFontSize(event.target.value);
@@ -169,21 +157,26 @@ function MemeCreator() {
     setDisplayColorPicker(false);
   }
 
+  const addImage = () => {
+    setAmountImages((prevState => prevState+1));
+    window.addEventListener("mousedown", function getPosition(e){
+      console.log("x: " + e.clientX +" y: " + e.clientY + e.target);
+    }, {once:true})
 
+  }
 
   return (
     <Container className="memeCreatorContainer">
       <Typography className={classes.heading} variant="h4">
         Hello {localStorage.user}!
       </Typography>
-      <TemplateOverview memeTemplates={memes} setCurrentMemeIndex={setCurrentMemeIndex} />
       <Grid container spacing={1}>
         <Grid item s={1} alignItems="center">
-          <IconButton onClick={previousMeme} aria-label="previous">
+          <IconButton className="arrows" onClick={previousMeme} aria-label="previous">
             <ArrowLeft fontSize="large" />
           </IconButton>
         </Grid>
-        <Grid item s={6} alignItems="center">
+        <Grid item s={8} alignItems="center">
           <IconButton
             className={"textFormatButton"}
             onClick={toggleBold}
@@ -222,25 +215,22 @@ function MemeCreator() {
             </Select>
           </FormControl>
 
-          <div className="memeContainer">
+          <div className="memeContainer" id={"memeContainer"}>
+
             <div>
               <textarea
                 type="text"
-                className={classes.textFormat + " memeText " + " upper "}
-                placeholder="Upper text"
+                className={classes.textFormat + " memeText " + classes.upperText}
+                placeholder="Enter your text here"
                 value={upper}
                 onChange={(event) => setUpper(event.target.value)}
               />
             </div>
-            <div id="memeDiv">
-              <img src={memes[currentMemeIndex].url} alt={"meme image"} />
+            <div id="memeDiv" className={classes.memeCanvas}>
+              <img className={classes.memeImg} src={templates[currentTemplateIndex].url} alt={"meme image"} />
             </div>
-            <textarea
-              className={classes.textFormat + " memeText " + " lower "}
-              placeholder="Lower text"
-              value={lower}
-              onChange={(event) => setLower(event.target.value)}
-            />
+
+
           </div>
         </Grid>
         <Grid item s={1} alignItems="center">
@@ -248,55 +238,57 @@ function MemeCreator() {
             <ArrowRight fontSize="large" />
           </IconButton>
         </Grid>
-        <Grid item s={4}>
+        <Grid item s={2}>
+          <TemplateOverview
+              memeTemplates={templates}
+              setCurrentMemeIndex={setCurrentTemplateIndex}
+          />
           <ImageSelection
-            setMemes={setMemes}
-            setUpper={setUpper}
-            setLower={setLower}
+            setTemplates={setTemplates}
           />
 
           {/* Text Field for Meme Title*/}
           <TextField
-            className="textFieldTitleFormat"
+            className="textFieldTitleFormat selection"
             id="standard-basic"
             label="Meme Title"
             placeholder="Meme Title"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
           />
-
-          {/* Radio Button for selecting public/private/unlisted*/}
-          <Grid>
-            <FormControl component="fieldset" className={"radioButtonFormat"}>
-              <FormLabel component="legend">Publicity</FormLabel>
-              <RadioGroup aria-label="publicity" name="publicity" defaultValue="public" onChange={handleRadioChange}>
-                <FormControlLabel className="radioButton" value="public" control={<Radio />} label="public" />
-                <FormControlLabel className="radioButton" value="private" control={<Radio />} label="private" />
-                <FormControlLabel className="radioButton" value="unlisted" control={<Radio />} label="unlisted" />
-              </RadioGroup>
-            </FormControl>
-          </Grid>
-
-          <div className="dataBaseControls">
+          <div>
+          <TextField
+              type={"number"}
+              className="textFieldTitleFormat selection"
+              id="standard-basic"
+              label="Canvas Height"
+              placeholder="Canvas Height"
+              value={canvasHeight}
+              onChange={(event) => setCanvasHeight(event.target.value)}
+          />
+          <TextField
+              type={"number"}
+              className="textFieldTitleFormat selection"
+              id="standard-basic"
+              label="Canvas Width"
+              placeholder="Canvas Width"
+              value={canvasWidth}
+              onChange={(event) => setCanvasWidth(event.target.value)}
+          />
+          <br/>
             <Button
-              className="classes.buttonStyle"
-              startIcon={<LoadIcon />}
-              variant="contained"
-              onClick={loadMeme}
-              color="secondary"
+                className="classes.buttonStyle selection"
+                variant="contained"
+                onClick={addImage}
+                color="secondary"
+                disabled
             >
-              Load
+              Add Image
             </Button>
-            <Button
-              className="classes.buttonStyle"
-              startIcon={<SaveIcon />}
-              variant="contained"
-              onClick={saveMeme}
-              color="secondary"
-            >
-              Save
-            </Button>
+            <Generator
+                title={title}/>
           </div>
+
         </Grid>
       </Grid>
     </Container>

@@ -8,7 +8,7 @@ const captureWebsite = require('capture-website');
 
 const mongoose = require('mongoose');
 const Meme = require('../models/memeSchema');
-const template = require('../models/templateSchema');
+const Template = require('../models/templateSchema');
 
 
 var storage = multer.diskStorage(
@@ -49,7 +49,15 @@ memeIO.get('/get-memes', (req, res) => {
     Meme.find({}, function (err, docs) {
         if (err)
             return res.status(500).send(err);
+        res.json({ code: 200, docs })
+    })
+});
 
+memeIO.get('/get-templates', (req, res) => {
+    Template.find({}, function (err, docs) {
+        if (err)
+            return res.status(500).send(err);
+        console.log(docs);
         res.json({ code: 200, docs })
     })
 });
@@ -63,7 +71,7 @@ memeIO.post('/upload', upload.single("file"), async (req, res) => {
         templateName: req.body.templateName,
         url: url
     }
-    template.create(uploadedTemplate, (err, item) => {
+    Template.create(uploadedTemplate, (err, item) => {
         if (err)
             console.log(err)
         else {
@@ -92,7 +100,7 @@ memeIO.post("/save-template", async (req, res) => {
         templateName: title,
         url: url,
     }
-    template.create(newTemplate, (err, item) => {
+    Template.create(newTemplate, (err, item) => {
         if (err)
             console.log(err)
         else {
@@ -110,7 +118,7 @@ memeIO.post("/webshot", async (req, res) => {
         templateName: shortUrl,
         url: filePath,
     }
-    template.create(screenshotTemplate, (err, item) => {
+    Template.create(screenshotTemplate, (err, item) => {
         if (err)
             console.log(err)
         else {
