@@ -68,7 +68,7 @@ memeIO.post('/upload', upload.single("file"), async (req, res) => {
     let url = "http://localhost:3030/images/" + req.file.originalname
     var uploadedTemplate = {
         uploader: req.body.author,
-        templateName: req.body.templateName,
+        templateName: req.body.title,
         url: url
     }
     Template.create(uploadedTemplate, (err, item) => {
@@ -97,9 +97,10 @@ memeIO.post("/save-template", async (req, res) => {
 
     let newTemplate = {
         uploader: req.body.author,
-        templateName: title,
+        templateName: req.body.title,
         url: url,
     }
+    console.log(newTemplate);
     Template.create(newTemplate, (err, item) => {
         if (err)
             console.log(err)
@@ -138,8 +139,6 @@ memeIO.post("/save-meme", (req, res) => {
     console.log(req.body)
     const newMeme = Meme.create({
         title: req.body.title,
-        upper: req.body.upper,
-        lower: req.body.lower,
         url: req.body.url,
         creator: req.body.creator,
         isPublic: req.body.isPublic,

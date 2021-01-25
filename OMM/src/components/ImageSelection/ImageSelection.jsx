@@ -108,6 +108,7 @@ const ImageSelection = params => {
   }
 
   async function saveTemplate(title, src, internetSource){
+    console.log(title);
     fetch("http://localhost:3030/memeIO/save-template", {
       method: "POST",
       mode: "cors",
