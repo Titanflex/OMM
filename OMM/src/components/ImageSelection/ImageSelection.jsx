@@ -1,11 +1,11 @@
 
-import React, { useState} from 'react';
+import React, { useState } from 'react';
 
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import { CloudDownload} from "@material-ui/icons";
+import { CloudDownload } from "@material-ui/icons";
 import { FilePond, registerPlugin } from "react-filepond";
 import "filepond/dist/filepond.min.css";
 
@@ -94,7 +94,7 @@ const ImageSelection = params => {
     });
   }
 
-  async function saveTemplate(title, src, internetSource){
+  async function saveTemplate(title, src, internetSource) {
     fetch("http://localhost:3030/memeIO/save-template", {
       method: "POST",
       mode: "cors",
@@ -102,7 +102,7 @@ const ImageSelection = params => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        internetSource : internetSource,
+        internetSource: internetSource,
         author: localStorage.user,
         title: title,
         url: src,
@@ -125,6 +125,7 @@ const ImageSelection = params => {
   function showOwnTemplate(response) {
     console.log(response)
     params.setMemes([{ upper: "test", lower: "one", url: response }])
+    setFiles([]);
     handleClose();
   }
 
@@ -146,7 +147,7 @@ const ImageSelection = params => {
 
         <div style={modalStyle} className={classes.paper}>
           <h2 id="simple-modal-title">Select your image</h2>
-          
+
           <FilePond
             files={files}
             onupdatefiles={setFiles}
