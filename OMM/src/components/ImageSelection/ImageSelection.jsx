@@ -79,6 +79,7 @@ const ImageSelection = params => {
   async function loadTemplate() {
     const res = await fetch("http://localhost:3030/memeIO/get-templates");
     const json = await res.json();
+    params.setCurrentTemplateIndex(0)
     params.setTemplates(json.docs);
     handleClose();
   }
@@ -132,15 +133,16 @@ const ImageSelection = params => {
   async function getTemplatesFromImgFlip() {
     const res = await fetch("https://api.imgflip.com/get_memes");
     const json = await res.json();
+    params.setCurrentTemplateIndex(0)
     params.setTemplates(json.data.memes);
     handleClose();
   }
 
   function showOwnTemplate(response) {
-    if(params.isFreestyle){
-      params.setSelectedImage({url: response})
-    }else{
-      params.setTemplates([{url: response}])
+    if (params.isFreestyle) {
+      params.setSelectedImage({ url: response })
+    } else {
+      params.setTemplates([{ url: response }])
     }
     setFiles([]);
     handleClose();

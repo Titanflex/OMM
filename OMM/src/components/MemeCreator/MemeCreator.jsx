@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import {
     Typography,
     Grid,
@@ -23,7 +23,7 @@ import {
     FormatItalic,
 } from "@material-ui/icons";
 
-import {SketchPicker} from 'react-color';
+import { SketchPicker } from 'react-color';
 
 import ImageSelection from "../ImageSelection/ImageSelection";
 import Generator from "../MemeCreator/Generator";
@@ -127,7 +127,7 @@ function MemeCreator() {
             display: 'block',
             zIndex: "-1",
         }, canvas: {
-            width:  (isFreestyle) ? canvasWidth + "px" : '350px',
+            width: (isFreestyle) ? canvasWidth + "px" : '350px',
             'min-width': minWidth + 'px',
             'min-height': minHeight + 'px',
             'max-width': maxWidth + 'px',
@@ -194,10 +194,10 @@ function MemeCreator() {
             var x = e.clientX - rect.x;
             var y = e.clientY - rect.y;
             let img = <img className={classes.memeImg} src={selectedImage.url} alt={"meme image"}
-                           style={{position: "absolute", left: x, top: y}}/>
+                style={{ position: "absolute", left: x, top: y }} />
             setImages((prev) => [...prev, img]);
             setSelectedImage(null);
-        }, {once: true})
+        }, { once: true })
 
 
     }
@@ -212,23 +212,23 @@ function MemeCreator() {
             <Grid container spacing={1}>
                 <Grid item s={1} alignItems="center">
                     <IconButton className="arrows" onClick={previousMeme} aria-label="previous">
-                        <ArrowLeft fontSize="large"/>
+                        <ArrowLeft fontSize="large" />
                     </IconButton>
                 </Grid>
-                <Grid item s={8} alignItems="center" style={{width: "55%", overflow: "hidden"}}>
+                <Grid item s={8} alignItems="center" style={{ width: "55%", overflow: "hidden" }}>
                     <IconButton
                         className={"textFormatButton"}
                         onClick={toggleBold}
-                        style={bold ? {background: "grey"} : {background: "white"}}
+                        style={bold ? { background: "grey" } : { background: "white" }}
                     >
-                        <FormatBold/>
+                        <FormatBold />
                     </IconButton>
                     <IconButton
                         className={"textFormatButton"}
                         onClick={toggleItalic}
-                        style={italic ? {background: "grey"} : {background: "white"}}
+                        style={italic ? { background: "grey" } : { background: "white" }}
                     >
-                        <FormatItalic/>
+                        <FormatItalic />
                     </IconButton>
                     <IconButton
                         className={"textFormatButton"}
@@ -239,13 +239,13 @@ function MemeCreator() {
                                 setDisplayColorPicker(true)
                             }
                         }}>
-                        <FormatColorTextIcon/>
+                        <FormatColorTextIcon />
                     </IconButton>
                     {displayColorPicker &&
-                    <SketchPicker
-                        className="colorPicker"
-                        onChange={handleColorChange}
-                    />}
+                        <SketchPicker
+                            className="colorPicker"
+                            onChange={handleColorChange}
+                        />}
                     <FormControl className={"textFormatSelect"}>
                         <Select value={fontSize} onChange={changeFontSize}>
                             {fontSizes.map((size) => (
@@ -259,16 +259,19 @@ function MemeCreator() {
                     <div className={classes.canvas}>
                         <div className="memeContainer" id={"memeContainer"}>
                             <div id="memeDiv" className={classes.memeCanvas}>
-             <textarea
-                 type="text"
-                 className={classes.textFormat + " memeText " + classes.upperText}
-                 placeholder="Enter your text here"
-                 value={upper}
-                 onChange={(event) => setUpper(event.target.value)}
-             />
+                                <textarea
+                                    type="text"
+                                    className={classes.textFormat + " memeText " + classes.upperText}
+                                    placeholder="Enter your text here"
+                                    value={upper}
+                                    onChange={(event) => setUpper(event.target.value)}
+                                />
+                                {console.log(currentTemplateIndex)}
+                                {console.log(templates)}
+
                                 {!isFreestyle &&
-                                <img className={classes.memeImg} src={templates[currentTemplateIndex].url}
-                                     alt={"meme image"}/>}
+                                    <img className={classes.memeImg} src={templates[currentTemplateIndex].url}
+                                        alt={"meme image"} />}
                                 {isFreestyle && images}
 
                             </div>
@@ -278,20 +281,21 @@ function MemeCreator() {
                 </Grid>
                 <Grid item s={1} alignItems="center">
                     <IconButton className="arrows" onClick={nextMeme} aria-label="next">
-                        <ArrowRight fontSize="large"/>
+                        <ArrowRight fontSize="large" />
                     </IconButton>
                 </Grid>
-                <Grid item s={2} alignItems="right" style={{width: "30%", minWidth:"400px"}}>
+                <Grid item s={2} alignItems="right" style={{ width: "30%", minWidth: "400px" }}>
                     <TemplateOverview
                         isFreestyle={isFreestyle}
                         memeTemplates={templates}
-                        setCurrentMemeIndex={setCurrentTemplateIndex}
+                        setCurrentTemplateIndex={setCurrentTemplateIndex}
                         setSelectedImages={setSelectedImage}
-                        
+
                     />
                     <ImageSelection
                         setTemplates={setTemplates}
                         setSelectedImage={setSelectedImage}
+                        setCurrentTemplateIndex={setCurrentTemplateIndex}
                         isFreestyle={isFreestyle}
                     />
 
@@ -310,14 +314,14 @@ function MemeCreator() {
                             aria-label="Expand"
                             aria-controls="additional-actions1-content"
                             id="additional-actions1-header"
-                            onClick={() => setIsFreestyle(isFreestyle?false:true)}
+                            onClick={() => setIsFreestyle(isFreestyle ? false : true)}
                         >
                             <FormControlLabel
                                 aria-label="Acknowledge"
                                 control={
                                     <Checkbox
-                                    checked={isFreestyle}
-                                    onChange={handleFreestyle}
+                                        checked={isFreestyle}
+                                        onChange={handleFreestyle}
                                     />}
                                 label="Freestyle"
                             />
@@ -360,7 +364,7 @@ function MemeCreator() {
                             <Button
                                 className="classes.buttonStyle selection"
                                 variant="contained"
-                                onClick={()=> setImages([])}
+                                onClick={() => setImages([])}
                                 color="secondary"
                                 disabled={(images.length === 0)}
                             >
@@ -373,7 +377,7 @@ function MemeCreator() {
                         title={title}
                         isFreestyle={isFreestyle}
                         canvasHeight={canvasHeight}
-                        canvasWidth={canvasWidth}/>
+                        canvasWidth={canvasWidth} />
 
 
                 </Grid>
