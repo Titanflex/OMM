@@ -60,6 +60,12 @@ export default function SignIn() {
     event.preventDefault();
   };
 
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      signIn();
+    }
+  }
+
   const signIn = () => {
     console.log("Signing in...");
     if (validate()) {
@@ -113,6 +119,7 @@ export default function SignIn() {
           margin="normal"
           onChange={handleChange("name")}
           variant="outlined"
+          onKeyPress={handleKeyPress}
         />
         <FormControl className={classes.spacing} variant="outlined" fullWidth>
           <InputLabel>Password</InputLabel>
@@ -122,6 +129,7 @@ export default function SignIn() {
             value={values.password}
             error={passwordError.show}
             onChange={handleChange("password")}
+            onKeyPress={handleKeyPress}
             endAdornment={
               <InputAdornment position="end">
                 <IconButton
