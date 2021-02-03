@@ -76,6 +76,12 @@ export default function SignUp() {
     event.preventDefault();
   };
 
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      signUp();
+    }
+  }
+
   const signUp = () => {
     if (validate()) {
       AuthService.register(values.name, values.password).then((data) => {
@@ -152,6 +158,7 @@ export default function SignUp() {
           variant="outlined"
           value={values.name}
           onChange={handleChange("name")}
+          onKeyPress={handleKeyPress}
         />
         <FormControl className={classes.spacing} variant="outlined" fullWidth>
           <InputLabel>Password</InputLabel>
@@ -161,6 +168,7 @@ export default function SignUp() {
             type={values.showPassword ? "text" : "password"}
             value={values.password}
             onChange={handleChange("password")}
+            onKeyPress={handleKeyPress}
             endAdornment={
               <InputAdornment position="end">
                 <IconButton
@@ -187,6 +195,7 @@ export default function SignUp() {
             type={values.showPassword2 ? "text" : "password"}
             value={values.password2}
             onChange={handleChange("password2")}
+            onKeyPress={handleKeyPress}
             endAdornment={
               <InputAdornment position="end">
                 <IconButton
