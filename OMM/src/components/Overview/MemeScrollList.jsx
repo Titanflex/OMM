@@ -2,22 +2,35 @@ import React, { useState, useEffect, } from "react";
 import {
     Grid,
     Container,
+    Link,
 } from "@material-ui/core";
+
+import { navigate } from "hookrouter";
 
 import MemeView from "./MemeView";
 import Searchbar from "./Searchbar";
+
 
 
 function MemeScrollList() {
 
     const [memes, setMemes] = useState([{ url: null }]);
 
+    const handleMemeClick = (id) => {
+        navigate(`/singleview/${id}`);
+        window.location.reload();
+    };
+
+
+
     const ListMemes = ({ listmemes }) => {
         return (
             <Grid container spacing={1}>
                 {
                     listmemes.map((meme) => (
-                        <MemeView memeInfo={meme} key={meme.id} />
+                        <Grid container key={meme._id} onClick={() => window.open(`/singleview/${meme._id}`, "_self")}>
+                            <MemeView memeInfo={meme} key={meme._id} />
+                        </Grid>
                     ))}
             </Grid>
         )
@@ -27,7 +40,7 @@ function MemeScrollList() {
     // see: https://reactjs.org/docs/hooks-effect.html
     useEffect(() => {
         const loadMemes = async () => {
-            const res = await fetch("http://localhost:3030/memeIO/get-memes").then(res => {
+            await fetch("http://localhost:3030/memeIO/get-memes").then(res => {
                 res.json().then(json => {
                     setMemes(json.docs);
                     return json;

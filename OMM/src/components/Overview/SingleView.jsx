@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Grid,
     Container,
@@ -10,29 +10,13 @@ import ArrowRight from "@material-ui/icons/ChevronRight";
 import ArrowLeft from "@material-ui/icons/ChevronLeft";
 
 import MemeView from "./MemeView";
-import NavBar from "../NavBar/NavBar";
 import Searchbar from "./Searchbar";
 
 function SingleView() {
-    const [currentMeme, setCurrentMeme] = useState([{ lower: "", upper: "", url: "https://image.stern.de/7528150/t/sU/v3/w1440/r0/-/harold-hide-the-pain-meme-09.jpg" }]);
-    const [memes, setMemes] = useState([{ lower: "hi", upper: "ho", url: "https://image.stern.de/7528150/t/sU/v3/w1440/r0/-/harold-hide-the-pain-meme-09.jpg" }]);
+    const [memes, setMemes] = useState([{ url: null }]);
     const [currentMemeIndex, setCurrentMemeIndex] = useState(0);
 
-    // useEffect for componentDidMount
-    // see: https://reactjs.org/docs/hooks-effect.html
-    useEffect(() => {
-        const loadMemes = async () => {
-            const res = await fetch("http://localhost:3030/memeIO/get-memes").then(res => {
-                res.json().then(json => {
-                    setMemes(json.docs);
-                    setCurrentMeme(json.docs[0])
-                    return json;
 
-                })
-            })
-        };
-        loadMemes();
-    }, []);
 
     function nextMeme() {
         let current = currentMemeIndex;
@@ -45,6 +29,7 @@ function SingleView() {
 
     function previousMeme() {
         let current = currentMemeIndex;
+        console.log(memes[currentMemeIndex])
         if (memes.length > 1) {
             current =
                 currentMemeIndex === 0 ? memes.length - 1 : currentMemeIndex - 1;
@@ -52,9 +37,38 @@ function SingleView() {
         }
     }
 
+    const SingleMeme = () => {
+        return (
+            <MemeView memeInfo={memes[currentMemeIndex]} />
+        )
+    };
+
+    // useEffect for componentDidMount
+    // see: https://reactjs.org/docs/hooks-effect.html
+    useEffect(() => {
+        const loadMemes = async () => {
+            await fetch("http://localhost:3030/memeIO/get-memes").then(res => {
+                res.json().then(json => {
+                    setMemes(json.docs);
+
+                    const url = window.location.pathname;
+                    const memeId = url.substring(url.lastIndexOf('/') + 1);
+                    const curMeme = json.docs.find(element => element._id === memeId);
+                    console.log(curMeme)
+                    console.log(json.docs)
+                    const ind = json.docs.indexOf(curMeme);
+
+
+                    setCurrentMemeIndex(ind);
+                    return json;
+                });
+
+            })
+        };
+        loadMemes();
+    }, []);
+
     return (
-        <div>
-        <NavBar />
         <Container className="memeScrollListContainer" >
             <Grid container spacing={3}>
                 <Grid item xs></Grid>
@@ -63,22 +77,21 @@ function SingleView() {
                 <Grid item xs></Grid>
             </Grid>
             <Grid container spacing={6}>
-                <Grid item xs={1} alignItems="center">
+                <Grid item xs={1} >
                     <IconButton className="arrows" onClick={previousMeme} aria-label="previous">
                         <ArrowLeft fontSize="large" />
                     </IconButton>
                 </Grid>
-                <Grid item xs alignItems="center">
-                    <MemeView memeInfo={memes[currentMemeIndex]} />/
+                <Grid item xs >
+                    <SingleMeme />
                 </Grid>
-                <Grid item xs={1} alignItems="center">
+                <Grid item xs={1}>
                     <IconButton className="arrows" onClick={nextMeme} aria-label="next">
                         <ArrowRight fontSize="large" />
                     </IconButton>
                 </Grid>
             </Grid>
-            </Container>
-            </div>
+        </Container>
     );
 }
 

@@ -2,6 +2,7 @@ import { useRoutes, navigate } from "hookrouter";
 import LoginContainer from "./components/Login/LoginContainer";
 import MemeCreator from "./components/MemeCreator/MemeCreator";
 import MemeScrollList from "./components/Overview/MemeScrollList";
+import SingleView from "./components/Overview/SingleView";
 import NavBar from "./components/NavBar/NavBar";
 import AuthService from "./services/auth.service";
 import { useEffect, useState } from "react";
@@ -12,6 +13,7 @@ const routes = {
   "/login": () => <LoginContainer />,
   "/": () => <MemeCreator />,
   "/overview": () => <MemeScrollList />,
+  "/singleview/:id": () => <SingleView />,
 };
 
 
@@ -24,9 +26,9 @@ function App() {
     if (localStorage.token) {
       AuthService.getUser();
       //check if there is there is backend connection
-      if(localStorage.user) {
+      if (localStorage.user) {
         setLogedIn(true);
-      }     
+      }
     } else {
       //navigate to the login page if there is no user logged in
       setLogedIn(false);
@@ -35,8 +37,8 @@ function App() {
   });
 
   return (
-    <div style={{height: '100%'}}>
-      {logedIn && <NavBar/>}
+    <div style={{ height: '100%' }}>
+      {logedIn && <NavBar />}
       {routeResults}
     </div>
   );

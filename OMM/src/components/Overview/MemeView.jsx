@@ -4,7 +4,7 @@ import {
     IconButton,
     Container,
     Typography,
-    ButtonBase,
+    
 } from "@material-ui/core";
 
 import {
@@ -13,7 +13,6 @@ import {
     Share,
 } from "@material-ui/icons";
 import Moment from 'moment';
-import { navigate } from "hookrouter";
 
 import Meme from "./Meme";
 import "./../../css/Overview/memeView.css";
@@ -21,35 +20,30 @@ import "./../../css/Overview/memeView.css";
 
 const MemeView = props => {
     const [memeInfo, setMemeInfo] = useState(props.memeInfo);
-    const [likes, setLikes] = useState(2);
-
 
     //TODO
     function likeMeme() {
 
     }
+
     //TODO
     function shareMeme() {
 
     }
+    
     //TODO
     function downloadMeme() {
 
     }
 
-    const handleClickShowMemeDetails = () => {
-        navigate("/singleview");
-        window.location.reload();
-    };
+
 
     return (
         <Container className="memeViewContainer">
 
             <Grid container spacing={2}>
                 <Grid item xs>
-                    <ButtonBase id="memeViewDiv" onClick={handleClickShowMemeDetails}>
-                        <Meme memeData={memeInfo} />
-                    </ButtonBase>
+                    <Meme memeData={memeInfo} />
                 </Grid>
                 <Grid item xs container direction="column" spacing={2}>
                     <Grid item xs>
