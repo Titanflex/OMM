@@ -2,6 +2,7 @@ img {
     width: 350px;
     height: auto;
     display: block;
+    z-index: -1;
 }
 
 .memeCreatorContainer {
@@ -98,9 +99,15 @@ img {
 }
 
 .selection{
-    margin-top: 16px !important;
-    margin-right: 16px !important;
-    margin-left: 16px !important;
-    width: 200px !important;
+    margin:15px !important;
+
     height: 35px;
+}
+
+.MuiPaper-elevation1 {
+    box-shadow: none !important;
+}
+.MuiAccordion-root:before {
+    background-color: white !important;
+
 }

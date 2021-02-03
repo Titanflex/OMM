@@ -64,9 +64,10 @@ const Generator = params => {
 
     function generateMeme() {
         let meme = document.getElementById("memeContainer");
-        domtoimage.toPng(meme).then(function(dataUrl) {
+        let options;
+        if(params.isFreestyle) options = {width:params.canvasWidth, height: params.canvasHeight}
+        domtoimage.toPng(meme, options).then(function(dataUrl) {
             setGeneratedMeme(dataUrl);
-
         }).catch(function (error) {
             console.error('oops, something went wrong!', error);
         });

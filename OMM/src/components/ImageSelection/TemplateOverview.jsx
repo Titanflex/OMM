@@ -47,6 +47,7 @@ const TemplateOverview = params => {
     const classes = useStyles();
     const [modalStyle] = React.useState(getModalStyle);
     const [open, setOpen] = React.useState(false);
+    const [label, setLabel] = React.useState("Template Overview");
 
     const handleOpen = () => {
         setOpen(true);
@@ -63,12 +64,23 @@ const TemplateOverview = params => {
         handleClose();
     }
 
+    function addTemplates(image){
+        console.log(image);
+        params.setSelectedImages(image);
+        handleClose();
+    }
+
+
 
     const ShowTemplates = ({ showtemplates }) => (
         <GridList cellHeight={180} className={classes.gridList} cols={3}>
             {showtemplates.map((tile) => (
                 < GridListTile key={tile.name} cols={tile.cols || 1}
-                    onClick={() => { changeMeme(tile) }}
+                    onClick={() => {
+                        if(params.isFreestyle){
+                        addTemplates(tile)
+                    }else{changeMeme(tile)}
+                    }}
                 >
                     <img src={tile.url} alt={(tile.name)?tile.name:tile.templateName} />
                     <GridListTileBar
@@ -88,7 +100,9 @@ const TemplateOverview = params => {
                 variant="contained"
                 color="secondary"
                 onClick={handleOpen}>
-                Template Overview
+                {params.addMultiple
+                    ? "Select Multiple"
+                    : "Template Overview"}
       </Button>
             <Modal
                 open={open}
@@ -98,7 +112,6 @@ const TemplateOverview = params => {
                 <div style={modalStyle} className={classes.paper}>
                     <Grid container spacing={4}>
                         <h2 id="simple-modal-title">Select a template to work on</h2>
-
                         <ShowTemplates showtemplates={params.memeTemplates} />
                     </Grid>
                 </div>
