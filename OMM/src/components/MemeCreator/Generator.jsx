@@ -11,6 +11,15 @@ import SaveIcon from "@material-ui/icons/Save";
 import domtoimage from "dom-to-image";
 import {FormControl, FormControlLabel, FormLabel, Grid, Radio, RadioGroup, TextField} from "@material-ui/core";
 
+import { FilePond, registerPlugin } from "react-filepond";
+import "filepond/dist/filepond.min.css";
+import FilePondPluginFileEncode from 'filepond-plugin-file-encode';
+import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
+
+
+
+registerPlugin(FilePondPluginFileEncode);
+
 
 function getModalStyle() {
     const top = 50;
@@ -39,19 +48,25 @@ const Generator = params => {
     const classes = useStyles();
     const [modalStyle] = useState(getModalStyle);
     const [open, setOpen] = useState(false);
-    const [generatedMeme, setGeneratedMeme] = useState(null)
+    const [generatedMeme, setGeneratedMeme] = useState(null);
+    const [generatedMemeUrl, setGeneratedMemeUrl] = useState(null);
     const [isLocal, setIsLocal] = useState(true);
-    const [fileSize, setFileSize] = useState(400)
+    const [fileSize, setFileSize] = useState(400);
     const [isPublic, setIsPublic] = useState(true);
 
 
-
     const handleOpen = () => {
+        if(params.title === ""){
+            alert("Enter a meme title");
+            return;
+        }
         setOpen(true);
     };
 
     const handleClose = () => {
         setOpen(false);
+        setGeneratedMemeUrl(null);
+        setGeneratedMeme(null);
     };
 
     const handleGeneration = (event) => {
@@ -64,30 +79,15 @@ const Generator = params => {
 
     function generateMeme() {
         let meme = document.getElementById("memeContainer");
-        let options;
-        if(params.isFreestyle) options = {width:params.canvasWidth, height: params.canvasHeight}
-        domtoimage.toPng(meme, options).then(function(dataUrl) {
-            setGeneratedMeme(dataUrl);
-        }).catch(function (error) {
-            console.error('oops, something went wrong!', error);
-        });
-      if(!isLocal){ ////TODO server side generation
-          fetch("http://localhost:3030/memeIO/save-meme", {
-              method: "POST",
-              mode: "cors",
-              headers: {
-                  "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                  title: params.title,
-                  url: generatedMeme,
-                  creator: localStorage.user,
-                  isPublic: isPublic,
-                  creationDate: Date.now,
-              }),
-          }).then((res) => {
-              handleClose();
-          });
+        if(isLocal){
+            let options;
+            if(params.isFreestyle) options = {width:params.canvasWidth, height: params.canvasHeight}
+            domtoimage.toBlob(meme, options).then(function(blob) {
+                setGeneratedMeme(blob);
+            });
+        }
+      if(!isLocal){ ////TODO server side generation (phantomJS?)
+
       }
 
     }
@@ -129,7 +129,6 @@ const Generator = params => {
                                     <FormControlLabel className="radioButton" value="unlisted" control={<Radio />} label="unlisted" />
                                 </RadioGroup>
                             </FormControl>
-
                         <TextField
                             type={"number"}
                             className="textFieldTitleFormat"
@@ -148,12 +147,38 @@ const Generator = params => {
                     >
                         Generate meme
                     </Button>
-                {generatedMeme && (
+                    {
+                        generatedMeme && <FilePond
+                        files={[generatedMeme]}
+                        server={{
+                            url: "http://localhost:3030/memeIO",
+                            process: {
+                                url: '/upload',
+                                method: 'POST',
+                                headers: {
+                                    'author': localStorage.user,
+                                    'memeTitle': params.title,
+                                    'isPublic': isPublic,
+                                    'type': 'meme',
+
+                                },
+                                onload: (response) =>{
+                                    console.log(response);
+                                    setGeneratedMemeUrl(response);
+                                }
+
+
+                            }
+                        }}
+                        name="file"
+                        labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
+                    />}
+                {/*generatedMemeUrl && (
                     <img
                         alt="Preview"
-                        src={generatedMeme}
+                        src={generatedMemeUrl}
                     />
-                )}
+                )*/}
                 <div>
                     <Button
                         className="classes.buttonStyle selection"

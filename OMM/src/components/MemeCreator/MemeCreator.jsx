@@ -23,7 +23,7 @@ import {
     FormatItalic,
 } from "@material-ui/icons";
 
-import {SketchPicker} from 'react-color';
+import {ChromePicker, SketchPicker, TwitterPicker} from 'react-color';
 
 import ImageSelection from "../ImageSelection/ImageSelection";
 import Generator from "../MemeCreator/Generator";
@@ -125,7 +125,6 @@ function MemeCreator() {
             width: '350px',
             height: 'auto',
             display: 'block',
-            zIndex: "-1",
         }, canvas: {
             width:  (isFreestyle) ? canvasWidth + "px" : '350px',
             'min-width': minWidth + 'px',
@@ -172,7 +171,6 @@ function MemeCreator() {
 
     const handleColorChange = (color) => {
         setColor(color.hex);
-        setDisplayColorPicker(false);
     }
 
     function handleFreestyle(event) {
@@ -185,7 +183,8 @@ function MemeCreator() {
 
     const addImage = () => {
         window.addEventListener("mousedown", function getPosition(e) {
-            if (e.target.type != 'textarea') {
+            console.log(e.target.classList.contains('makeStyles-canvas-30'));
+            if (!e.target.classList.contains('makeStyles-canvas-30')) {
                 alert("Place image on Canvas or increase size of Canvas")
                 return addImage();
             }
@@ -202,6 +201,18 @@ function MemeCreator() {
 
     }
 
+    const popover = {
+        position: 'absolute',
+        zIndex: '2',
+    }
+    const cover = {
+        position: 'fixed',
+        top: '0px',
+        right: '0px',
+        bottom: '0px',
+        left: '0px',
+    }
+
 
 
     return (
@@ -210,9 +221,9 @@ function MemeCreator() {
                 Hello {localStorage.user}!
             </Typography>
             <Grid container spacing={1}>
-                <Grid item s={1} alignItems="center">
-                    <IconButton className="arrows" onClick={previousMeme} aria-label="previous">
-                        <ArrowLeft fontSize="large"/>
+                <Grid item s={1} alignItems="center" >
+                     <IconButton className="arrows" onClick={previousMeme} aria-label="previous" disabled={isFreestyle}>
+                          <ArrowLeft fontSize="large"/>
                     </IconButton>
                 </Grid>
                 <Grid item s={8} alignItems="center" style={{width: "55%", overflow: "hidden"}}>
@@ -241,11 +252,14 @@ function MemeCreator() {
                         }}>
                         <FormatColorTextIcon/>
                     </IconButton>
-                    {displayColorPicker &&
-                    <SketchPicker
+                    {displayColorPicker ? <div style ={popover} > <div style={cover} onClick={()=>setDisplayColorPicker(false)} />
+                    <TwitterPicker
                         className="colorPicker"
+                        triangle={"hide"}
+                        colors={['#D9E3F0', '#FFFFFF', '#000000',  '#697689', '#37D67A', '#2CCCE4', '#555555', '#dce775', '#ff8a65', '#ba68c8']}
                         onChange={handleColorChange}
-                    />}
+                    /></div> : null
+                    }
                     <FormControl className={"textFormatSelect"}>
                         <Select value={fontSize} onChange={changeFontSize}>
                             {fontSizes.map((size) => (
@@ -277,7 +291,7 @@ function MemeCreator() {
                     </div>
                 </Grid>
                 <Grid item s={1} alignItems="center">
-                    <IconButton className="arrows" onClick={nextMeme} aria-label="next">
+                    <IconButton className="arrows" onClick={nextMeme} aria-label="next" disabled={isFreestyle}>
                         <ArrowRight fontSize="large"/>
                     </IconButton>
                 </Grid>

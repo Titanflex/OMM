@@ -30,14 +30,12 @@
     padding: 6px 16px;
    text-align: center;
 }
-input[type="file"] {
 
- }
 
 .camera{
     width: 500px;
 }
 
-
-
-
+.filepond--credits{
+    display:none
+}
