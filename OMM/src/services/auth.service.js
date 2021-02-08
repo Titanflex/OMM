@@ -4,16 +4,22 @@ const getUser = () => {
             method: "GET",
             mode: "cors",
             headers: getTokenHeader()
-        }).then(response => response.json())
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             localStorage.setItem("user", data.name);
-            return data.name;
+            return true;
         })
         .catch(err => {
-            console.log("Error occurred while getting the user from the data base")
+            console.log("The following error occurred while getting user:", err);
             localStorage.removeItem("token");
-            localStorage.removeItem("user");
-        })
+            localStorage.removeItem("user")
+            return false;
+        });
 };
 
 // Register User
@@ -35,11 +41,11 @@ const register = (name, password) => {
                 return data;
             }
             console.log(data.msg)
-            return data;
+            return true;
         })
         .catch(err => {
             console.log("Error occurred during the login")
-            return err;
+            return false;
         })
 };
 

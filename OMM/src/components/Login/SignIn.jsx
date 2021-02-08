@@ -73,6 +73,8 @@ export default function SignIn() {
         if (data.token) {
           //Successful Login
           navigate("/");
+          window.location.reload();
+          
         } else {
           if (data.msg) {
             setNameError({ show: true, text: "" });
