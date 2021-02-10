@@ -16,29 +16,33 @@ const routes = {
   "/singleview/:id": () => <SingleView />,
 };
 
-
 function App() {
   const routeResults = useRoutes(routes);
+
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
+    console.log("Hello");
+    setLoggedIn(true);
     // check if there is a token
-    if(localStorage.generate) {
-      setLoggedIn(true)
-    }if (localStorage.token) {
-      AuthService.getUser();
-      //check if there is there is backend connection
-      if (localStorage.user) {
-        setLoggedIn(true);
-      }
+   if (localStorage.token) {
+      AuthService.getUser().then((successful) => {
+        if (successful) {
+          setLoggedIn(true);
+        } else {
+          setLoggedIn(false);
+          navigate("/login");
+        }
+      });
     } else {
       //navigate to the login page if there is no user logged in
       setLoggedIn(false);
       navigate("/login");
     }
-  });
+  }, []);
 
   return (
+
     <div style={{ height: '100%' }}>
       {loggedIn && <NavBar />}
       {routeResults}

@@ -159,7 +159,6 @@ const Generator = params => {
 
     async function generateMeme() {
         let meme = document.getElementById("memeContainer");
-        let render = selectedRenIndex;
         if(selectedRenIndex===0){
             let options;
             if(params.isFreestyle) options = {width:params.canvasWidth, height: params.canvasHeight}

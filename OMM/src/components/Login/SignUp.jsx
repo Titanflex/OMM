@@ -88,6 +88,7 @@ export default function SignUp() {
         if (data.token) {
           //Successful Registration
           navigate("/");
+          window.location.reload();
         } else {
           if (data.msg) {
             //username is already taken

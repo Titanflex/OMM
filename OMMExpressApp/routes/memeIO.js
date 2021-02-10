@@ -138,22 +138,23 @@ memeIO.post("/generate", auth, async (req, res) => {
     let authToken = req.header('x-auth-token');
 
     try {
-        let data = {
+       let data = {
             token: authToken,
             user: uploader,
         };
         const browser = await puppeteer.launch();       // run browser
         const page = await browser.newPage();// open new tab
         await page.goto(url);
-        await page.evaluate((data) => {
-            localStorage.setItem("generate", "true");
+        //TODO
+        /*await page.evaluate((data) => {
+            localStorage.setItem("token", '');
+            localStorage.setItem("user", '');
         });
         await page.goto(url);
         await page.waitForSelector('#memeContainer');
-        //TODO set states
-        const element = await page.$('#memeContainer');        // declare a variable with an ElementHandle
-        await element.screenshot({path: 'public/images/' + req.body.title +'.png'});
 
+        const element = await page.$('#memeContainer');   */     // declare a variable with an ElementHandle
+        await page.screenshot({path: 'public/images/' + req.body.title +'.png'});
         res.send(filePath);}
     catch (e) {
         res.status(400).json({ msg: e.message });
