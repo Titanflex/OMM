@@ -19,26 +19,28 @@ const routes = {
 
 function App() {
   const routeResults = useRoutes(routes);
-  const [logedIn, setLogedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    // check if there is a token 
-    if (localStorage.token) {
+    // check if there is a token
+    if(localStorage.generate) {
+      setLoggedIn(true)
+    }if (localStorage.token) {
       AuthService.getUser();
       //check if there is there is backend connection
       if (localStorage.user) {
-        setLogedIn(true);
+        setLoggedIn(true);
       }
     } else {
       //navigate to the login page if there is no user logged in
-      setLogedIn(false);
+      setLoggedIn(false);
       navigate("/login");
     }
   });
 
   return (
     <div style={{ height: '100%' }}>
-      {logedIn && <NavBar />}
+      {loggedIn && <NavBar />}
       {routeResults}
     </div>
   );

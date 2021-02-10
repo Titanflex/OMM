@@ -2,7 +2,6 @@ img {
     width: 350px;
     height: auto;
     display: block;
-    z-index: -1;
 }
 
 .memeCreatorContainer {
@@ -89,7 +88,6 @@ img {
 
 .colorPicker{
     z-index: 2;
-
 }
 
 .hidden{
@@ -110,4 +108,9 @@ img {
 .MuiAccordion-root:before {
     background-color: white !important;
 
+}
+
+.canvasSize{
+    width: 100%;
+    margin: 10px !important;
 }

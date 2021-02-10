@@ -24,7 +24,7 @@ import "filepond/dist/filepond.min.css";
 import FilePondPluginFileEncode from 'filepond-plugin-file-encode';
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 
-
+import AuthService from "../../services/auth.service";
 
 registerPlugin(FilePondPluginFileEncode);
 
@@ -58,14 +58,14 @@ const Generator = params => {
     const [open, setOpen] = useState(false);
     const [generatedMeme, setGeneratedMeme] = useState(null);
     const [generatedMemeUrl, setGeneratedMemeUrl] = useState(null);
-    const [isLocal, setIsLocal] = useState(true);
-    const [fileSize, setFileSize] = useState(400);
     const [isPublic, setIsPublic] = useState(true);
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [renAnchorEl, setRenAnchorEl] = React.useState(null);
     const [selectedRenIndex, setSelectedRenIndex] = React.useState(1);
     const [pubAnchorEl, setPubAnchorEl] = React.useState(null);
     const [selectedPubIndex, setSelectedPubIndex] = React.useState(1);
+    const [sizeAnchorEl, setSizeAnchorEl] = React.useState(null);
+    const [selectedSizeIndex, setSelectedSizeIndex] = React.useState(1);
 
 
     //PublicMenu
@@ -93,7 +93,6 @@ const Generator = params => {
     const renOptions = [
         'Local',
         'Server-side',
-        'Third-party',
     ];
 
     const handleRenClose = () => {
@@ -107,6 +106,26 @@ const Generator = params => {
 
     const handleRenListItem = (event) => {
         setRenAnchorEl(event.currentTarget);
+    };
+
+    //RenderMenu
+    const sizeOptions = [
+        'small (max. 100KB)',
+        'medium (max. 200KB)',
+        'big (max. 500KB)',
+    ];
+
+    const handleSizeClose = () => {
+        setSizeAnchorEl(null);
+    };
+
+    const handleSizeItemClick = (event, index) => {
+        setSelectedSizeIndex(index);
+        setSizeAnchorEl(null);
+    };
+
+    const handleSizeListItem = (event) => {
+        setSizeAnchorEl(event.currentTarget);
     };
 
     //Popover
@@ -136,30 +155,37 @@ const Generator = params => {
         setGeneratedMeme(null);
     };
 
-    const handleGeneration = (event) => {
-        event.target.value === 'local' ? setIsLocal(true) : setIsLocal(false);
-    }
 
-    const handlePublicity = (event) => {
-        event.target.value === 'public' ? setIsPublic(true) : setIsPublic(false);
-    }
 
-    function generateMeme() {
+    async function generateMeme() {
         let meme = document.getElementById("memeContainer");
-
-        if(isLocal){
+        let render = selectedRenIndex;
+        if(selectedRenIndex===0){
             let options;
             if(params.isFreestyle) options = {width:params.canvasWidth, height: params.canvasHeight}
-            domtoimage.toJpeg(meme, options).then(function(blob) {
-                setGeneratedMeme(blob);
+            domtoimage.toJpeg(meme, options).then(function(jpeg) {
+                setGeneratedMeme(jpeg);
             });
         }
-      if(!isLocal){ ////TODO server side generation (phantomJS?)
-
+      if(selectedRenIndex===1){ ////TODO server side generation (phantomJS?)
+              await fetch("http://localhost:3030/memeIO/generate", {
+                  method: "POST",
+                  mode: "cors",
+                  headers: AuthService.getTokenHeader(),
+                  body: JSON.stringify({
+                      url: "http://localhost:3000",
+                      author: localStorage.user,
+                      title: params.title,
+                  }),
+              }).then((res) => {
+                  return res.text();
+              }).then((data) => {
+                  console.log(data);
+              });
+          }
       }
 
 
-    }
 
 
     return (
@@ -239,16 +265,34 @@ const Generator = params => {
                                 </MenuItem>
                             ))}
                         </Menu>
-
-                        <TextField
-                            type={"number"}
-                            className="textFieldTitleFormat"
-                            id="standard-basic"
-                            label="max. file size"
-                            placeholder="File Size"
-                            value={fileSize}
-                            onChange={(event) => setFileSize(event.target.value)}
-                        />
+                        <List component="nav" aria-label="Size settings">
+                            <ListItem
+                                button
+                                aria-haspopup="true"
+                                aria-controls="public-menu"
+                                aria-label="public options"
+                                onClick={handleSizeListItem}
+                            >
+                                <ListItemText primary="Size of the file?" secondary={sizeOptions[selectedSizeIndex]} />
+                            </ListItem>
+                        </List>
+                        <Menu
+                            id="filesize-menu"
+                            anchorEl={sizeAnchorEl}
+                            keepMounted
+                            open={Boolean(sizeAnchorEl)}
+                            onClose={handleSizeClose}>
+                            {sizeOptions.map((option, index) => (
+                                <MenuItem
+                                    key={option}
+                                    //disabled={index === 0}
+                                    selected={index === selectedSizeIndex}
+                                    onClick={(event) => handleSizeItemClick(event, index)}
+                                >
+                                    {option}
+                                </MenuItem>
+                            ))}
+                        </Menu>
                     </div>
                     <Button
                         className="classes.buttonStyle selection"
@@ -312,7 +356,7 @@ const Generator = params => {
                             disabled={!generatedMeme}
                         >
                             Share
-                    </Button>
+                         </Button>
                         <Popover
                             id={id}
                             open={popOpen}
@@ -359,8 +403,6 @@ const Generator = params => {
                     </div>
                 </div>
             </Modal >
-
-
         </div >
     );
 }

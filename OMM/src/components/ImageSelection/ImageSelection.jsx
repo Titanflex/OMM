@@ -139,6 +139,7 @@ const ImageSelection = params => {
   }
 
   function showOwnTemplate(response) {
+    console.log(response)
     if (params.isFreestyle) {
       params.setSelectedImage({ url: response })
     } else {

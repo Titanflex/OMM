@@ -65,7 +65,6 @@ const TemplateOverview = params => {
     }
 
     function addTemplates(image){
-        console.log(image);
         params.setSelectedImages(image);
         handleClose();
     }

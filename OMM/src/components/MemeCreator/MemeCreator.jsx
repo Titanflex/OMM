@@ -24,7 +24,7 @@ import {
 } from "@material-ui/icons";
 
 
-import {ChromePicker, SketchPicker, TwitterPicker} from 'react-color';
+import {TwitterPicker} from 'react-color';
 
 
 import ImageSelection from "../ImageSelection/ImageSelection";
@@ -110,8 +110,9 @@ function MemeCreator() {
         upperText: {
             position: 'absolute',
             left: "0px",
+            top: "0px",
             width: '100%',
-            height: '100%',
+            height:  '100%',
             'max-width': maxWidth + 'px',
             'max-height': maxHeight + 'px',
             overflow: 'hidden',
@@ -185,8 +186,8 @@ function MemeCreator() {
 
     const addImage = () => {
         window.addEventListener("mousedown", function getPosition(e) {
-            console.log(e.target.classList.contains('makeStyles-canvas-30'));
-            if (!e.target.classList.contains('makeStyles-canvas-30')) {
+            console.log(e.target.type);
+            if(e.target.type !== 'textarea'){
                 alert("Place image on Canvas or increase size of Canvas")
                 return addImage();
             }
@@ -214,8 +215,6 @@ function MemeCreator() {
         bottom: '0px',
         left: '0px',
     }
-
-
 
     return (
         <Container className="memeCreatorContainer">
@@ -276,7 +275,11 @@ function MemeCreator() {
 
                     <div className={classes.canvas}>
                         <div className="memeContainer" id={"memeContainer"}>
-                            <div id="memeDiv" className={classes.memeCanvas}>
+                            <div id="memeDiv" className={classes.memeCanvas} id={'memeCanvas'}>
+                                {!isFreestyle &&
+                                <img className={classes.memeImg} src={templates[currentTemplateIndex].url}
+                                     alt={"meme image"} />}
+                                {isFreestyle && images}
                                 <textarea
                                     type="text"
                                     className={classes.textFormat + " memeText " + classes.upperText}
@@ -284,14 +287,6 @@ function MemeCreator() {
                                     value={upper}
                                     onChange={(event) => setUpper(event.target.value)}
                                 />
-                                {console.log(currentTemplateIndex)}
-                                {console.log(templates)}
-
-                                {!isFreestyle &&
-                                    <img className={classes.memeImg} src={templates[currentTemplateIndex].url}
-                                        alt={"meme image"} />}
-                                {isFreestyle && images}
-
                             </div>
                         </div>
 
@@ -349,22 +344,22 @@ function MemeCreator() {
                         <AccordionDetails>
                             <TextField
                                 type={"number"}
-                                className="textFieldTitleFormat selection"
+                                className={"canvasSize"}
                                 id="standard-basic"
                                 label="Canvas Height"
                                 placeholder="Canvas Height"
                                 value={canvasHeight}
-                                min={300}
+                                InputProps={{inputProps:{max:maxHeight, min:minHeight}}}
                                 onChange={(event) => setCanvasHeight(event.target.value)}
                             />
-
                             <TextField
                                 type={"number"}
-                                className="textFieldTitleFormat selection"
+                                className={"canvasSize"}
                                 id="standard-basic"
                                 label="Canvas Width"
                                 placeholder="Canvas Width"
                                 value={canvasWidth}
+                                InputProps={{inputProps:{max:maxWidth, min:minWidth}}}
                                 onChange={(event) => setCanvasWidth(event.target.value)}
                             />
                         </AccordionDetails>
