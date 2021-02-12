@@ -26,4 +26,4 @@ yarn-error.log*
 .idea/
 node_modules/.bin/acorn
 node_modules
-OMM/src/components/MemeCreator/ConfirmationPopUp.jsx
+OMMExpressApp/package.json
