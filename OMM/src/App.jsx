@@ -18,30 +18,33 @@ const routes = {
 
 function App() {
   const routeResults = useRoutes(routes);
-  const [logedIn, setLogedIn] = useState(true);
+
+  const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    console.log("Hello")
-    setLogedIn(true);
+    console.log("Hello");
+    setLoggedIn(true);
     // check if there is a token
-    if (localStorage.token) {
+   if (localStorage.token) {
       AuthService.getUser().then((successful) => {
         if (successful) {
-          setLogedIn(true);
+          setLoggedIn(true);
         } else {
-          setLogedIn(false);
+          setLoggedIn(false);
           navigate("/login");
         }
       });
     } else {
-      setLogedIn(false);
+      //navigate to the login page if there is no user logged in
+      setLoggedIn(false);
       navigate("/login");
     }
   }, []);
 
   return (
-    <div style={{ height: "100%" }}>
-      {logedIn && <NavBar />}
+
+    <div style={{ height: '100%' }}>
+      {loggedIn && <NavBar />}
       {routeResults}
     </div>
   );

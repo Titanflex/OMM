@@ -152,6 +152,7 @@ export default function SignIn() {
         </FormControl>
         <Button
           className={classes.spacing}
+          id="login"
           fullWidth
           variant="contained"
           color="primary"

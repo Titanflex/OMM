@@ -7,6 +7,8 @@ import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import { CloudDownload } from "@material-ui/icons";
 import { FilePond, registerPlugin } from "react-filepond";
+import { Grid, GridList, GridListTile, GridListTileBar } from "@material-ui/core";
+
 import "filepond/dist/filepond.min.css";
 
 
@@ -32,16 +34,40 @@ function getModalStyle() {
   const top = 50;
   const left = 50;
   return {
+    flex: 1,
+    flexDirection: 'row',
     top: `${top}%`,
     left: `${left}%`,
     transform: `translate(-${top}%, -${left}%)`,
   };
 }
 
+/*
+function getGridStyle() {
+  const top = 50;
+  const left = 50;
+  return {
+    top: `${top}%`,
+    left: `${left}%`,
+    transform: `translate(-${top}%, -${left}%)`,
+  }
+};*/
+
 const useStyles = makeStyles((theme) => ({
+  root: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    overflow: 'hidden',
+    backgroundColor: theme.palette.background.paper,
+  },
+  gridList: {
+    width: 700,
+    height: 600,
+  },
   paper: {
     position: 'absolute',
-    width: 400,
+    width: 700,
     backgroundColor: theme.palette.background.paper,
     boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
@@ -51,6 +77,7 @@ const useStyles = makeStyles((theme) => ({
 const ImageSelection = params => {
   const classes = useStyles();
   const [modalStyle] = React.useState(getModalStyle);
+  // const [gridStyle] = React.useState(getGridStyle);
   const [open, setOpen] = React.useState(false);
 
 
@@ -66,7 +93,17 @@ const ImageSelection = params => {
   const [url, setUrl] = useState((''));
   const [files, setFiles] = useState([]);
 
+  function changeMeme(image) {
+    params.setCurrentTemplateIndex(params.memeTemplates.findIndex(function (item, i) {
+      return item.name === image.name
+    }))
+    handleClose();
+  }
 
+  function addTemplates(image) {
+    params.setSelectedImages(image);
+    handleClose();
+  }
 
   const handleChange = ({ target }) => {
     setUrl((prev) => target.value);
@@ -89,6 +126,27 @@ const ImageSelection = params => {
     params.setTemplates([{ url: response }])
     handleClose();
   }
+
+  const ShowTemplates = ({ showtemplates }) => (
+    <GridList cellHeight={180} className={classes.gridList} cols={3}>
+      {showtemplates.map((tile) => (
+        < GridListTile key={tile.name} cols={tile.cols || 1}
+          onClick={() => {
+            if (params.isFreestyle) {
+              addTemplates(tile)
+            } else { changeMeme(tile) }
+          }}
+        >
+          <img src={tile.url} alt={(tile.name) ? tile.name : tile.templateName} />
+          <GridListTileBar
+            title={(tile.name) ? tile.name : tile.templateName}
+            titlePosition="top"
+          />
+        </GridListTile>
+      ))
+      }
+    </GridList >
+  );
 
   async function handleScreenshot() {
     await fetch("http://localhost:3030/memeIO/webshot", {
@@ -139,6 +197,7 @@ const ImageSelection = params => {
   }
 
   function showOwnTemplate(response) {
+    console.log(response)
     if (params.isFreestyle) {
       params.setSelectedImage({ url: response })
     } else {
@@ -163,67 +222,73 @@ const ImageSelection = params => {
         onClose={handleClose}
         aria-labelledby="simple-modal-title"
         aria-describedby="simple-modal-description">
-
         <div style={modalStyle} className={classes.paper}>
-          <h2 id="simple-modal-title">Select your image</h2>
+          <div>
+            <h2 id="simple-modal-title">Select your image</h2>
+            <FilePond
+              files={files}
+              onupdatefiles={setFiles}
+              server={{
+                url: "http://localhost:3030/memeIO",
+                process: {
+                  url: '/upload',
+                  method: 'POST',
+                  headers: {
+                    'author': localStorage.user,
+                    'templateName': "test"
+                  },
+                  onload: (response) =>
+                    showOwnTemplate(response)
 
-          <FilePond
-            files={files}
-            onupdatefiles={setFiles}
-            server={{
-              url: "http://localhost:3030/memeIO",
-              process: {
-                url: '/upload',
-                method: 'POST',
-                headers: {
-                  'author': localStorage.user,
-                  'templateName': "test"
-                },
-                onload: (response) =>
-                  showOwnTemplate(response)
-
-              }
-            }}
-            name="file"
-            labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
-          />
-          <Button
-            className="classes.buttonStyle modal"
-            startIcon={<LoadIcon />}
-            variant="contained"
-            onClick={loadTemplate}
-            color="secondary"
-          >
-            Load
+                }
+              }}
+              name="file"
+              labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
+            />
+            <Button
+              className="classes.buttonStyle modal"
+              startIcon={<LoadIcon />}
+              variant="contained"
+              onClick={loadTemplate}
+              color="secondary"
+            >
+              Load
           </Button>
-          <Button
-            className="classes.buttonStyle modal"
-            startIcon={<CloudDownload />}
-            variant="contained"
-            onClick={() => { getTemplatesFromImgFlip() }}
-            color="secondary"
-          >
-            Get Images form ImageFlip
+            <Button
+              className="classes.buttonStyle modal"
+              startIcon={<CloudDownload />}
+              variant="contained"
+              onClick={() => { getTemplatesFromImgFlip() }}
+              color="secondary"
+            >
+              Get Images form ImageFlip
 
        </Button>
-          <Camera
-            handleSave={saveTemplate}
-          />
-          <Paint
-            handleSave={saveTemplate}
-          />
-          <TextField
-            name="url"
-            className="modal"
-            label="Load Image from URL"
-            onChange={handleChange}
-            onKeyPress={getTemplateFromURL} />
-          <TextField
-            name="url"
-            className="modal"
-            label="Screenshot Image from URL"
-            onChange={handleChange}
-            onKeyPress={handleScreenshot} />
+            <Camera
+              handleSave={saveTemplate}
+            />
+            <Paint
+              handleSave={saveTemplate}
+            />
+            <TextField
+              name="url"
+              className="modal"
+              label="Load Image from URL"
+              onChange={handleChange}
+              onKeyPress={getTemplateFromURL} />
+            <TextField
+              name="url"
+              className="modal"
+              label="Screenshot Image from URL"
+              onChange={handleChange}
+              onKeyPress={handleScreenshot} />
+          </div>
+          <div>
+            <Grid container spacing={4}>
+              <h2 id="simple-modal-title">Select a template to work on</h2>
+              <ShowTemplates showtemplates={params.memeTemplates} />
+            </Grid>
+          </div>
         </div>
       </Modal>
     </div>

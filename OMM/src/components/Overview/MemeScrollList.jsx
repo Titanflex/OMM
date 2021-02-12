@@ -2,10 +2,8 @@ import React, { useState, useEffect, } from "react";
 import {
     Grid,
     Container,
-    Link,
 } from "@material-ui/core";
 
-import { navigate } from "hookrouter";
 
 import MemeView from "./MemeView";
 import Searchbar from "./Searchbar";
@@ -16,12 +14,53 @@ function MemeScrollList() {
 
     const [memes, setMemes] = useState([{ url: null }]);
 
-    const handleMemeClick = (id) => {
-        navigate(`/singleview/${id}`);
-        window.location.reload();
-    };
+    const filterMemesByDate = () => {
+        return (
+            <div>
+                {memes.filter(list => memes.includes('J')).map(filteredName => (
+                    <li>
+                        {filteredName}
+                    </li>
+                ))}
+            </div>
+        )
+    }
 
+    const sortMemesByDate = () => {
+        return (
+            <div>
+                {memes.filter(list => memes.includes('J')).map(filteredName => (
+                    <li>
+                        {filteredName}
+                    </li>
+                ))}
+            </div>
+        )
+    }
 
+    const filterMemesByVote = () => {
+        return (
+            <div>
+                {memes.filter(list => memes.includes('J')).map(filteredName => (
+                    <li>
+                        {filteredName}
+                    </li>
+                ))}
+            </div>
+        )
+    }
+
+    const sortMemesByVote = () => {
+        return (
+            <div>
+                {memes.sort(list => memes.includes('J')).map(filteredName => (
+                    <li>
+                        {filteredName}
+                    </li>
+                ))}
+            </div>
+        )
+    }
 
     const ListMemes = ({ listmemes }) => {
         return (
@@ -43,6 +82,7 @@ function MemeScrollList() {
             await fetch("http://localhost:3030/memeIO/get-memes").then(res => {
                 res.json().then(json => {
                     setMemes(json.docs);
+                    console.log(json.docs)
                     return json;
                 })
             })
