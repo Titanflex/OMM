@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
     Grid,
+    Button,
     Container,
     IconButton,
-
 } from "@material-ui/core";
+import { ToggleButton } from '@material-ui/lab';
 
 import ArrowRight from "@material-ui/icons/ChevronRight";
 import ArrowLeft from "@material-ui/icons/ChevronLeft";
@@ -12,24 +13,53 @@ import ArrowLeft from "@material-ui/icons/ChevronLeft";
 import MemeView from "./MemeView";
 import Searchbar from "./Searchbar";
 
+function useInterval(callback, delay) {
+    const savedCallback = useRef();
+
+    // Remember the latest callback.
+    useEffect(() => {
+        savedCallback.current = callback;
+    }, [callback]);
+
+    // Set up the interval.
+    useEffect(() => {
+        let id = setInterval(() => {
+            savedCallback.current();
+        }, delay);
+        return () => clearInterval(id);
+    }, [delay]);
+}
+
 function SingleView() {
     const [memes, setMemes] = useState([{ url: null }]);
     const [currentMemeIndex, setCurrentMemeIndex] = useState(0);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [isRandom, setIsRandom] = useState(false);
 
-
+    function randomize() {
+        let randomIndex = Math.floor(Math.random() * memes.length);
+        if (randomIndex !== currentMemeIndex) {
+            setCurrentMemeIndex(randomIndex);
+        } else {
+            randomize();
+        }
+    }
 
     function nextMeme() {
         let current = currentMemeIndex;
+        console.log(currentMemeIndex);
         if (memes.length > 1) {
-            current =
-                currentMemeIndex === memes.length - 1 ? 0 : currentMemeIndex + 1;
-            setCurrentMemeIndex(current);
+            if (isRandom) {
+                randomize();
+            } else {
+                current = currentMemeIndex === 0 ? memes.length - 1 : currentMemeIndex - 1;
+                setCurrentMemeIndex(current);
+            }
         }
     }
 
     function previousMeme() {
         let current = currentMemeIndex;
-        console.log(memes[currentMemeIndex])
         if (memes.length > 1) {
             current =
                 currentMemeIndex === 0 ? memes.length - 1 : currentMemeIndex - 1;
@@ -62,16 +92,48 @@ function SingleView() {
                     setCurrentMemeIndex(ind);
                     return json;
                 });
-
             })
         };
         loadMemes();
     }, []);
 
+    useInterval(() => {
+        if (isPlaying) {
+            let current = currentMemeIndex;
+            console.log(currentMemeIndex);
+            if (memes.length > 1) {
+                if (isRandom) {
+                    randomize();
+                } else {
+                    current = currentMemeIndex === 0 ? memes.length - 1 : currentMemeIndex - 1;
+                    setCurrentMemeIndex(current);
+                }
+            }
+        }
+    }, 5000);
+
+
+
     return (
         <Container className="memeScrollListContainer" >
             <Grid container spacing={3}>
-                <Grid item xs></Grid>
+                <Grid item xs>
+                    <ToggleButton
+                        value="check"
+                        selected={isPlaying}
+                        onChange={() => {
+                            setIsPlaying(!isPlaying);
+                        }}
+                    >                        Play                </ToggleButton>
+
+                    <ToggleButton
+                        value="check"
+                        selected={isRandom}
+                        onChange={() => {
+                            setIsRandom(!isRandom);
+                        }}
+                    >                        Random                </ToggleButton>
+                </Grid>
                 <Grid item xs={4}>
                     <Searchbar /></Grid>
                 <Grid item xs></Grid>
@@ -83,7 +145,9 @@ function SingleView() {
                     </IconButton>
                 </Grid>
                 <Grid item xs >
-                    <SingleMeme />
+
+                    <SingleMeme listmemes={memes} />
+
                 </Grid>
                 <Grid item xs={1}>
                     <IconButton className="arrows" onClick={nextMeme} aria-label="next">
@@ -91,7 +155,8 @@ function SingleView() {
                     </IconButton>
                 </Grid>
             </Grid>
-        </Container>
+
+        </Container >
     );
 }
 
