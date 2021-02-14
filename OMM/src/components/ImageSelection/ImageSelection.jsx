@@ -7,6 +7,8 @@ import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import { CloudDownload } from "@material-ui/icons";
 import { FilePond, registerPlugin } from "react-filepond";
+import { Grid, GridList, GridListTile, GridListTileBar } from "@material-ui/core";
+
 import "filepond/dist/filepond.min.css";
 
 
@@ -32,30 +34,52 @@ function getModalStyle() {
   const top = 50;
   const left = 50;
   return {
+    flex: 1,
+    flexDirection: 'row',
     top: `${top}%`,
     left: `${left}%`,
     transform: `translate(-${top}%, -${left}%)`,
   };
 }
 
+/*
+function getGridStyle() {
+  const top = 50;
+  const left = 50;
+  return {
+    top: `${top}%`,
+    left: `${left}%`,
+    transform: `translate(-${top}%, -${left}%)`,
+  }
+};*/
+
 const useStyles = makeStyles((theme) => ({
+  root: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    overflow: 'hidden',
+    backgroundColor: theme.palette.background.paper,
+  },
   paper: {
     position: 'absolute',
-    width: 400,
     backgroundColor: theme.palette.background.paper,
     boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
+    width: '80vw',
   },
 }));
 
 const ImageSelection = params => {
   const classes = useStyles();
   const [modalStyle] = React.useState(getModalStyle);
+  // const [gridStyle] = React.useState(getGridStyle);
   const [open, setOpen] = React.useState(false);
 
 
 
   const handleOpen = () => {
+    loadTemplate();
     setOpen(true);
   };
 
@@ -66,7 +90,17 @@ const ImageSelection = params => {
   const [url, setUrl] = useState((''));
   const [files, setFiles] = useState([]);
 
+  function changeMeme(image) {
+    params.setCurrentTemplateIndex(params.memeTemplates.findIndex(function (item, i) {
+      return item.name === image.name
+    }))
+    handleClose();
+  }
 
+  function addTemplates(image) {
+    params.setSelectedImages(image);
+    //handleClose();
+  }
 
   const handleChange = ({ target }) => {
     setUrl((prev) => target.value);
@@ -81,14 +115,35 @@ const ImageSelection = params => {
     const json = await res.json();
     params.setCurrentTemplateIndex(0)
     params.setTemplates(json.docs);
-    handleClose();
+    //handleClose();
   }
 
   function showOwnTemplate(response) {
     console.log(response)
     params.setTemplates([{ url: response }])
-    handleClose();
+    //handleClose();
   }
+
+  const ShowTemplates = ({ showtemplates }) => (
+    <GridList cellHeight={180} className={classes.gridList} cols={3} style={{ height: "60vh"}}>
+      {showtemplates.map((tile) => (
+        <GridListTile key={tile.name} style={{'cursor': 'pointer'}} cols={tile.cols || 1}
+          onClick={() => {
+            if (params.isFreestyle) {
+              addTemplates(tile)
+            } else { changeMeme(tile) }
+          }}
+        >
+          <img src={tile.url} alt={(tile.name) ? tile.name : tile.templateName} />
+          <GridListTileBar
+            title={(tile.name) ? tile.name : tile.templateName}
+            titlePosition="top"
+          />
+        </GridListTile>
+      ))
+      }
+    </GridList >
+  );
 
   async function handleScreenshot() {
     await fetch("http://localhost:3030/memeIO/webshot", {
@@ -135,7 +190,7 @@ const ImageSelection = params => {
     const json = await res.json();
     params.setCurrentTemplateIndex(0)
     params.setTemplates(json.data.memes);
-    handleClose();
+    //handleClose();
   }
 
   function showOwnTemplate(response) {
@@ -146,7 +201,7 @@ const ImageSelection = params => {
       params.setTemplates([{ url: response }])
     }
     setFiles([]);
-    handleClose();
+    //handleClose();
   }
 
   return (
@@ -164,67 +219,75 @@ const ImageSelection = params => {
         onClose={handleClose}
         aria-labelledby="simple-modal-title"
         aria-describedby="simple-modal-description">
-
         <div style={modalStyle} className={classes.paper}>
-          <h2 id="simple-modal-title">Select your image</h2>
+              <h2 style={{ marginBottom: "32px"}} id="simple-modal-title">Select a template to work on</h2>
+          <Grid container spacing={6}>
+          <Grid item xs={6} >
+              <ShowTemplates showtemplates={params.memeTemplates} />
+            </Grid>
+          <Grid item xs={6} style={{maxWidth: 400}}>
+          <div>
+            <h4 style={{ marginBottom: "32px", marginTop: "32px"}}>Get or create more templates</h4>
+            <FilePond
+              files={files}
+              onupdatefiles={setFiles}
+              server={{
+                url: "http://localhost:3030/memeIO",
+                process: {
+                  url: '/upload',
+                  method: 'POST',
+                  headers: {
+                    'author': localStorage.user,
+                    'templateName': "test"
+                  },
+                  onload: (response) =>
+                    showOwnTemplate(response)
 
-          <FilePond
-            files={files}
-            onupdatefiles={setFiles}
-            server={{
-              url: "http://localhost:3030/memeIO",
-              process: {
-                url: '/upload',
-                method: 'POST',
-                headers: {
-                  'author': localStorage.user,
-                  'templateName': "test"
-                },
-                onload: (response) =>
-                  showOwnTemplate(response)
-
-              }
-            }}
-            name="file"
-            labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
-          />
-          <Button
-            className="classes.buttonStyle modal"
-            startIcon={<LoadIcon />}
-            variant="contained"
-            onClick={loadTemplate}
-            color="secondary"
-          >
-            Load
-          </Button>
-          <Button
-            className="classes.buttonStyle modal"
-            startIcon={<CloudDownload />}
-            variant="contained"
-            onClick={() => { getTemplatesFromImgFlip() }}
-            color="secondary"
-          >
-            Get Images form ImageFlip
+                }
+              }}
+              name="file"
+              labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
+            />
+             <Button
+              className="classes.buttonStyle modal"
+              startIcon={<LoadIcon />}
+              variant="contained"
+              onClick={loadTemplate}
+              color="secondary"
+            >
+              Refresh
+          </Button> 
+            <Button
+              className="classes.buttonStyle modal"
+              startIcon={<CloudDownload />}
+              variant="contained"
+              onClick={() => { getTemplatesFromImgFlip() }}
+              color="secondary"
+            >
+              Get Images form ImageFlip
 
        </Button>
-          <Camera
-            handleSave={saveTemplate}
-          />
-          <Paint
-            handleSave={saveTemplate}
-          />
-          <TextField
-            name="url"
-            className="modal"
-            label="Load Image from URL"
-            onChange={handleChange}
-            onKeyPress={getTemplateFromURL} />
-          <TextField
-            name="url"
-            className="modal"
-            label="Screenshot Image from URL"
-            onChange={handleChange}
-            onKeyPress={handleScreenshot} />
+            <Camera
+              handleSave={saveTemplate}
+            />
+            <Paint
+              handleSave={saveTemplate}
+            />
+            <TextField
+              name="url"
+              className="modal"
+              label="Load Image from URL"
+              onChange={handleChange}
+              onKeyPress={getTemplateFromURL} />
+            <TextField
+              name="url"
+              className="modal"
+              label="Screenshot Image from URL"
+              onChange={handleChange}
+              onKeyPress={handleScreenshot} />
+          </div>
+          </Grid>
+          </Grid>
         </div>
       </Modal>
     </div>

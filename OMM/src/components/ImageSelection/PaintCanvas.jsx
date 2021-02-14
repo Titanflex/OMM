@@ -63,7 +63,6 @@ const PaintCanvas = params => {
         let paintingSrc = canvasRef.current.toDataURL();
         params.handleSave(templateTitle, paintingSrc);
         clearCanvas();
-
     }
 
     return (

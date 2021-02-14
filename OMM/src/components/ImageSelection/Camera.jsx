@@ -59,6 +59,7 @@ const Camera = params => {
             return;
         }
         params.handleSave(templateTitle, imgSrc, false);
+        handleClose();
     }
 
 

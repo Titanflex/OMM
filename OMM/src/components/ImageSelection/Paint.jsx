@@ -48,6 +48,7 @@ const Paint = params => {
 
     function handleSave(title, url){
         params.handleSave(title, url, false);
+        handleClose();
     }
 
     return (

@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: theme.palette.background.paper,
         boxShadow: theme.shadows[5],
         padding: theme.spacing(2, 4, 3),
-    },
+    }
 }));
 
 
@@ -74,12 +74,13 @@ const TemplateOverview = params => {
     const ShowTemplates = ({ showtemplates }) => (
         <GridList cellHeight={180} className={classes.gridList} cols={3}>
             {showtemplates.map((tile) => (
-                < GridListTile key={tile.name} cols={tile.cols || 1}
+                <GridListTile  key={tile.name} style={{ cursor: "pointer"}} cols={tile.cols || 1}
                     onClick={() => {
                         if(params.isFreestyle){
                         addTemplates(tile)
                     }else{changeMeme(tile)}
-                    }}
+                    }
+                    }
                 >
                     <img src={tile.url} alt={(tile.name)?tile.name:tile.templateName} />
                     <GridListTileBar
