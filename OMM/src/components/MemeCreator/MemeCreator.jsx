@@ -154,7 +154,6 @@ function MemeCreator() {
         if (templates.length > 1) {
             current =
                 currentTemplateIndex === 0 ? templates.length - 1 : currentTemplateIndex - 1;
-            setUpper(templates[current].upper);
             setCurrentTemplateIndex(current);
         }
     }
@@ -392,7 +391,10 @@ function MemeCreator() {
                         title={title}
                         isFreestyle={isFreestyle}
                         canvasHeight={canvasHeight}
-                        canvasWidth={canvasWidth} />
+                        canvasWidth={canvasWidth}
+                        template={templates[currentTemplateIndex]}
+                        fontSize={fontSize}
+                    text={upper}/>
 
 
                 </Grid>
