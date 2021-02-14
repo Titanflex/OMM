@@ -6,6 +6,7 @@ img {
 
 .memeCreatorContainer {
     margin-top: 64px;
+    max-width: 80vw !important;
 }
 
 .memeContainer {
@@ -47,7 +48,7 @@ img {
 }
 
 .lower {
-    position:absolute;
+    position: absolute;
     width: 90%;
     bottom: -15%;
     left: 50%;
@@ -86,31 +87,30 @@ img {
     margin-top: 5% !important;
 }
 
-.colorPicker{
+.colorPicker {
     z-index: 2;
 }
 
-.hidden{
-    display:none;
+.hidden {
+    display: none;
     width: 350px;
     height: auto;
 }
 
-.selection{
-    margin:15px !important;
-
+.selection {
+    margin: 15px !important;
     height: 35px;
 }
 
 .MuiPaper-elevation1 {
     box-shadow: none !important;
 }
+
 .MuiAccordion-root:before {
     background-color: white !important;
-
 }
 
-.canvasSize{
+.canvasSize {
     width: 100%;
     margin: 10px !important;
 }

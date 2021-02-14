@@ -61,16 +61,12 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'hidden',
     backgroundColor: theme.palette.background.paper,
   },
-  gridList: {
-    width: 700,
-    height: 600,
-  },
   paper: {
     position: 'absolute',
-    width: 700,
     backgroundColor: theme.palette.background.paper,
     boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
+    width: '80vw',
   },
 }));
 
@@ -83,6 +79,7 @@ const ImageSelection = params => {
 
 
   const handleOpen = () => {
+    loadTemplate();
     setOpen(true);
   };
 
@@ -102,7 +99,7 @@ const ImageSelection = params => {
 
   function addTemplates(image) {
     params.setSelectedImages(image);
-    handleClose();
+    //handleClose();
   }
 
   const handleChange = ({ target }) => {
@@ -118,17 +115,17 @@ const ImageSelection = params => {
     const json = await res.json();
     params.setCurrentTemplateIndex(0)
     params.setTemplates(json.docs);
-    handleClose();
+    //handleClose();
   }
 
   function showOwnTemplate(response) {
     console.log(response)
     params.setTemplates([{ url: response }])
-    handleClose();
+    //handleClose();
   }
 
   const ShowTemplates = ({ showtemplates }) => (
-    <GridList cellHeight={180} className={classes.gridList} cols={3}>
+    <GridList cellHeight={180} className={classes.gridList} cols={3} style={{ height: "60vh"}}>
       {showtemplates.map((tile) => (
         < GridListTile key={tile.name} cols={tile.cols || 1}
           onClick={() => {
@@ -193,7 +190,7 @@ const ImageSelection = params => {
     const json = await res.json();
     params.setCurrentTemplateIndex(0)
     params.setTemplates(json.data.memes);
-    handleClose();
+    //handleClose();
   }
 
   function showOwnTemplate(response) {
@@ -204,7 +201,7 @@ const ImageSelection = params => {
       params.setTemplates([{ url: response }])
     }
     setFiles([]);
-    handleClose();
+    //handleClose();
   }
 
   return (
@@ -223,8 +220,14 @@ const ImageSelection = params => {
         aria-labelledby="simple-modal-title"
         aria-describedby="simple-modal-description">
         <div style={modalStyle} className={classes.paper}>
+              <h2 style={{ marginBottom: "32px"}} id="simple-modal-title">Select a template to work on</h2>
+          <Grid container spacing={6}>
+          <Grid item xs={6} >
+              <ShowTemplates showtemplates={params.memeTemplates} />
+            </Grid>
+          <Grid item xs={6} style={{maxWidth: 400}}>
           <div>
-            <h2 id="simple-modal-title">Select your image</h2>
+            <h4 style={{ marginBottom: "32px", marginTop: "32px"}}>Get or create more templates</h4>
             <FilePond
               files={files}
               onupdatefiles={setFiles}
@@ -245,15 +248,15 @@ const ImageSelection = params => {
               name="file"
               labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
             />
-            <Button
+             <Button
               className="classes.buttonStyle modal"
               startIcon={<LoadIcon />}
               variant="contained"
               onClick={loadTemplate}
               color="secondary"
             >
-              Load
-          </Button>
+              Refresh
+          </Button> 
             <Button
               className="classes.buttonStyle modal"
               startIcon={<CloudDownload />}
@@ -283,12 +286,8 @@ const ImageSelection = params => {
               onChange={handleChange}
               onKeyPress={handleScreenshot} />
           </div>
-          <div>
-            <Grid container spacing={4}>
-              <h2 id="simple-modal-title">Select a template to work on</h2>
-              <ShowTemplates showtemplates={params.memeTemplates} />
-            </Grid>
-          </div>
+          </Grid>
+          </Grid>
         </div>
       </Modal>
     </div>

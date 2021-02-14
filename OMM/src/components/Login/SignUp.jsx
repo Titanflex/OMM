@@ -101,7 +101,7 @@ export default function SignUp() {
             setPasswordError({ show: true, text: "" });
             setPasswordError2({
               show: true,
-              text: "Something went wrong with signing you up :(",
+              text: "The username does already exist. Please chose another one.",
             });
           }
         }

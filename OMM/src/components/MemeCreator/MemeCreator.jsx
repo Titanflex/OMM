@@ -221,13 +221,13 @@ function MemeCreator() {
             <Typography className={classes.heading} variant="h4">
                 Hello {localStorage.user}!
             </Typography>
-            <Grid container spacing={1}>
-                <Grid item s={1} alignItems="center" >
+            <Grid container alignItems="center" spacing={3}>
+                <Grid item s={1} >
                     <IconButton className="arrows" onClick={previousMeme} aria-label="previous" disabled={isFreestyle}>
                         <ArrowLeft fontSize="large" />
                     </IconButton>
                 </Grid>
-                <Grid item s={8} alignItems="center" style={{ width: "55%", overflow: "hidden" }}>
+                <Grid item s={8} style={{overflow: "hidden" }}>
                     <IconButton
                         className={"textFormatButton"}
                         onClick={toggleBold}
@@ -292,14 +292,14 @@ function MemeCreator() {
 
                     </div>
                 </Grid>
-                <Grid item s={1} alignItems="center">
+                <Grid item s={1}>
 
                     <IconButton className="arrows" onClick={nextMeme} aria-label="next" disabled={isFreestyle}>
                         <ArrowRight fontSize="large" />
 
                     </IconButton>
                 </Grid>
-                <Grid item s={2} alignItems="right" style={{ width: "30%", minWidth: "400px" }}>
+                <Grid item s={2} >
                     {/*<TemplateOverview
                         isFreestyle={isFreestyle}
                         memeTemplates={templates}

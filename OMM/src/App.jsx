@@ -22,7 +22,6 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    console.log("Hello");
     setLoggedIn(true);
     // check if there is a token
    if (localStorage.token) {

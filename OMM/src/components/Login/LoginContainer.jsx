@@ -36,7 +36,7 @@ const LoginContainer = () => {
 
   return (
     <Grid container spacing={0}>
-      <Grid className={classes.leftSide} item s={1} alignItems="center">
+      <Grid className={classes.leftSide} item s={1} >
         {signIn ? (
           <LeftSideComponent
             handleClick={handleChangeSigning}
@@ -51,7 +51,7 @@ const LoginContainer = () => {
           />
         )}
       </Grid>
-      <Grid className={classes.gridItem} item s={1} alignItems="center">
+      <Grid className={classes.gridItem} item s={1} >
         {signIn ? <SignIn /> : <SignUp />}
       </Grid>
     </Grid>

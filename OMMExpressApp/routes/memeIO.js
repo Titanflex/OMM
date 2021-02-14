@@ -79,7 +79,7 @@ memeIO.post("/save-template", async(req, res) => {
     if (!req.body.internetSource) { //save base64 string to file
         let base64String = req.body.url;
         let base64Image = base64String.split(';base64,').pop();
-        url = "http://localhost:3030/images/" + title;
+        url = "http://localhost:3030/images/templates/" + title;
         fs.writeFile('public/images/templates/' + title, base64Image, { encoding: 'base64' }, function(err) {
             if (err) console.log(err);
         })
@@ -108,7 +108,7 @@ memeIO.post("/save-template", async(req, res) => {
 memeIO.post("/webshot", auth, async(req, res) => {
     let url = req.body.url;
     let shortUrl = url.replace(/(^http[s]?:\/\/)|[.\/\\]/ig, '').slice(0, 20) + '.png';
-    let filePath = "http://localhost:3030/images/" + shortUrl;
+    let filePath = "http://localhost:3030/images/templates/" + shortUrl;
 
     var screenshotTemplate = {
         uploader: req.body.author,
@@ -134,7 +134,7 @@ memeIO.post("/webshot", auth, async(req, res) => {
 /* POST /memeIO/generate */
 /* Generate image on server and save as Meme*/
 memeIO.post("/generate", auth, async(req, res) => {
-    let filePath = "http://localhost:3030/images/" + req.body.title + '.png';
+    let filePath = "http://localhost:3030/images/meme/" + req.body.title + '.png';
     let uploader = req.body.author;
     let url = req.body.url;
     let authToken = req.header('x-auth-token');
@@ -189,7 +189,7 @@ memeIO.post('/upload', upload.single("file"), async(req, res) => {
             }
         })
     } else { //upload template
-        url = "http://localhost:3030/images/templates" + req.file.originalname;
+        url = "http://localhost:3030/images/templates/" + req.file.originalname;
         var uploadedTemplate = {
             uploader: req.headers.author,
             templateName: req.file.originalname,
@@ -305,7 +305,6 @@ memeIO.get('/get-memes-by', (req, res) => {
     req.body.creationDate_earliest ? creationDate_earliest = req.body.creationDate_earliest : creationDate_earliest = '1970-01-01T00:00:00.000Z';
     req.body.creationDate_latest ? creationDate_latest = req.body.creationDate_latest : creationDate_latest = Date.now().toString();
     req.body.creationDate_latest ? creationDate_latest = req.body.creationDate_latest : creationDate_latest = Date.now().toString();
-    req.body.maxFileNumber ? maxFileNumber = req.body.maxFileNumber : maxFileNumber = 20;
 
     //get the memes from the data base using the defined search params
     Meme.find({
@@ -321,7 +320,7 @@ memeIO.get('/get-memes-by', (req, res) => {
             }
 
             //slice the array to get only the given max file numbers
-            docs.slice(0, maxFileNumber)
+            docs.slice(0, 20)
 
             //create array of files
             let memes = []
