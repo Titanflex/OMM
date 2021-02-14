@@ -127,7 +127,7 @@ const ImageSelection = params => {
   const ShowTemplates = ({ showtemplates }) => (
     <GridList cellHeight={180} className={classes.gridList} cols={3} style={{ height: "60vh"}}>
       {showtemplates.map((tile) => (
-        < GridListTile key={tile.name} cols={tile.cols || 1}
+        <GridListTile key={tile.name} style={{'cursor': 'pointer'}} cols={tile.cols || 1}
           onClick={() => {
             if (params.isFreestyle) {
               addTemplates(tile)
