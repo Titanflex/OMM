@@ -3,15 +3,18 @@ import {
     Grid,
     Button,
     Container,
-    IconButton,
+    IconButton, Toolbar,
 } from "@material-ui/core";
 import { ToggleButton } from '@material-ui/lab';
+
 
 import ArrowRight from "@material-ui/icons/ChevronRight";
 import ArrowLeft from "@material-ui/icons/ChevronLeft";
 
 import MemeView from "./MemeView";
 import Searchbar from "./Searchbar";
+import HearingIcon from "@material-ui/icons/Hearing";
+
 
 function useInterval(callback, delay) {
     const savedCallback = useRef();
@@ -36,6 +39,16 @@ function SingleView() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [isRandom, setIsRandom] = useState(false);
 
+    const [isAccessible, setIsAccessible] = useState(false);
+
+    const handleFocus = () => {
+        let text= isAccessible?"Stop text to speech":"Start text to speech"
+        window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+
+    };
+
+
+
     function randomize() {
         let randomIndex = Math.floor(Math.random() * memes.length);
         if (randomIndex !== currentMemeIndex) {
@@ -45,7 +58,7 @@ function SingleView() {
         }
     }
 
-    function nextMeme() {
+    async function nextMeme() {
         let current = currentMemeIndex;
         console.log(currentMemeIndex);
         if (memes.length > 1) {
@@ -53,8 +66,9 @@ function SingleView() {
                 randomize();
             } else {
                 current = currentMemeIndex === 0 ? memes.length - 1 : currentMemeIndex - 1;
-                setCurrentMemeIndex(current);
+                await setCurrentMemeIndex(current);
             }
+
         }
     }
 
@@ -69,7 +83,7 @@ function SingleView() {
 
     const SingleMeme = () => {
         return (
-            <MemeView memeInfo={memes[currentMemeIndex]} />
+            <MemeView memeInfo={memes[currentMemeIndex]} isAccessible={isAccessible} />
         )
     };
 
@@ -133,6 +147,13 @@ function SingleView() {
                             setIsRandom(!isRandom);
                         }}
                     >                        Random                </ToggleButton>
+                    <ToggleButton
+                        value="check"
+                        selected={isAccessible}
+                        onFocus={() => {handleFocus()}}
+                        onClick={() => setIsAccessible(isAccessible?false:true)}
+                    > <HearingIcon />
+                    </ToggleButton>
                 </Grid>
                 <Grid item xs={4}>
                     <Searchbar /></Grid>

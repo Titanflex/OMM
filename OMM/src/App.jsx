@@ -21,6 +21,7 @@ function App() {
 
   const [loggedIn, setLoggedIn] = useState(false);
 
+
   useEffect(() => {
     setLoggedIn(true);
     // check if there is a token

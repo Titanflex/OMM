@@ -18,8 +18,13 @@ import Meme from "./Meme";
 import "./../../css/Overview/memeView.css";
 
 
+
+
+
 const MemeView = props => {
     const [memeInfo, setMemeInfo] = useState(props.memeInfo);
+
+
 
     //TODO
     function likeMeme() {
@@ -43,7 +48,7 @@ const MemeView = props => {
 
             <Grid container spacing={2}>
                 <Grid item xs>
-                    <Meme memeData={memeInfo} />
+                    <Meme memeData={memeInfo} isAccessible={props.isAccessible} />
                 </Grid>
                 <Grid item xs container direction="column" spacing={2}>
                     <Grid item xs>
