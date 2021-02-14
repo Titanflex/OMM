@@ -41,7 +41,7 @@ import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Tooltip from "@material-ui/core/Tooltip";
 
 function MemeCreator() {
-    const [title, setTitle] = useState("");
+
 
     const [upper, setUpper] = useState("");
     const [templates, setTemplates] = useState([
@@ -316,15 +316,7 @@ function MemeCreator() {
                         isFreestyle={isFreestyle}
                     />
 
-                    {/* Text Field for Meme Title*/}
-                    <TextField
-                        className="textFieldTitleFormat selection"
-                        id="standard-basic"
-                        label="Meme Title"
-                        placeholder="Meme Title"
-                        value={title}
-                        onChange={(event) => setTitle(event.target.value)}
-                    />
+
 
                     <Accordion>
                         <AccordionSummary
@@ -340,7 +332,7 @@ function MemeCreator() {
                                         checked={isFreestyle}
                                         onChange={handleFreestyle}
                                     />}
-                                label="Freestyle"
+                                label="Advanced Options"
                             />
                         </AccordionSummary>
                         <AccordionDetails>
@@ -391,7 +383,6 @@ function MemeCreator() {
                     </Accordion>
 
                     <Generator
-                        title={title}
                         isFreestyle={isFreestyle}
                         canvasHeight={canvasHeight}
                         canvasWidth={canvasWidth}

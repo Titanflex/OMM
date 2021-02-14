@@ -16,7 +16,7 @@ import {triggerBase64Download} from 'react-base64-downloader';
 
 import "./../../css/ImageSelection/imageSelection.css";
 import domtoimage from "dom-to-image";
-import {Menu, MenuItem, TextField} from "@material-ui/core";
+import {Grid, Menu, MenuItem, TextField} from "@material-ui/core";
 
 import {FilePond, registerPlugin} from "react-filepond";
 import "filepond/dist/filepond.min.css";
@@ -66,6 +66,11 @@ const Generator = params => {
     const [selectedPubIndex, setSelectedPubIndex] = React.useState(1);
     const [sizeAnchorEl, setSizeAnchorEl] = React.useState(null);
     const [selectedSizeIndex, setSelectedSizeIndex] = React.useState(1);
+    const [title, setTitle] = useState("");
+    const [titleError, setTitleError] = useState({
+        show: false,
+        text: "",
+    });
 
 
     //PublicMenu
@@ -142,10 +147,6 @@ const Generator = params => {
 
     //Modal
     const handleOpen = () => {
-        if (params.title === "") {
-            alert("Enter a meme title");
-            return;
-        }
         setOpen(true);
     };
 
@@ -184,6 +185,17 @@ const Generator = params => {
     };
 
     async function generateMeme() {
+        if(!title){
+            setTitleError({
+                show: true,
+                text: "Enter a meme title",
+            });
+            return;
+        }
+        setTitleError({
+            show: false,
+            text: "",
+        });
         if (selectedRenIndex === 0) { //local generation
             let meme = document.getElementById("memeContainer");
             domToImage(meme);
@@ -196,7 +208,7 @@ const Generator = params => {
                   body: JSON.stringify({
                       url: "http://localhost:3000",
                       author: localStorage.user,
-                      title: params.title,
+                      title: title,
                   }),
               }).then((res) => {
                   return res.text();
@@ -236,13 +248,12 @@ const Generator = params => {
                     )}`
                 );
                 const json = await res.json();
-                console.log(json);
                 let response = await fetch(json.data.url);
                 let data = await response.blob();
                 let metadata = {
                     type: 'image/jpeg'
                 };
-                let file = new File([data], params.title, metadata);
+                let file = new File([data], title, metadata);
                 setGeneratedMeme(file);
                 setGeneratedMemeUrl(json.data.url);
             }
@@ -272,7 +283,20 @@ const Generator = params => {
                 <div style={modalStyle} className={classes.paper}>
 
                     <div>
-
+                        {/* Text Field for Meme Title*/}
+                        <TextField
+                            error={titleError.show}
+                            helperText={titleError.text}
+                            className={classes.spacing}
+                            id="name"
+                            label="Meme Title (mandatory)"
+                            placeholder=""
+                            fullWidth
+                            margin="normal"
+                            variant="outlined"
+                            value={title}
+                            onChange={(event) => setTitle(event.target.value)}
+                        />
                         <List component="nav" aria-label="Render settings">
                             <ListItem
                                 button
@@ -379,7 +403,7 @@ const Generator = params => {
                                     method: 'POST',
                                     headers: {
                                         'author': localStorage.user,
-                                        'memeTitle': params.title,
+                                        'memeTitle': title,
                                         'isPublic': isPublic,
                                         'type': 'meme',
                                     },
