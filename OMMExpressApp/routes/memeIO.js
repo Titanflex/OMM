@@ -233,14 +233,15 @@ memeIO.post('/create-simple-meme', async(req, res) => {
     try {
         const url = "http://localhost:3030/images/memes/" + req.body.title + ".png";
         let image = await Jimp.read(req.body.url);
-        let font = await Jimp.loadFont(Jimp.FONT_SANS_32_WHITE);
-        let positionX_upper = (image.bitmap.width / 2) - (Jimp.measureText(font, req.body.upper) / 2);
-        let positionX_lower = (image.bitmap.width / 2) - (Jimp.measureText(font, req.body.lower) / 2);
+        image.resize(700, Jimp.AUTO);
+        let font = await Jimp.loadFont('public/assets/impact.ttf/impact.fnt');
+        let positionX_upper = Jimp.measureText(font, req.body.upper) < 400 ? (image.bitmap.width / 2) - (Jimp.measureText(font, req.body.upper) / 2) : (image.bitmap.width / 2) - 200;
+        let positionX_lower = Jimp.measureText(font, req.body.lower) < 400 ? (image.bitmap.width / 2) - (Jimp.measureText(font, req.body.lower) / 2) : (image.bitmap.width / 2) - 200;
 
         //upper text
-        image.print(font, positionX_upper, 30, req.body.upper)
+        image.print(font, positionX_upper, 30, req.body.upper, 400)
             //lower text
-            .print(font, positionX_lower, image.bitmap.height - (Jimp.measureTextHeight(font, req.body.lower) + 30), req.body.lower)
+            .print(font, positionX_lower, image.bitmap.height - (Jimp.measureTextHeight(font, req.body.lower) + 30), req.body.lower, 400)
             //save meme
             .write("public/images/memes/" +
                 req.body.title + ".png");
@@ -253,7 +254,7 @@ memeIO.post('/create-simple-meme', async(req, res) => {
             likes: 0
         })
         newMeme.save();
-        return res.status(200).json({ newMeme })
+        res.json(newMeme);
     } catch (error) {
         return res.status(500).send(err)
     }
@@ -265,12 +266,13 @@ memeIO.post('/create-meme', async(req, res) => {
     try {
         const url = "http://localhost:3030/images/memes/" + req.body.title + ".png";
         let image = await Jimp.read(req.body.url);
+        image = await image.resize(700, Jimp.AUTO);
         for (const textBox of req.body.textBoxes) {
-            let font = await Jimp.loadFont(Jimp[textBox.font])
+            let font = await Jimp.loadFont(textBox.font ? textBox.font : 'public/assets/impact.ttf/impact.fnt')
             image.print(font, textBox.x, textBox.y, {
                     text: textBox.text
                 }, textBox.maxWidth,
-                textBox.minHeight)
+                textBox.maxHeight)
         };
         image.write("public/images/memes/" +
             req.body.title + ".png");

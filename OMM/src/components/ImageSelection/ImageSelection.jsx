@@ -34,24 +34,12 @@ function getModalStyle() {
   const top = 50;
   const left = 50;
   return {
-    flex: 1,
-    flexDirection: 'row',
     top: `${top}%`,
     left: `${left}%`,
     transform: `translate(-${top}%, -${left}%)`,
   };
 }
 
-/*
-function getGridStyle() {
-  const top = 50;
-  const left = 50;
-  return {
-    top: `${top}%`,
-    left: `${left}%`,
-    transform: `translate(-${top}%, -${left}%)`,
-  }
-};*/
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -126,7 +114,7 @@ const ImageSelection = params => {
   }
 
   const ShowTemplates = ({ showtemplates }) => (
-    <GridList cellHeight={180} className={classes.gridList} cols={3} style={{ height: 450}}>
+    <GridList cellHeight={180} className={classes.gridList} cols={3} style={{height: 450}}>
       {showtemplates.map((tile) => (
         <GridListTile key={tile.name} style={{'cursor': 'pointer'}} cols={tile.cols || 1}
           onClick={() => {
@@ -223,12 +211,12 @@ const ImageSelection = params => {
         <div style={modalStyle} className={classes.paper}>
           <Grid container spacing={1}>
           <Grid item xs={6} >
-              <h2 style={{ marginBottom: "32px"}} id="simple-modal-title">Select a template to work on</h2>
+              <h2 style={{marginBottom: "32px"}} id="simple-modal-title">Select a template to work on</h2>
               <ShowTemplates showtemplates={params.memeTemplates} />
             </Grid>
           <Grid item xs={6} style={{maxWidth: 400, marginLeft: 32}}>
           <div>
-            <h4 style={{ marginBottom: "32px", marginTop: "32px"}}>Get or create more templates</h4>
+            <h4 style={{marginBottom: "32px", marginTop: "32px"}}>Get or create more templates</h4>
             <FilePond
               files={files}
               onupdatefiles={setFiles}
