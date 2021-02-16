@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
     Grid,
     IconButton,
+    
     Container,
     Typography,
     Button,
@@ -96,16 +97,13 @@ const download = () => {
 
             <Grid container spacing={2}>
                 <Grid item xs >
-                    {/*<Meme memeData={memeInfo} />*/}
-
+                    {/*<Meme memeData={memeInfo} isAccessible={props.isAccessible}/>*/}
                     <img
                         id = {"imageid"}
                         src={memeInfo.url}
                         alt={"meme image"}
                         onClick={() => window.open(`/singleview/${memeInfo._id}`, "_self")}
                     />
-
-
                 </Grid>
                 <Grid container item xs direction="column" spacing={2}>
                     <Grid item xs>
@@ -122,7 +120,6 @@ const download = () => {
                             <Typography variant="body2">
                                 Likes: {memeInfo.hasOwnProperty('likes') ? memeInfo.likes : "No likes"}
                             </Typography>
-
                         </div>
                     </Grid>
                     <Grid item xs>

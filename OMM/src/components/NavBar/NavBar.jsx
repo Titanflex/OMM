@@ -1,5 +1,5 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core";
+import {Grid, makeStyles} from "@material-ui/core";
 import {
   AppBar,
   Toolbar,
@@ -13,6 +13,8 @@ import { navigate } from "hookrouter";
 import AuthService from "../../services/auth.service";
 
 import "./../../css/NavBar/navbar.css";
+import {ToggleButton} from "@material-ui/lab";
+import HearingIcon from '@material-ui/icons/Hearing';
 
 const navLinks = [
   { title: "overview", path: "/overview" },
@@ -42,10 +44,14 @@ const NavBar = () => {
     navigate(path);
   };
 
+
+
   const logout = () => {
     AuthService.logout();
     window.location.reload();
   };
+
+
 
   return (
     <AppBar position="static">
@@ -56,6 +62,7 @@ const NavBar = () => {
           className={classes.navbarDisplayFlex}
           component="nav"
           aria-labelledby="main navigation"
+
         >
           {navLinks.map(({ title, path }) => (
             <ListItem

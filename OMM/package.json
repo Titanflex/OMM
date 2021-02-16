@@ -40,8 +40,10 @@
         "react-scripts": "4.0.1",
         "react-share": "^4.3.1",
         "react-slick": "^0.28.0",
+        "react-speech-kit": "^3.0.1",
         "react-webcam": "^5.2.2",
         "reactstrap": "^8.9.0",
+        "speech-synthesis": "^0.3.2",
         "web-vitals": "^0.2.4",
         "webpack-sources": "^2.2.0"
     },
