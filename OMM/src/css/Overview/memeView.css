@@ -67,5 +67,7 @@
 
 .rateMemeButtons {
     flex: 1 ;
+
+  align-self: end;
        
 }

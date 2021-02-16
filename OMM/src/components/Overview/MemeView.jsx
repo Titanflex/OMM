@@ -4,35 +4,88 @@ import {
     IconButton,
     Container,
     Typography,
-    
+    Button,
+    Popover,
 } from "@material-ui/core";
 
+
+
+import { makeStyles } from "@material-ui/core";
 import {
     ThumbUp,
     GetApp,
     Share,
+    Mail,
+    CloudDownload,
 } from "@material-ui/icons";
 import Moment from 'moment';
-
+import domtoimage from "dom-to-image";
 import Meme from "./Meme";
 import "./../../css/Overview/memeView.css";
+import { triggerBase64Download } from 'react-base64-downloader';
+import SharePopover from "./SharePopover";
 
+const useStyles = makeStyles((theme) => ({
 
-const MemeView = props => {
-    const [memeInfo, setMemeInfo] = useState(props.memeInfo);
+}));
 
-    //TODO
-    function likeMeme() {
+const MemeView = params => {
+    const [memeInfo, setMemeInfo] = useState(params.memeInfo);
+    const [liked, setLiked] = useState(false);
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [renAnchorEl, setRenAnchorEl] = React.useState(null);
 
+    const classes = useStyles();
+
+  //Popover
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+};
+
+const handlePopClose = () => {
+    setAnchorEl(null);
+};
+  
+      
+const download = () => {
+    domtoimage.toJpeg(document.getElementById("imageid")).then(function (jpeg) {
+        let stringLength = jpeg.length - 'data:image/png;base64,'.length;
+        triggerBase64Download(jpeg, 'my_downloaded_meme');
+    }); 
+}
+    
+      
+
+    async function likeMeme() {
+        if (!liked){
+            await fetch("http://localhost:3030/memeIO/like-meme", {
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                id: memeInfo._id,
+            }),
+        }).then(response => setLiked(true));
+        } else{     
+                await fetch("http://localhost:3030/memeIO/dislike-meme", {
+                method: "POST",
+                mode: "cors",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    id: memeInfo._id,
+                }),
+            }).then(response => setLiked(false));
+        }    
     }
+
+
 
     //TODO
     function shareMeme() {
-
-    }
-    
-    //TODO
-    function downloadMeme() {
 
     }
 
@@ -42,10 +95,19 @@ const MemeView = props => {
         <Container className="memeViewContainer">
 
             <Grid container spacing={2}>
-                <Grid item xs>
-                    <Meme memeData={memeInfo} />
+                <Grid item xs >
+                    {/*<Meme memeData={memeInfo} />*/}
+
+                    <img
+                        id = {"imageid"}
+                        src={memeInfo.url}
+                        alt={"meme image"}
+                        onClick={() => window.open(`/singleview/${memeInfo._id}`, "_self")}
+                    />
+
+
                 </Grid>
-                <Grid item xs container direction="column" spacing={2}>
+                <Grid container item xs direction="column" spacing={2}>
                     <Grid item xs>
                         <div className="memeInfo">
                             <Typography gutterBottom variant="h6" id="meme-title">
@@ -63,22 +125,48 @@ const MemeView = props => {
 
                         </div>
                     </Grid>
-                    <Grid>
-                        <div className="rateMemeButtons">
-                            <IconButton onClick={likeMeme} aria-label="Like">
-                                <ThumbUp fontSize="default" />
-                            </IconButton>
-                            <IconButton onClick={downloadMeme} aria-label="Like">
-                                <GetApp fontSize="default" />
-                            </IconButton>
-                            <IconButton onClick={shareMeme} aria-label="Like">
-                                <Share fontSize="default" />
-                            </IconButton>
+                    <Grid item xs>
+                        <div className={classes.rateMemeButtons}>
+                            <Button
+
+                                className="classes.buttonStyle selection"
+                                startIcon={<CloudDownload />}
+                                variant="contained"
+                                color="secondary"
+                                disabled={!memeInfo}
+                                onClick={download}
+                            >
+                                <i className="fa fa-download" />
+                                Download
+                            </Button>
+                            <Button
+                                className="classes.buttonStyle selection"
+                                startIcon={<Mail />}
+                                variant="contained"
+                                color="secondary"
+                                onClick={handleClick}
+                                disabled={!memeInfo}
+                            >
+                                Share
+                            </Button>
+                            <SharePopover memeData={memeInfo} memeUrl={memeInfo.url} anchorEl={anchorEl} />
+                            <Button
+                                className="classes.buttonStyle selection"
+                                startIcon={<ThumbUp />}
+                                variant="contained"
+                                color="secondary"
+                                onClick={likeMeme}
+                                disabled={!memeInfo}
+                                selected={liked}
+                            >
+                                Like
+                            </Button>
                         </div>
                     </Grid>
-
                 </Grid>
+
             </Grid>
+
         </Container>
     );
 }
