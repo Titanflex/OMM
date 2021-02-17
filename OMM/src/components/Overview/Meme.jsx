@@ -4,22 +4,8 @@ import "./../../css/Overview/meme.css";
 
 
 const Meme = props => {
-    const [memeData] = useState(props.memeData);
-    const synth = window.speechSynthesis;
-    const [isAccessible] = useState(props.isAccessible);
+    const [memeData] = useState(props.memeInfo);
 
-    useEffect(()=>{
-        console.log(isAccessible);
-        if(isAccessible){
-            console.log(memeData.description);
-            const text = new SpeechSynthesisUtterance(
-                "The meme " + memeData.title + " shows " + memeData.description + ". The caption of the meme is " +
-            memeData.caption[0]);
-            text.voice = synth.getVoices()[3];
-            synth.cancel();
-            synth.speak(text)
-        }
-        }, [memeData]);
 
 
     return (
