@@ -275,7 +275,7 @@ function MemeCreator() {
                     <div className={classes.canvas}>
                         <div className="memeContainer" id={"memeContainer"}>
                             <div id="memeDiv" className={classes.memeCanvas} id={'memeCanvas'}>
-                                {!isFreestyle &&
+                                {!isFreestyle && templates.length > 0 &&
                                     <img className={classes.memeImg} src={templates[currentTemplateIndex].url}
                                         alt={"meme image"} />}
                                 {isFreestyle && images}

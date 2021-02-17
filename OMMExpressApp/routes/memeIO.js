@@ -97,8 +97,9 @@ memeIO.post("/save-template", async(req, res) => {
         if (err)
             console.log(err)
         else {
-            item.save();
-            res.send(url);
+            template = item.save(function(err, template) {
+                res.json(template);
+            });
         }
     })
 })
@@ -108,26 +109,29 @@ memeIO.post("/save-template", async(req, res) => {
 memeIO.post("/webshot", async(req, res) => {
     let url = req.body.url;
     let shortUrl = url.replace(/(^http[s]?:\/\/)|[.\/\\]/ig, '').slice(0, 20) + '.png';
-    let filePath = "http://localhost:3030/images/" + shortUrl;
+    let filePath = "http://localhost:3030/images/templates/" + shortUrl;
 
     var screenshotTemplate = {
         uploader: req.body.author,
         templateName: 'test',
         url: filePath,
     }
+    let template;
     Template.create(screenshotTemplate, (err, item) => {
             if (err)
                 console.log(err)
             else {
                 console.log(item);
-                item.save();
+                item.save(function(err, item) {
+                    template = item;
+                });
             }
         })
         //Make Screenshot and save image to URL
-    await captureWebsite.file(url, 'public/images/templates/' + shortUrl + '.png').then(() => {
+    await captureWebsite.file(url, 'public/images/templates/' + shortUrl).then(() => {
         console.log("savedFile")
     }).catch((err) => console.log(err));
-    res.send(filePath);
+    res.json(template);
 
 });
 
@@ -200,8 +204,9 @@ memeIO.post('/upload', upload.single("file"), async(req, res) => {
             if (err)
                 console.log(err)
             else {
-                item.save();
-                res.send(url);
+                item.save(function(err, item) {
+                    res.json(item);
+                });
             }
         })
     }
@@ -276,7 +281,8 @@ memeIO.post('/create-simple-meme', async(req, res) => {
             likes: 0
         })
         newMeme.save();
-        res.json(newMeme);
+        res.download("public/images/memes/" +
+            req.body.title + ".png");
     } catch (error) {
         return res.status(500).send(err)
     }
@@ -306,7 +312,8 @@ memeIO.post('/create-meme', async(req, res) => {
             likes: 0
         })
         newMeme.save();
-        return res.status(200).json(newMeme)
+        return res.status(200).download(("public/images/memes/" +
+            req.body.title + ".png"))
     } catch (error) {
         return res.status(500).send(error);
     }
