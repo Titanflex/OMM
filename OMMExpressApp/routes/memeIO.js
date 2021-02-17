@@ -41,7 +41,7 @@ memeIO.use(function(req, res, next) {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
     // Request headers you wish to allow
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,author,templateName');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,author,templateName,memeTitle,isPublic,type');
 
     // Set to true if you need the website to include cookies in the requests sent
     // to the API (e.g. in case you use sessions)
@@ -108,7 +108,7 @@ memeIO.post("/save-template", async(req, res) => {
 memeIO.post("/webshot", async(req, res) => {
     let url = req.body.url;
     let shortUrl = url.replace(/(^http[s]?:\/\/)|[.\/\\]/ig, '').slice(0, 20) + '.png';
-    let filePath = "http://localhost:3030/images/templates/" + shortUrl;
+    let filePath = "http://localhost:3030/images/" + shortUrl;
 
     var screenshotTemplate = {
         uploader: req.body.author,
@@ -206,6 +206,28 @@ memeIO.post('/upload', upload.single("file"), async(req, res) => {
         })
     }
 
+});
+
+memeIO.post('/like-meme', (req, res) => {
+    try {
+        Meme.updateOne({ _id: req.body.id }, { $inc: { likes: 1 } }, function(err) {
+
+            return res.status(200)
+        })
+    } catch (error) {
+        return res.status(500).send(err)
+    }
+});
+
+memeIO.post('/dislike-meme', (req, res) => {
+    try {
+        Meme.updateOne({ _id: req.body.id }, { $inc: { likes: -1 } }, function(err) {
+
+            return res.status(200)
+        })
+    } catch (error) {
+        return res.status(500).send(err)
+    }
 });
 
 /* GET /memeIO/get-meme */

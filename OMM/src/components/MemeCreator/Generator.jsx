@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {makeStyles} from '@material-ui/core/styles';
+import React, { useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Button from "@material-ui/core/Button";
 import Popover from "@material-ui/core/Popover";
@@ -9,22 +9,24 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
-import {FacebookShareButton, TwitterShareButton, RedditShareButton, WhatsappShareButton} from "react-share";
-import {FacebookIcon, TwitterIcon, RedditIcon, WhatsappIcon} from "react-share";
-import {triggerBase64Download} from 'react-base64-downloader';
+import { FacebookShareButton, TwitterShareButton, RedditShareButton, WhatsappShareButton } from "react-share";
+import { FacebookIcon, TwitterIcon, RedditIcon, WhatsappIcon } from "react-share";
+import { triggerBase64Download } from 'react-base64-downloader';
 
 
 import "./../../css/ImageSelection/imageSelection.css";
 import domtoimage from "dom-to-image";
-import {Grid, Menu, MenuItem, TextField} from "@material-ui/core";
+import { Grid, Menu, MenuItem, TextField } from "@material-ui/core";
 
-import {FilePond, registerPlugin} from "react-filepond";
+import { FilePond, registerPlugin } from "react-filepond";
 import "filepond/dist/filepond.min.css";
 import FilePondPluginFileEncode from 'filepond-plugin-file-encode';
 import FilePondPluginImageTransform from 'filepond-plugin-image-transform';
 import FilePondPluginImageResize from 'filepond-plugin-image-resize';
 
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
+import "./../../css/MemeCreator/Generator.css";
+
 
 
 
@@ -185,7 +187,7 @@ const Generator = params => {
     };
 
     async function generateMeme() {
-        if(!title){
+        if (!title) {
             setTitleError({
                 show: true,
                 text: "Enter a meme title",
@@ -219,7 +221,7 @@ const Generator = params => {
         }
         if (selectedRenIndex === 2) { //third-party generation with imgFlip API
             let textArray = params.text.split(/\n/g);
-            let texts = ["","","","","","","","","", ""];
+            let texts = ["", "", "", "", "", "", "", "", "", ""];
             textArray.forEach(function (item, index) {
                 texts[index] = item;
             })
@@ -267,7 +269,7 @@ const Generator = params => {
         <div>
             <Button
                 className="classes.buttonStyle selection"
-                startIcon={<ImageIcon/>}
+                startIcon={<ImageIcon />}
                 variant="contained"
                 onClick={handleOpen}
                 color="secondary"
@@ -305,7 +307,7 @@ const Generator = params => {
                                 aria-label="render options"
                                 onClick={handleRenListItem}
                             >
-                                <ListItemText primary="Where to render?" secondary={renOptions[selectedRenIndex]}/>
+                                <ListItemText primary="Where to render?" secondary={renOptions[selectedRenIndex]} />
                             </ListItem>
                         </List>
                         <Menu
@@ -317,7 +319,7 @@ const Generator = params => {
                             {renOptions.map((option, index) => (
                                 <MenuItem
                                     key={option}
-                                    disabled={(!params.template.id || params.isFreestyle) && (index===2)}
+                                    disabled={(!params.template.id || params.isFreestyle) && (index === 2)}
                                     selected={index === selectedRenIndex}
                                     onClick={(event) => handleRenItemClick(event, index)}
                                 >
@@ -334,7 +336,7 @@ const Generator = params => {
                                 onClick={handlePubListItem}
                             >
                                 <ListItemText primary="Who can see your Meme?"
-                                              secondary={pubOptions[selectedPubIndex]}/>
+                                    secondary={pubOptions[selectedPubIndex]} />
                             </ListItem>
                         </List>
                         <Menu
@@ -361,7 +363,7 @@ const Generator = params => {
                                 aria-label="public options"
                                 onClick={handleSizeListItem}
                             >
-                                <ListItemText primary="Size of the file?" secondary={sizeOptions[selectedSizeIndex]}/>
+                                <ListItemText primary="Size of the file?" secondary={sizeOptions[selectedSizeIndex]} />
                             </ListItem>
                         </List>
                         <Menu
@@ -422,7 +424,7 @@ const Generator = params => {
                             {/*   //TODO do not download Base64 but file from server */}
                             <Button
                                 className="classes.buttonStyle selection"
-                                startIcon={<CloudDownloadIcon/>}
+                                startIcon={<CloudDownloadIcon />}
                                 variant="contained"
                                 onClick={() => triggerBase64Download(generatedMeme, params.title)}
                                 color="secondary"
@@ -432,7 +434,7 @@ const Generator = params => {
                             </Button>
                             <Button
                                 className="classes.buttonStyle selection"
-                                startIcon={<MailIcon/>}
+                                startIcon={<MailIcon />}
                                 variant="contained"
                                 color="secondary"
                                 onClick={handleClick}
@@ -459,27 +461,27 @@ const Generator = params => {
                                     quote={"YoU cAN't cREatE GoOd mEMes wiTh An oNLiNE MEme cReAToR!!!!11!"}
                                     hashtag="#OMMeme"
                                     className={classes.socialMediaButton}>
-                                    <FacebookIcon size={36} round/>
+                                    <FacebookIcon size={36} round />
                                 </FacebookShareButton>
                                 <TwitterShareButton
                                     title={"OMMemes = Stonks"}
                                     url={generatedMemeUrl}
                                     hashtags={["OMMeme"]}
                                     className={classes.socialMediaButton}>
-                                    <TwitterIcon size={36} round/>
+                                    <TwitterIcon size={36} round />
                                 </TwitterShareButton>
                                 <RedditShareButton
                                     title={"OMMemes = Stonks"}
                                     url={generatedMemeUrl}
                                     className={classes.socialMediaButton}>
-                                    <RedditIcon size={36} round/>
+                                    <RedditIcon size={36} round />
                                 </RedditShareButton>
                                 <WhatsappShareButton
                                     title={"OMMemes = Stonks"}
                                     url={generatedMemeUrl}
                                     separator={"\r\n"}
                                     className={classes.socialMediaButton}>
-                                    <WhatsappIcon size={36} round/>
+                                    <WhatsappIcon size={36} round />
                                 </WhatsappShareButton>
                             </Popover>
                         </div>

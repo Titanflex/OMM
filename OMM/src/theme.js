@@ -30,7 +30,17 @@ const theme = createMuiTheme({
                 color: 'white',
             },
         },
+        MuiToggleButton: {
+            // Override the styling for selected toggle buttons
+            root: {
+              '&$selected': {
+                backgroundColor: "#1BBAB0", // Greenish
+                color: 'white',
+              }
+            },
+        },
     }
+    
 });
 
 

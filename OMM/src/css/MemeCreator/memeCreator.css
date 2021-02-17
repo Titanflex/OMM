@@ -77,6 +77,7 @@ img {
 .textFormatSelect {
     margin-left: 10px !important;
     margin-top: 5px !important;
+    margin-bottom: 5px !important;
 }
 
 .radioButtonFormat {
@@ -98,7 +99,8 @@ img {
 }
 
 .selection {
-    margin: 15px !important;
+    margin-top: 15px !important;
+    margin-right: 5px !important;
     height: 35px;
 }
 
