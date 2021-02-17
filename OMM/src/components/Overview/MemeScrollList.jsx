@@ -67,9 +67,8 @@ function MemeScrollList() {
             <Grid container spacing={1}>
                 {
                     listmemes.map((meme) => (
-                        <Grid container key={meme._id} onClick={() => window.open(`/singleview/${meme._id}`, "_self")}>
+                        //<Grid container key={meme._id} onClick={() => window.open(`/singleview/${meme._id}`, "_self")}>
                             <MemeView memeInfo={meme} key={meme._id} />
-                        </Grid>
                     ))}
             </Grid>
         )
