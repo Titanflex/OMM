@@ -9,6 +9,8 @@ import { CloudDownload } from "@material-ui/icons";
 import { FilePond, registerPlugin } from "react-filepond";
 import { Grid, GridList, GridListTile, GridListTileBar } from "@material-ui/core";
 
+
+
 import "filepond/dist/filepond.min.css";
 
 
@@ -20,6 +22,7 @@ import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 
 import Camera from "../ImageSelection/Camera";
 import Paint from "../ImageSelection/Paint";
+import URL from "../ImageSelection/URL";
 
 
 import "./../../css/ImageSelection/imageSelection.css";
@@ -62,7 +65,6 @@ const ImageSelection = params => {
   const classes = useStyles();
   const [modalStyle] = React.useState(getModalStyle);
   const [open, setOpen] = React.useState(false);
-  const [url, setUrl] = useState((''));
   const [files, setFiles] = useState([]);
   const [templates, setTemplates] = useState([]);
 
@@ -94,6 +96,9 @@ const ImageSelection = params => {
   }
 
   function changeShownTemplate(image) {
+    if (params.isFreestyle) {
+      params.setSelectedImage({ url: image.url })
+    } 
     params.setCurrentTemplateIndex(params.memeTemplates.findIndex(function (item, i) {
       return item.name === image.name
     }))
@@ -105,18 +110,10 @@ const ImageSelection = params => {
     handleClose();
   }
 
-  const handleChange = ({ target }) => {
-    setUrl((prev) => target.value);
-  }
-  const getTemplateFromURL = (event) => {
-    if (event.key === 'Enter') {
-      saveTemplate("title", url, true);
-    }
-  }
-
   function addNewTemplates(newTemplate) {
     setTemplates(templates => [...templates, newTemplate])
     params.setTemplates(templates);
+    setFiles([]);
     //handleClose();
   }
 
@@ -142,23 +139,7 @@ const ImageSelection = params => {
   );
 
 
-  async function handleScreenshot() {
-    await fetch("http://localhost:3030/memeIO/webshot", {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        url: url,
-        author: localStorage.user
-      }),
-    }).then((res) => {
-      return res.json();
-    }).then((data) => {
-      addNewTemplates(data);
-    });
-  }
+
 
   async function saveTemplate(title, src, internetSource) {
     fetch("http://localhost:3030/memeIO/save-template", {
@@ -235,15 +216,6 @@ const ImageSelection = params => {
               name="file"
               labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
             />
-             {/* <Button
-              className="classes.buttonStyle modal"
-              startIcon={<LoadIcon />}
-              variant="contained"
-              onClick={loadTemplate}
-              color="secondary"
-            >
-              Refresh
-          </Button>  */}
             <Button
               className="classes.buttonStyle modal"
               startIcon={<CloudDownload />}
@@ -260,18 +232,8 @@ const ImageSelection = params => {
             <Paint
               handleSave={saveTemplate}
             />
-            <TextField
-              name="url"
-              className="modal"
-              label="Load Image from URL"
-              onChange={handleChange}
-              onKeyPress={getTemplateFromURL} />
-            <TextField
-              name="url"
-              className="modal"
-              label="Screenshot Image from URL"
-              onChange={handleChange}
-              onKeyPress={handleScreenshot} />
+            <URL handleSave={addNewTemplates}/>
+      
           </div>
           </Grid>
           </Grid>

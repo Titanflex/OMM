@@ -4,7 +4,7 @@ var memeIO = express.Router();
 var multer = require("multer");
 var fs = require('fs');
 var zip = require('express-zip');
-
+const util = require('util')
 
 const analyze = require('../middleware/analyze')
 const captureWebsite = require('capture-website');
@@ -82,7 +82,7 @@ memeIO.post("/save-template", async(req, res) => {
         let base64String = req.body.url;
         let base64Image = base64String.split(';base64,').pop();
         url = "http://localhost:3030/images/templates/" + title;
-        fs.writeFile('public/images/templates/' + title, base64Image, { encoding: 'base64' }, function(err) {
+        fs_writeFile('public/images/templates/' + title, base64Image, { encoding: 'base64' }, function(err) {
             if (err) console.log(err);
         })
     } else { //keep internet address as url
@@ -97,7 +97,7 @@ memeIO.post("/save-template", async(req, res) => {
 
     Template.create(newTemplate, (err, item) => {
         if (err)
-            console.log(err)
+            res.status(500).error(err)
         else {
             template = item.save(function(err, template) {
                 res.json(template);
@@ -115,7 +115,7 @@ memeIO.post("/webshot", async(req, res) => {
 
     var screenshotTemplate = {
         uploader: req.body.author,
-        templateName: 'test',
+        templateName: req.body.title,
         url: filePath,
     }
     let template;
@@ -177,7 +177,7 @@ memeIO.post('/upload', upload.single("file"), async(req, res) => {
         console.log(uploadedTemplate);
         Template.create(uploadedTemplate, (err, item) => {
             if (err)
-                console.log(err)
+                res.status(500).error(err);
             else {
                 item.save(function(err, item) {
                     res.json(item);
@@ -259,17 +259,9 @@ memeIO.post('/create-simple-meme', async(req, res) => {
             tags: analysis.tags,
             description: analysis.description.captions[0].text,
             caption: req.body.upper + " " + req.body.lower,
-
-
         })
-        newMeme.save(); <<
-        << << < HEAD
-        res.status(200).download("public/images/memes/" + req.body.title + ".png"); ===
-        === =
-        res.json(newMeme);
-
-        >>>
-        >>> > 144 c751c7216c5d0e0ef4df8ee5279b63b530bee
+        newMeme.save();
+        res.status(200).download("public/images/memes/" + req.body.title + ".png");
     } catch (error) {
         return res.status(500).send(error);
     }

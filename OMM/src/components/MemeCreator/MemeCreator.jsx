@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Typography,
     Grid,
@@ -32,7 +32,6 @@ import Generator from "../MemeCreator/Generator";
 
 
 import "./../../css/MemeCreator/memeCreator.css";
-import TemplateOverview from "../ImageSelection/TemplateOverview";
 
 import Checkbox from "@material-ui/core/Checkbox";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
@@ -139,6 +138,18 @@ function MemeCreator() {
     }));
 
     const classes = useStyles();
+
+    useEffect(() => {
+        getTemplates();
+    },[]);
+
+    async function getTemplates() {
+        const res = await fetch("http://localhost:3030/memeIO/get-templates");
+        const json = await res.json();
+        if(json.docs.length > 0) {
+            setTemplates(json.docs);
+        }
+    }
 
     function nextMeme() {
         let current = currentTemplateIndex;
@@ -299,13 +310,6 @@ function MemeCreator() {
                     </IconButton>
                 </Grid>
                 <Grid item s={2} >
-                    {/*<TemplateOverview
-                        isFreestyle={isFreestyle}
-                        memeTemplates={templates}
-                        setCurrentTemplateIndex={setCurrentTemplateIndex}
-                        setSelectedImages={setSelectedImage}
-
-                    />*/}
                     <ImageSelection
                         isFreestyle={isFreestyle}
                         memeTemplates={templates}
