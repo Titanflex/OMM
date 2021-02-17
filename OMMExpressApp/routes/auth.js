@@ -14,7 +14,7 @@ router.use(function(req, res, next) {
     // res.setHeader('Access-Control-Allow-Origin', '*');
 
     // Request methods you wish to allow
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
 
     // Request headers you wish to allow
     res.header('Access-Control-Allow-Headers', 'X-Requested-With, Origin, Access, Control, Allow-Headers, Authorization, Content-Type, Accept, X-Access-Token, x-auth-token');

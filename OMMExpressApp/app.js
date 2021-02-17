@@ -21,7 +21,6 @@ db.once('open', function() {
 var indexRouter = require('./routes/index');
 var authRouter = require('./routes/auth');
 var memeRouter = require('./routes/memeIO');
-//var userRouter = require('./routes/users');
 
 var app = express();
 
@@ -46,11 +45,6 @@ app.use(function(req, res, next) {
     next();
 });
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
-
-
 app.use(logger('dev'));
 app.use(express.json());
 app.use(zip())
@@ -63,7 +57,6 @@ console.log(__dirname + "/public")
 
 app.use('/', indexRouter);
 app.use('/memeIO', memeRouter);
-//app.use('/users', userRouter);
 app.use('/auth', authRouter);
 
 // catch 404 and forward to error handler

@@ -105,7 +105,7 @@ memeIO.post("/save-template", async(req, res) => {
 
 /* POST /memeIO/webshot*/
 /* Make Screenshot of provided website and save as template */
-memeIO.post("/webshot", auth, async(req, res) => {
+memeIO.post("/webshot", async(req, res) => {
     let url = req.body.url;
     let shortUrl = url.replace(/(^http[s]?:\/\/)|[.\/\\]/ig, '').slice(0, 20) + '.png';
     let filePath = "http://localhost:3030/images/templates/" + shortUrl;
