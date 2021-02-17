@@ -208,6 +208,28 @@ memeIO.post('/upload', upload.single("file"), async(req, res) => {
 
 });
 
+memeIO.post('/like-meme', (req, res) => {
+    try{
+    Meme.updateOne({ _id: req.body.id }, {$inc: {likes: 1}}, function(err) {
+      
+        return res.status(200)
+    })
+} catch (error) {
+    return res.status(500).send(err)
+}
+});
+
+memeIO.post('/dislike-meme', (req, res) => {
+    try{
+    Meme.updateOne({ _id: req.body.id }, {$inc: {likes: -1}}, function(err) {
+      
+        return res.status(200)
+    })
+} catch (error) {
+    return res.status(500).send(err)
+}
+});
+
 /* GET /memeIO/get-meme */
 /* get meme by title as a png file */
 memeIO.get('/get-meme', (req, res) => {

@@ -4,12 +4,12 @@ import {
     Button,
     Container,
     IconButton,
-    IconButton, Toolbar,
+    Toolbar,
 } from "@material-ui/core";
 import { ToggleButton } from '@material-ui/lab';
 import { makeStyles } from "@material-ui/core";
 
-
+import HearingIcon from "@material-ui/icons/Hearing";
 import ArrowRight from "@material-ui/icons/ChevronRight";
 import ArrowLeft from "@material-ui/icons/ChevronLeft";
 
@@ -25,7 +25,6 @@ const useStyles = makeStyles((theme) => ({
     },
     
 }));
-import HearingIcon from "@material-ui/icons/Hearing";
 
 
 function useInterval(callback, delay) {

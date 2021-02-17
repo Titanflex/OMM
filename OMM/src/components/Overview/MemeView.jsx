@@ -1,14 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Grid,
     IconButton,
-    
     Container,
     Typography,
     Button,
     Popover,
 } from "@material-ui/core";
 
+import {FacebookShareButton, TwitterShareButton, RedditShareButton, WhatsappShareButton, FacebookIcon, TwitterIcon, RedditIcon, WhatsappIcon} from "react-share";
+
+
+import { ToggleButton } from '@material-ui/lab';
 
 
 import { makeStyles } from "@material-ui/core";
@@ -21,10 +24,8 @@ import {
 } from "@material-ui/icons";
 import Moment from 'moment';
 import domtoimage from "dom-to-image";
-import Meme from "./Meme";
 import "./../../css/Overview/memeView.css";
 import { triggerBase64Download } from 'react-base64-downloader';
-import SharePopover from "./SharePopover";
 
 const useStyles = makeStyles((theme) => ({
 
@@ -32,9 +33,10 @@ const useStyles = makeStyles((theme) => ({
 
 const MemeView = params => {
     const [memeInfo, setMemeInfo] = useState(params.memeInfo);
+    const [likes, setLikes] = useState(params.memeInfo.likes);
     const [liked, setLiked] = useState(false);
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const [renAnchorEl, setRenAnchorEl] = React.useState(null);
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [renAnchorEl, setRenAnchorEl] = useState(null);
 
     const classes = useStyles();
 
@@ -45,8 +47,12 @@ const MemeView = params => {
 
 const handlePopClose = () => {
     setAnchorEl(null);
-};
-  
+}
+
+    const popOpen = Boolean(anchorEl);
+    const id = popOpen ? 'share-popover' : undefined;
+
+
       
 const download = () => {
     domtoimage.toJpeg(document.getElementById("imageid")).then(function (jpeg) {
@@ -68,7 +74,11 @@ const download = () => {
             body: JSON.stringify({
                 id: memeInfo._id,
             }),
-        }).then(response => setLiked(true));
+        }).then((response) => {
+            console.log("liked");
+            setLikes(likes+1);
+            }
+        );
         } else{     
                 await fetch("http://localhost:3030/memeIO/dislike-meme", {
                 method: "POST",
@@ -79,11 +89,17 @@ const download = () => {
                 body: JSON.stringify({
                     id: memeInfo._id,
                 }),
-            }).then(response => setLiked(false));
+            }).then((response) => {
+                
+                }
+            );
         }    
+        
     }
 
-
+    useEffect(() => {
+        // action on update of movies
+    }, [likes]);
 
     //TODO
     function shareMeme() {
@@ -118,7 +134,7 @@ const download = () => {
                                 Created: {memeInfo.hasOwnProperty('creationDate') ? Moment(memeInfo.creationDate).format('MMM Do YY') : "No date"}
                             </Typography>
                             <Typography variant="body2">
-                                Likes: {memeInfo.hasOwnProperty('likes') ? memeInfo.likes : "No likes"}
+                                Likes: {likes}
                             </Typography>
                         </div>
                     </Grid>
@@ -146,18 +162,67 @@ const download = () => {
                             >
                                 Share
                             </Button>
-                            <SharePopover memeData={memeInfo} memeUrl={memeInfo.url} anchorEl={anchorEl} />
-                            <Button
+                            <Popover
+                                id={id}
+                                open={popOpen}
+                                anchorEl={anchorEl}
+                                onClose={handlePopClose}
+                                anchorOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'center',
+                                }}
+                                transformOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'center',
+                                }}
+                            >
+                                <FacebookShareButton
+                                    url={memeInfo.url}
+                                    quote={"YoU cAN't cREatE GoOd mEMes wiTh An oNLiNE MEme cReAToR!!!!11!"}
+                                    hashtag="#OMMeme"
+                                    className={classes.socialMediaButton}>
+                                    <FacebookIcon size={36} round/>
+                                </FacebookShareButton>
+                                <TwitterShareButton
+                                    title={"OMMemes = Stonks"}
+                                    url={memeInfo.url}
+                                    hashtags={["OMMeme"]}
+                                    className={classes.socialMediaButton}>
+                                    <TwitterIcon size={36} round/>
+                                </TwitterShareButton>
+                                <RedditShareButton
+                                    title={"OMMemes = Stonks"}
+                                    url={memeInfo.url}
+                                    className={classes.socialMediaButton}>
+                                    <RedditIcon size={36} round/>
+                                </RedditShareButton>
+                                <WhatsappShareButton
+                                    title={"OMMemes = Stonks"}
+                                    url={memeInfo.url}
+                                    separator={"\r\n"}
+                                    className={classes.socialMediaButton}>
+                                    <WhatsappIcon size={36} round/>
+                                </WhatsappShareButton>
+                            </Popover>
+                           <ToggleButton
                                 className="classes.buttonStyle selection"
-                                startIcon={<ThumbUp />}
                                 variant="contained"
-                                color="secondary"
-                                onClick={likeMeme}
                                 disabled={!memeInfo}
-                                selected={liked}
+                                value="check"
+                        selected={liked}
+                        onChange={() => {
+                            if(liked){
+                                setLikes(likes-1);
+                            }else{
+                                setLikes(likes+1);
+                            }
+                            setLiked(!liked); 
+                            likeMeme();
+
+                        }}
                             >
                                 Like
-                            </Button>
+                            </ToggleButton>
                         </div>
                     </Grid>
                 </Grid>
