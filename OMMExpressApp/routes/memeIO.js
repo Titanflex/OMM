@@ -150,9 +150,9 @@ memeIO.post('/upload', upload.single("file"), async(req, res) => {
             creator: req.headers.author,
             isPublic: req.headers.isPublic,
             creationDate: Date.now(),
-            description:req.headers.description,
+            description: req.headers.description,
             caption: req.headers.caption,
-            tags:req.headers.tags,
+            tags: req.headers.tags,
         }
         Meme.create(newMeme, (err, item) => {
             if (err)
@@ -217,7 +217,7 @@ memeIO.get('/get-meme', (req, res) => {
             res.status(500).send("There is no meme with this title")
         } else {
             if (fs.existsSync("public/images/memes/" + docs[0].title + ".png")) {
-                res.download("public/images/memes/" + docs[0].title + ".png")
+                res.status(200).download("public/images/memes/" + docs[0].title + ".png")
             } else {
                 res.status(500).send("The meme does not exist in your local folder")
             }
@@ -241,8 +241,8 @@ memeIO.post('/create-simple-meme', async(req, res) => {
             //lower text
             .print(font, positionX_lower, image.bitmap.height - (Jimp.measureTextHeight(font, req.body.lower) + 30), req.body.lower, 400)
             //save meme
-            .write("public/images/memes/" +
-                req.body.title + ".png");
+        image = await image.writeAsync("public/images/memes/" +
+            req.body.title + ".png");
 
         //save the meme to the data base
         const newMeme = new Meme({
@@ -252,8 +252,7 @@ memeIO.post('/create-simple-meme', async(req, res) => {
             likes: 0
         })
         newMeme.save();
-        res.download("public/images/memes/" +
-            req.body.title + ".png");
+        res.status(200).download("public/images/memes/" + req.body.title + ".png");
     } catch (error) {
         return res.status(500).send(err)
     }
@@ -273,7 +272,7 @@ memeIO.post('/create-meme', async(req, res) => {
                 }, textBox.maxWidth,
                 textBox.maxHeight)
         };
-        image.write("public/images/memes/" +
+        image = await image.writeAsync("public/images/memes/" +
             req.body.title + ".png");
         //save the meme to the data base
         const newMeme = new Meme({
@@ -283,8 +282,53 @@ memeIO.post('/create-meme', async(req, res) => {
             likes: 0
         })
         newMeme.save();
-        return res.status(200).download(("public/images/memes/" +
-            req.body.title + ".png"))
+        return res.status(200).download("public/images/memes/" + req.body.title + ".png")
+    } catch (error) {
+        return res.status(500).send(error);
+    }
+});
+
+/* POST /memeIO/create-memes */
+/* create memes with defined url and several textboxes */
+memeIO.post('/create-memes', async(req, res) => {
+    try {
+        //console.log(req.body.templates, req.body.textBoxes)
+        let memes = []
+        for (const template of req.body.templates) {
+            console.log(template);
+            const url = "http://localhost:3030/images/memes/" + template.name + ".png";
+            let image = await Jimp.read(template.url);
+            image.resize(700, Jimp.AUTO);
+            for (const textBox of req.body.textBoxes) {
+                let font = await Jimp.loadFont(textBox.font ? textBox.font : 'public/assets/impact.ttf/impact.fnt')
+                image.print(font, textBox.x, textBox.y, {
+                        text: textBox.text
+                    }, textBox.maxWidth,
+                    textBox.maxHeight)
+            };
+            image = await image.writeAsnyc("public/images/memes/" +
+                template.name + ".png");
+            //save the meme to the data base
+            const newMeme = new Meme({
+                title: template.name,
+                url: url,
+                isPublic: true,
+                likes: 0
+            })
+            newMeme.save();
+            memes.push({
+                path: "public/images/memes/" +
+                    template.name + ".png",
+                name: template.name + ".png"
+            })
+        }
+        //return zip file
+        console.log(memes);
+        res.status(200).zip({
+            files: memes,
+            filename: 'memes.zip'
+        });
+
     } catch (error) {
         return res.status(500).send(error);
     }
