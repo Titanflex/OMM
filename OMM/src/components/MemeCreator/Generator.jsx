@@ -16,7 +16,8 @@ import { triggerBase64Download } from 'react-base64-downloader';
 
 import "./../../css/ImageSelection/imageSelection.css";
 import domtoimage from "dom-to-image";
-import { Grid, Menu, MenuItem, TextField } from "@material-ui/core";
+
+import {Menu, MenuItem, TextField} from "@material-ui/core";
 
 import { FilePond, registerPlugin } from "react-filepond";
 import "filepond/dist/filepond.min.css";
@@ -28,6 +29,8 @@ import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import "./../../css/MemeCreator/Generator.css";
 
 
+
+import {computerVision} from '../../services/azure.service.js';
 
 
 registerPlugin(FilePondPluginFileEncode, FilePondPluginImageResize, FilePondPluginImageTransform);
@@ -68,11 +71,15 @@ const Generator = params => {
     const [selectedPubIndex, setSelectedPubIndex] = React.useState(1);
     const [sizeAnchorEl, setSizeAnchorEl] = React.useState(null);
     const [selectedSizeIndex, setSelectedSizeIndex] = React.useState(1);
+
+    const [texts, setTexts] = useState([""]);
     const [title, setTitle] = useState("");
     const [titleError, setTitleError] = useState({
         show: false,
         text: "",
     });
+    const [quality, setQuality] = useState(100);
+    const [analysis, setAnalysis] = useState(null);
 
 
     //PublicMenu
@@ -156,10 +163,32 @@ const Generator = params => {
         setOpen(false);
         setGeneratedMemeUrl(null);
         setGeneratedMeme(null);
+        setTitleError({
+            show: false,
+            text: "",
+        });
     };
 
+    const handleTitleInput = (event) => {
+        setTitle(event.target.value);
+        setTitleError({
+            show: false,
+            text: "",
+        });
+    }
 
-    function domToImage(meme, quality = 1) {
+    const handleMissingTitle = () => {
+        setTitleError({
+            show: true,
+            text: "Enter a meme title",
+        });
+    }
+
+
+    //Local meme generation
+    function domToImage(quality = 1) {
+        let meme = document.getElementById("memeContainer");
+        //improve quality of meme by scaling an d set quality depending on slected file size
         let options = {
             width: meme.clientWidth * 4,
             height: meme.clientHeight * 4,
@@ -169,101 +198,100 @@ const Generator = params => {
             },
             quality: quality,
         }
+
         domtoimage.toJpeg(meme, options).then(function (jpeg) {
+            //check if size is within limits
             let stringLength = jpeg.length - 'data:image/png;base64,'.length;
             let sizeInKb = (4 * Math.ceil((stringLength / 3)) * 0.5624896334383812) / 1000;
-            if (selectedSizeIndex === 0 && sizeInKb > 200 || selectedSizeIndex === 1 && sizeInKb > 600) {
-                domToImage(meme, quality - 0.05);
+            if ((selectedSizeIndex === 0 && sizeInKb > 200) || (selectedSizeIndex === 1 && sizeInKb > 600)) {
+                //decrease quality if size is too large and rerender meme
+                domToImage(quality - 0.05);
             } else {
                 setGeneratedMeme(jpeg);
             }
+
         });
     }
 
     const objectToQueryParam = obj => {
         const params = Object.entries(obj).map(([key, value]) => `${key}=${value}`);
-        console.log(params.join("&"));
         return "?" + params.join("&");
     };
 
-    async function generateMeme() {
-        if (!title) {
-            setTitleError({
-                show: true,
-                text: "Enter a meme title",
-            });
-            return;
-        }
-        setTitleError({
-            show: false,
-            text: "",
+    //Third-party meme generation
+    async function createMemeOnImgFlip() {
+        let textArray = params.text.split(/\n/g);  //split text into lines
+        let missingLines = 10 - textArray.length;
+        textArray.length = 10;
+        textArray.fill("", 10 - missingLines, 10)
+        setTexts(textArray);
+        const par = {
+            template_id: params.template.id,
+            text0: `${textArray[0]}
+                  ${textArray[1]}
+                  ${textArray[2]}
+                  ${textArray[3]}
+                  ${textArray[4]}`,
+            text1: `
+                  ${textArray[5]}
+                  ${textArray[6]}
+                  ${textArray[7]}
+                  ${textArray[8]}
+                  ${textArray[9]}`,
+            username: "xzk03017",
+            password: "xzk03017@cndps.com",
+            font: 'impact',
+            max_font_size: params.fontSize,
+        };
+        const res = await fetch(
+            `https://api.imgflip.com/caption_image${objectToQueryParam(
+                par
+            )}`
+        );
+        const json = await res.json();
+        let response = await fetch(json.data.url);
+        let data = await response.blob();
+
+        //analyze meme with computer vision to get descriptions
+        await computerVision(json.data.url).then((item) => {
+            setAnalysis(item);
         });
-        if (selectedRenIndex === 0) { //local generation
-            let meme = document.getElementById("memeContainer");
-            domToImage(meme);
-        }
-        if (selectedRenIndex === 1) { ////TODO server side generation (phantomJS/JIMP)
-            /*await fetch("http://localhost:3030/memeIO/generate", {
-                  method: "POST",
-                  mode: "cors",
-                  headers: AuthService.getTokenHeader(),
-                  body: JSON.stringify({
-                      url: "http://localhost:3000",
-                      author: localStorage.user,
-                      title: title,
-                  }),
-              }).then((res) => {
-                  return res.text();
-              }).then((data) => {
-                  console.log(data);
-              });*/
 
+        //check if created meme is too large and adapt quality
+        if (selectedSizeIndex === 0 && data.size / 1000 > 200) {
+            setQuality((200 / (data.size / 1000)) * 100);
         }
-        if (selectedRenIndex === 2) { //third-party generation with imgFlip API
-            let textArray = params.text.split(/\n/g);
-            let texts = ["", "", "", "", "", "", "", "", "", ""];
-            textArray.forEach(function (item, index) {
-                texts[index] = item;
-            })
-            if (params.template.id) {
-                const par = {
-                    template_id: params.template.id,
-                    text0: `${texts[0]}
-                  ${texts[1]}
-                  ${texts[2]}
-                  ${texts[3]}
-                  ${texts[4]}`,
-                    text1: `
-                  ${texts[5]}
-                  ${texts[6]}
-                  ${texts[7]}
-                  ${texts[8]}
-                  ${texts[9]}`,
-                    username: "xzk03017",
-                    password: "xzk03017@cndps.com",
-                    font: 'impact',
-                    max_font_size: params.fontSize,
-                };
-                const res = await fetch(
-                    `https://api.imgflip.com/caption_image${objectToQueryParam(
-                        par
-                    )}`
-                );
-                const json = await res.json();
-                let response = await fetch(json.data.url);
-                let data = await response.blob();
-                let metadata = {
-                    type: 'image/jpeg'
-                };
-                let file = new File([data], title, metadata);
-                setGeneratedMeme(file);
-                setGeneratedMemeUrl(json.data.url);
-            }
+        if (selectedSizeIndex === 1 && data.size / 1000 > 600) {
+            setQuality((200 / (data.size / 1000)) * 100);
         }
 
-
+        //create base64 for download and upload
+        let reader = new FileReader();
+        reader.readAsDataURL(data);
+        reader.onloadend = function () {
+            let base64data = reader.result;
+            setGeneratedMeme(base64data);
+            setGeneratedMemeUrl(response);
+        }
     }
 
+    async function generateMeme() {
+        if (!title) {
+
+            handleMissingTitle();
+
+            return;
+        }
+        if (selectedRenIndex === 0) { //local generation
+            domToImage();
+        }
+        if (selectedRenIndex === 1) {
+            //TODO server side generation (phantomJS/JIMP)
+        }
+        if (selectedRenIndex === 2) { //third-party generation with imgFlip API
+            createMemeOnImgFlip()
+        }
+    }
 
     return (
         <div>
@@ -297,7 +325,7 @@ const Generator = params => {
                             margin="normal"
                             variant="outlined"
                             value={title}
-                            onChange={(event) => setTitle(event.target.value)}
+                            onChange={(event) => handleTitleInput(event)}
                         />
                         <List component="nav" aria-label="Render settings">
                             <ListItem
@@ -391,34 +419,35 @@ const Generator = params => {
                     >
                         Generate meme
                     </Button>
-                    {
-                        generatedMeme && <FilePond
-                            files={[generatedMeme]}
-                            allowImageResize={true}
-                            imageResizeTargetWidth={params.canvasWidth}
-                            imageResizeTargetHeight={params.canvasHeight}
-                            imageResizeMode={"cover"}
-                            server={{
-                                url: "http://localhost:3030/memeIO",
-                                process: {
-                                    url: '/upload',
-                                    method: 'POST',
-                                    headers: {
-                                        'author': localStorage.user,
-                                        'memeTitle': title,
-                                        'isPublic': isPublic,
-                                        'type': 'meme',
-                                    },
-                                    onload: (response) => {
-                                        console.log(response);
-                                        setGeneratedMemeUrl(response);
-                                    }
-
-
+                    {generatedMeme && analysis && quality && <FilePond
+                        files={[generatedMeme]}
+                        allowImageResize={true}
+                        imageResizeTargetWidth={params.canvasWidth}
+                        imageTransformOutputQuality={quality}
+                        imageResizeTargetHeight={params.canvasHeight}
+                        imageResizeMode={"cover"}
+                        server={{
+                            url: "http://localhost:3030/memeIO",
+                            process: {
+                                url: '/upload',
+                                method: 'POST',
+                                headers: {
+                                    'author': localStorage.user,
+                                    'memeTitle': title,
+                                    'isPublic': isPublic,
+                                    'type': 'meme',
+                                    'description': analysis.description.captions[0].text,
+                                    'tags': analysis.description.tags,
+                                    'caption': texts,
+                                },
+                                onload: (response) => {
+                                    setGeneratedMemeUrl(response);
                                 }
-                            }}
-                            name="file"
-                        />}
+                            }
+                        }}
+                        name="file"
+                    />}
+
                     <div>
                         <div>
                             {/*   //TODO do not download Base64 but file from server */}

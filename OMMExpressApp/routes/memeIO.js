@@ -41,7 +41,8 @@ memeIO.use(function(req, res, next) {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
     // Request headers you wish to allow
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,author,templateName,memeTitle,isPublic,type');
+
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,author,templateName,description,tags, caption');
 
     // Set to true if you need the website to include cookies in the requests sent
     // to the API (e.g. in case you use sessions)
@@ -135,46 +136,12 @@ memeIO.post("/webshot", async(req, res) => {
 
 });
 
-/* POST /memeIO/generate */
-/* Generate image on server and save as Meme*/
-memeIO.post("/generate", auth, async(req, res) => {
-    let filePath = "http://localhost:3030/images/meme/" + req.body.title + '.png';
-    let uploader = req.body.author;
-    let url = req.body.url;
-    let authToken = req.header('x-auth-token');
-
-    try {
-        let data = {
-            token: authToken,
-            user: uploader,
-        };
-        const browser = await puppeteer.launch(); // run browser
-        const page = await browser.newPage(); // open new tab
-        await page.goto(url);
-        //TODO
-        /*await page.evaluate((data) => {
-            localStorage.setItem("token", '');
-            localStorage.setItem("user", '');
-        });
-        await page.goto(url);
-        await page.waitForSelector('#memeContainer');
-
-        const element = await page.$('#memeContainer');   */ // declare a variable with an ElementHandle
-        await page.screenshot({ path: 'public/images/memes/' + req.body.title + '.png' });
-        res.send(filePath);
-    } catch (e) {
-        res.status(400).json({ msg: e.message });
-    }
-
-    //TODO save as meme
-});
 
 /* POST /memeIO/upload */
 /* upload meme/template to server (via FilePond) */
 //TODO split function
 memeIO.post('/upload', upload.single("file"), async(req, res) => {
     let url;
-
     if (req.headers.type === 'meme') { //upload generated meme
         url = "http://localhost:3030/images/memes/" + req.headers.memetitle + '.png';
         const newMeme = {
@@ -183,11 +150,15 @@ memeIO.post('/upload', upload.single("file"), async(req, res) => {
             creator: req.headers.author,
             isPublic: req.headers.isPublic,
             creationDate: Date.now(),
+            description:req.headers.description,
+            caption: req.headers.caption,
+            tags:req.headers.tags,
         }
         Meme.create(newMeme, (err, item) => {
             if (err)
                 console.log(err)
             else {
+                console.log(item.description);
                 item.save();
                 res.send(url);
             }

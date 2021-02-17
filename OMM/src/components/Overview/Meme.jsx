@@ -11,7 +11,10 @@ const Meme = props => {
     useEffect(()=>{
         console.log(isAccessible);
         if(isAccessible){
-            const text = new SpeechSynthesisUtterance(memeData.title);
+            console.log(memeData.description);
+            const text = new SpeechSynthesisUtterance(
+                "The meme " + memeData.title + " shows " + memeData.description + ". The caption of the meme is " +
+            memeData.caption[0]);
             text.voice = synth.getVoices()[3];
             synth.cancel();
             synth.speak(text)

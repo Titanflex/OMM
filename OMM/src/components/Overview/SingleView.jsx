@@ -60,13 +60,6 @@ const SingleView = () => {
 //randomize index
     const [isAccessible, setIsAccessible] = useState(false);
 
-    const handleFocus = () => {
-        let text= isAccessible?"Stop text to speech":"Start text to speech"
-        window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
-
-    };
-
-
 
     function randomize() {
         let randomIndex = Math.floor(Math.random() * memes.length);
@@ -178,8 +171,7 @@ const SingleView = () => {
                     <ToggleButton
                         value="check"
                         selected={isAccessible}
-                        onFocus={() => {handleFocus()}}
-                        onClick={() => setIsAccessible(isAccessible?false:true)}
+                        onClick={() => setIsAccessible(!isAccessible)}
                     > <HearingIcon />
                     </ToggleButton>
                 </Grid>

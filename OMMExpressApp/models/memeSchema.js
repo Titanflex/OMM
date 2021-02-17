@@ -5,15 +5,22 @@ const memeSchema = new Schema({
     title: String,
     url: String,
     creator: String,
-    creationDate: Date,
 
+    creationDate: {
+        type: Date,
+        // `Date.now()` returns the current unix timestamp as a number
+        default: Date.now
+    },
 
     isPublic: Boolean,
-
     likes: {
         type: Number,
         default: 0
     },
+    description: String,
+    caption: Array,
+    tags: Array,
+
     //comments: [{ body: String, date: Date, user: String }],
 
 });
