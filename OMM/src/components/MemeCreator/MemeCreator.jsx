@@ -388,7 +388,7 @@ function MemeCreator() {
                         canvasWidth={canvasWidth}
                         template={templates[currentTemplateIndex]}
                         fontSize={fontSize}
-                    text={upper}/>
+                        text={upper}/>
 
 
                 </Grid>

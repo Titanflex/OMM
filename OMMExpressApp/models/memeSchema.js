@@ -10,13 +10,15 @@ const memeSchema = new Schema({
         // `Date.now()` returns the current unix timestamp as a number
         default: Date.now
     },
-
     isPublic: Boolean,
-
     likes: {
         type: Number,
         default: 0
     },
+    description: String,
+    caption: Array,
+    tags: Array,
+
     //comments: [{ body: String, date: Date, user: String }],
 
 });
