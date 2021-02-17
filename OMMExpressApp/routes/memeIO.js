@@ -5,14 +5,15 @@ var multer = require("multer");
 var fs = require('fs');
 var zip = require('express-zip');
 
-const auth = require('../middleware/auth')
+
+const analyze = require('../middleware/analyze')
 const captureWebsite = require('capture-website');
 
 const Meme = require('../models/memeSchema');
 const Template = require('../models/templateSchema');
 var Jimp = require('jimp');
 
-const puppeteer = require('puppeteer');
+
 
 
 var storage = multer.diskStorage({
@@ -138,17 +139,20 @@ memeIO.post("/webshot", async(req, res) => {
 //TODO split function
 memeIO.post('/upload', upload.single("file"), async(req, res) => {
     let url;
+    const analysis = await analyze(req);
+    console.log(analysis);
     if (req.headers.type === 'meme') { //upload generated meme
         url = "http://localhost:3030/images/memes/" + req.headers.memetitle + '.png';
         const newMeme = {
-            title: req.headers.memetitle,
+            title: req.headers.title,
             url: url,
             creator: req.headers.author,
             isPublic: req.headers.isPublic,
             creationDate: Date.now(),
-            description:req.headers.description,
-            caption: req.headers.caption,
-            tags:req.headers.tags,
+            likes: 0,
+            tags: analysis.tags,
+            description: analysis.description.captions[0].text,
+            caption: req.body.upper + " " + req.body.lower,
         }
         Meme.create(newMeme, (err, item) => {
             if (err)
@@ -239,17 +243,25 @@ memeIO.post('/create-simple-meme', async(req, res) => {
             .write("public/images/memes/" +
                 req.body.title + ".png");
 
+        const analysis = await analyze(req);
+        console.log(analysis.description.captions);
         //save the meme to the data base
         const newMeme = new Meme({
             title: req.body.title,
             url: url,
             isPublic: true,
-            likes: 0
+            likes: 0,
+            tags: analysis.tags,
+            description: analysis.description.captions[0].text,
+            caption: req.body.upper + " " + req.body.lower,
+
+
         })
         newMeme.save();
         res.json(newMeme);
+
     } catch (error) {
-        return res.status(500).send(err)
+        return res.status(500).send(error);
     }
 });
 
@@ -270,11 +282,16 @@ memeIO.post('/create-meme', async(req, res) => {
         image.write("public/images/memes/" +
             req.body.title + ".png");
         //save the meme to the data base
+        const analysis = await analyze(req);
+
         const newMeme = new Meme({
             title: req.body.title,
             url: url,
             isPublic: true,
-            likes: 0
+            likes: 0,
+            tags: analysis.tags,
+            description: analysis.description.captions[0].text,
+            caption: req.body.upper + " " + req.body.lower,
         })
         newMeme.save();
         return res.status(200).json(newMeme)

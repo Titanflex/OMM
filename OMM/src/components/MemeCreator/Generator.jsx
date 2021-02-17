@@ -186,9 +186,11 @@ const Generator = params => {
 
 
     //Local meme generation
-    function domToImage(quality = 1) {
+    function createMemeLocally(quality = 1) {
+        console.log("local");
         let meme = document.getElementById("memeContainer");
-        //improve quality of meme by scaling an d set quality depending on slected file size
+        console.log(meme);
+        //improve quality of meme by scaling an d set quality depending on selected file size
         let options = {
             width: meme.clientWidth * 4,
             height: meme.clientHeight * 4,
@@ -205,8 +207,10 @@ const Generator = params => {
             let sizeInKb = (4 * Math.ceil((stringLength / 3)) * 0.5624896334383812) / 1000;
             if ((selectedSizeIndex === 0 && sizeInKb > 200) || (selectedSizeIndex === 1 && sizeInKb > 600)) {
                 //decrease quality if size is too large and rerender meme
-                domToImage(quality - 0.05);
+                console.log("toobig");
+                createMemeLocally(quality - 0.05);
             } else {
+                console.log("set" + jpeg);
                 setGeneratedMeme(jpeg);
             }
 
@@ -252,11 +256,6 @@ const Generator = params => {
         let response = await fetch(json.data.url);
         let data = await response.blob();
 
-        //analyze meme with computer vision to get descriptions
-        await computerVision(json.data.url).then((item) => {
-            setAnalysis(item);
-        });
-
         //check if created meme is too large and adapt quality
         if (selectedSizeIndex === 0 && data.size / 1000 > 200) {
             setQuality((200 / (data.size / 1000)) * 100);
@@ -275,18 +274,36 @@ const Generator = params => {
         }
     }
 
+    function createMemeOnServer() {
+        fetch("http://localhost:3030/memeIO/create-simple-meme", {
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+               url: params.template.url,
+               upper: params.text,
+                lower: "",
+                title: title,
+            }),
+        }).then((res) => {
+            console.log(res.url);
+            //TODO show preview
+        });
+    }
+
     async function generateMeme() {
         if (!title) {
-
             handleMissingTitle();
-
             return;
         }
         if (selectedRenIndex === 0) { //local generation
-            domToImage();
+            await createMemeLocally();
         }
         if (selectedRenIndex === 1) {
             //TODO server side generation (phantomJS/JIMP)
+            createMemeOnServer();
         }
         if (selectedRenIndex === 2) { //third-party generation with imgFlip API
             createMemeOnImgFlip()
@@ -419,7 +436,7 @@ const Generator = params => {
                     >
                         Generate meme
                     </Button>
-                    {generatedMeme && analysis && quality && <FilePond
+                    {generatedMeme && quality && <FilePond
                         files={[generatedMeme]}
                         allowImageResize={true}
                         imageResizeTargetWidth={params.canvasWidth}
@@ -433,12 +450,11 @@ const Generator = params => {
                                 method: 'POST',
                                 headers: {
                                     'author': localStorage.user,
-                                    'memeTitle': title,
+                                    'title': title,
                                     'isPublic': isPublic,
                                     'type': 'meme',
-                                    'description': analysis.description.captions[0].text,
-                                    'tags': analysis.description.tags,
-                                    'caption': texts,
+                                    'upper': texts,
+                                    'lower': "",
                                 },
                                 onload: (response) => {
                                     setGeneratedMemeUrl(response);
@@ -447,7 +463,8 @@ const Generator = params => {
                         }}
                         name="file"
                     />}
-
+                    {generatedMemeUrl && !generatedMeme && <img
+                        src = {generatedMemeUrl}/>}
                     <div>
                         <div>
                             {/*   //TODO do not download Base64 but file from server */}

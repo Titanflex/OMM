@@ -106,6 +106,26 @@ const download = () => {
 
     }
 
+    const synth = window.speechSynthesis;
+
+    useEffect(()=>{
+        console.log(params.isAccessible);
+        if(params.isAccessible){
+            console.log(memeInfo.description);
+            let captions ="";
+            memeInfo.caption.forEach((item) =>
+                captions += item,
+            );
+            const text = new SpeechSynthesisUtterance(
+                "The meme " + memeInfo.title + " shows " + memeInfo.description + ". The caption of the meme is " +
+                memeInfo.caption[0]);
+            text.voice = synth.getVoices()[3];
+            synth.cancel();
+            synth.speak(text)
+        }
+    }, [memeInfo]);
+
+
 
 
     return (

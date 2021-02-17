@@ -169,6 +169,7 @@ const SingleView = () => {
                         }}
                     >                        Random                </ToggleButton>
                     <ToggleButton
+                        className={classes.spacing}
                         value="check"
                         selected={isAccessible}
                         onClick={() => setIsAccessible(!isAccessible)}
