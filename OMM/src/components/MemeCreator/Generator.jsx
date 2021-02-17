@@ -23,6 +23,8 @@ import { FilePond, registerPlugin } from "react-filepond";
 import "filepond/dist/filepond.min.css";
 import FilePondPluginFileEncode from 'filepond-plugin-file-encode';
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
+import "./../../css/MemeCreator/Generator.css";
+
 
 import AuthService from "../../services/auth.service";
 
