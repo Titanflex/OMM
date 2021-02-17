@@ -29,10 +29,6 @@ import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import "./../../css/MemeCreator/Generator.css";
 
 
-
-import {computerVision} from '../../services/azure.service.js';
-
-
 registerPlugin(FilePondPluginFileEncode, FilePondPluginImageResize, FilePondPluginImageTransform);
 
 
@@ -79,7 +75,6 @@ const Generator = params => {
         text: "",
     });
     const [quality, setQuality] = useState(100);
-    const [analysis, setAnalysis] = useState(null);
 
 
     //PublicMenu
