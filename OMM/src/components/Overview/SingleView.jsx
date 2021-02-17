@@ -4,16 +4,31 @@ import {
     Button,
     Container,
     IconButton,
+    Toolbar,
 } from "@material-ui/core";
 import { ToggleButton } from '@material-ui/lab';
+import { makeStyles } from "@material-ui/core";
 
+import HearingIcon from "@material-ui/icons/Hearing";
 import ArrowRight from "@material-ui/icons/ChevronRight";
 import ArrowLeft from "@material-ui/icons/ChevronLeft";
 
+import "./../../css/Overview/singleView.css";
+
 import MemeView from "./MemeView";
 import Searchbar from "./Searchbar";
+      
+const useStyles = makeStyles((theme) => ({
+    spacing: {
+      marginTop: theme.spacing(2),
+      marginRight: theme.spacing(2),
+    },
+    
+}));
+
 
 function useInterval(callback, delay) {
+  
     const savedCallback = useRef();
 
     // Remember the latest callback.
@@ -30,11 +45,28 @@ function useInterval(callback, delay) {
     }, [delay]);
 }
 
-function SingleView() {
+
+
+const SingleView = () => {
+    
     const [memes, setMemes] = useState([{ url: null }]);
     const [currentMemeIndex, setCurrentMemeIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isRandom, setIsRandom] = useState(false);
+
+    const classes = useStyles();
+
+
+//randomize index
+    const [isAccessible, setIsAccessible] = useState(false);
+
+    const handleFocus = () => {
+        let text= isAccessible?"Stop text to speech":"Start text to speech"
+        window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+
+    };
+
+
 
     function randomize() {
         let randomIndex = Math.floor(Math.random() * memes.length);
@@ -45,7 +77,7 @@ function SingleView() {
         }
     }
 
-    function nextMeme() {
+    async function nextMeme() {
         let current = currentMemeIndex;
         console.log(currentMemeIndex);
         if (memes.length > 1) {
@@ -53,11 +85,13 @@ function SingleView() {
                 randomize();
             } else {
                 current = currentMemeIndex === 0 ? memes.length - 1 : currentMemeIndex - 1;
-                setCurrentMemeIndex(current);
+                await setCurrentMemeIndex(current);
             }
+
         }
     }
 
+    //previous meme by decreasing index
     function previousMeme() {
         let current = currentMemeIndex;
         if (memes.length > 1) {
@@ -67,11 +101,14 @@ function SingleView() {
         }
     }
 
+    //Meme Component
     const SingleMeme = () => {
         return (
-            <MemeView memeInfo={memes[currentMemeIndex]} />
+            <MemeView memeInfo={memes[currentMemeIndex]} isAccessible={isAccessible} />
         )
     };
+
+
 
     // useEffect for componentDidMount
     // see: https://reactjs.org/docs/hooks-effect.html
@@ -95,8 +132,10 @@ function SingleView() {
             })
         };
         loadMemes();
+        
     }, []);
 
+    //Interval setting for autoplay
     useInterval(() => {
         if (isPlaying) {
             let current = currentMemeIndex;
@@ -118,7 +157,9 @@ function SingleView() {
         <Container className="memeScrollListContainer" >
             <Grid container spacing={3}>
                 <Grid item xs>
-                    <ToggleButton
+                    <ToggleButton            
+                        
+                      className={classes.spacing}
                         value="check"
                         selected={isPlaying}
                         onChange={() => {
@@ -127,25 +168,32 @@ function SingleView() {
                     >                        Play                </ToggleButton>
 
                     <ToggleButton
+                    className={classes.spacing}
                         value="check"
                         selected={isRandom}
                         onChange={() => {
                             setIsRandom(!isRandom);
                         }}
                     >                        Random                </ToggleButton>
+                    <ToggleButton
+                        value="check"
+                        selected={isAccessible}
+                        onFocus={() => {handleFocus()}}
+                        onClick={() => setIsAccessible(isAccessible?false:true)}
+                    > <HearingIcon />
+                    </ToggleButton>
                 </Grid>
                 <Grid item xs={4}>
                     <Searchbar /></Grid>
                 <Grid item xs></Grid>
             </Grid>
-            <Grid container spacing={6}>
+            <Grid container spacing={3}>
                 <Grid item xs={1} >
                     <IconButton className="arrows" onClick={previousMeme} aria-label="previous">
                         <ArrowLeft fontSize="large" />
                     </IconButton>
                 </Grid>
-                <Grid item xs >
-
+                <Grid item xs={1}>
                     <SingleMeme listmemes={memes} />
 
                 </Grid>
@@ -154,7 +202,7 @@ function SingleView() {
                         <ArrowRight fontSize="large" />
                     </IconButton>
                 </Grid>
-            </Grid>
+                </Grid>
 
         </Container >
     );

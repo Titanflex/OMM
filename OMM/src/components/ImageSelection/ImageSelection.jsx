@@ -34,24 +34,12 @@ function getModalStyle() {
   const top = 50;
   const left = 50;
   return {
-    flex: 1,
-    flexDirection: 'row',
     top: `${top}%`,
     left: `${left}%`,
     transform: `translate(-${top}%, -${left}%)`,
   };
 }
 
-/*
-function getGridStyle() {
-  const top = 50;
-  const left = 50;
-  return {
-    top: `${top}%`,
-    left: `${left}%`,
-    transform: `translate(-${top}%, -${left}%)`,
-  }
-};*/
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -61,16 +49,13 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'hidden',
     backgroundColor: theme.palette.background.paper,
   },
-  gridList: {
-    width: 700,
-    height: 600,
-  },
   paper: {
     position: 'absolute',
-    width: 700,
     backgroundColor: theme.palette.background.paper,
     boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
+    width: 1024,
+    height: 580,
   },
 }));
 
@@ -83,6 +68,7 @@ const ImageSelection = params => {
 
 
   const handleOpen = () => {
+    loadTemplate();
     setOpen(true);
   };
 
@@ -102,7 +88,7 @@ const ImageSelection = params => {
 
   function addTemplates(image) {
     params.setSelectedImages(image);
-    handleClose();
+    //handleClose();
   }
 
   const handleChange = ({ target }) => {
@@ -118,19 +104,19 @@ const ImageSelection = params => {
     const json = await res.json();
     params.setCurrentTemplateIndex(0)
     params.setTemplates(json.docs);
-    handleClose();
+    //handleClose();
   }
 
   function showOwnTemplate(response) {
     console.log(response)
     params.setTemplates([{ url: response }])
-    handleClose();
+    //handleClose();
   }
 
   const ShowTemplates = ({ showtemplates }) => (
-    <GridList cellHeight={180} className={classes.gridList} cols={3}>
+    <GridList cellHeight={180} className={classes.gridList} cols={3} style={{height: 450}}>
       {showtemplates.map((tile) => (
-        < GridListTile key={tile.name} cols={tile.cols || 1}
+        <GridListTile key={tile.name} style={{'cursor': 'pointer'}} cols={tile.cols || 1}
           onClick={() => {
             if (params.isFreestyle) {
               addTemplates(tile)
@@ -193,7 +179,7 @@ const ImageSelection = params => {
     const json = await res.json();
     params.setCurrentTemplateIndex(0)
     params.setTemplates(json.data.memes);
-    handleClose();
+    //handleClose();
   }
 
   function showOwnTemplate(response) {
@@ -204,7 +190,7 @@ const ImageSelection = params => {
       params.setTemplates([{ url: response }])
     }
     setFiles([]);
-    handleClose();
+    //handleClose();
   }
 
   return (
@@ -223,8 +209,14 @@ const ImageSelection = params => {
         aria-labelledby="simple-modal-title"
         aria-describedby="simple-modal-description">
         <div style={modalStyle} className={classes.paper}>
+          <Grid container spacing={1}>
+          <Grid item xs={6} >
+              <h2 style={{marginBottom: "32px"}} id="simple-modal-title">Select a template to work on</h2>
+              <ShowTemplates showtemplates={params.memeTemplates} />
+            </Grid>
+          <Grid item xs={6} style={{maxWidth: 400, marginLeft: 32}}>
           <div>
-            <h2 id="simple-modal-title">Select your image</h2>
+            <h4 style={{marginBottom: "32px", marginTop: "32px"}}>Get or create more templates</h4>
             <FilePond
               files={files}
               onupdatefiles={setFiles}
@@ -245,15 +237,15 @@ const ImageSelection = params => {
               name="file"
               labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
             />
-            <Button
+             <Button
               className="classes.buttonStyle modal"
               startIcon={<LoadIcon />}
               variant="contained"
               onClick={loadTemplate}
               color="secondary"
             >
-              Load
-          </Button>
+              Refresh
+          </Button> 
             <Button
               className="classes.buttonStyle modal"
               startIcon={<CloudDownload />}
@@ -283,12 +275,8 @@ const ImageSelection = params => {
               onChange={handleChange}
               onKeyPress={handleScreenshot} />
           </div>
-          <div>
-            <Grid container spacing={4}>
-              <h2 id="simple-modal-title">Select a template to work on</h2>
-              <ShowTemplates showtemplates={params.memeTemplates} />
-            </Grid>
-          </div>
+          </Grid>
+          </Grid>
         </div>
       </Modal>
     </div>

@@ -15,20 +15,22 @@ import { triggerBase64Download } from 'react-base64-downloader';
 
 
 import "./../../css/ImageSelection/imageSelection.css";
-import SaveIcon from "@material-ui/icons/Save";
 import domtoimage from "dom-to-image";
-import { Menu, MenuItem, TextField } from "@material-ui/core";
+import { Grid, Menu, MenuItem, TextField } from "@material-ui/core";
 
 import { FilePond, registerPlugin } from "react-filepond";
 import "filepond/dist/filepond.min.css";
 import FilePondPluginFileEncode from 'filepond-plugin-file-encode';
+import FilePondPluginImageTransform from 'filepond-plugin-image-transform';
+import FilePondPluginImageResize from 'filepond-plugin-image-resize';
+
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import "./../../css/MemeCreator/Generator.css";
 
 
-import AuthService from "../../services/auth.service";
 
-registerPlugin(FilePondPluginFileEncode);
+
+registerPlugin(FilePondPluginFileEncode, FilePondPluginImageResize, FilePondPluginImageTransform);
 
 
 function getModalStyle() {
@@ -52,8 +54,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-
-
 const Generator = params => {
     const classes = useStyles();
     const [modalStyle] = useState(getModalStyle);
@@ -68,6 +68,11 @@ const Generator = params => {
     const [selectedPubIndex, setSelectedPubIndex] = React.useState(1);
     const [sizeAnchorEl, setSizeAnchorEl] = React.useState(null);
     const [selectedSizeIndex, setSelectedSizeIndex] = React.useState(1);
+    const [title, setTitle] = useState("");
+    const [titleError, setTitleError] = useState({
+        show: false,
+        text: "",
+    });
 
 
     //PublicMenu
@@ -95,6 +100,7 @@ const Generator = params => {
     const renOptions = [
         'Local',
         'Server-side',
+        'Third-party',
     ];
 
     const handleRenClose = () => {
@@ -112,9 +118,8 @@ const Generator = params => {
 
     //RenderMenu
     const sizeOptions = [
-        'small (max. 100KB)',
-        'medium (max. 200KB)',
-        'big (max. 500KB)',
+        'small (max. 200KB)',
+        'large (max. 600KB)',
     ];
 
     const handleSizeClose = () => {
@@ -144,10 +149,6 @@ const Generator = params => {
 
     //Modal
     const handleOpen = () => {
-        if (params.title === "") {
-            alert("Enter a meme title");
-            return;
-        }
         setOpen(true);
     };
 
@@ -158,35 +159,110 @@ const Generator = params => {
     };
 
 
-
-    async function generateMeme() {
-        let meme = document.getElementById("memeContainer");
-        if (selectedRenIndex === 0) {
-            let options;
-            if (params.isFreestyle) options = { width: params.canvasWidth, height: params.canvasHeight }
-            domtoimage.toJpeg(meme, options).then(function (jpeg) {
+    function domToImage(meme, quality = 1) {
+        let options = {
+            width: meme.clientWidth * 4,
+            height: meme.clientHeight * 4,
+            style: {
+                transform: 'scale(4)',
+                transformOrigin: 'top left'
+            },
+            quality: quality,
+        }
+        domtoimage.toJpeg(meme, options).then(function (jpeg) {
+            let stringLength = jpeg.length - 'data:image/png;base64,'.length;
+            let sizeInKb = (4 * Math.ceil((stringLength / 3)) * 0.5624896334383812) / 1000;
+            if (selectedSizeIndex === 0 && sizeInKb > 200 || selectedSizeIndex === 1 && sizeInKb > 600) {
+                domToImage(meme, quality - 0.05);
+            } else {
                 setGeneratedMeme(jpeg);
-            });
-        }
-        if (selectedRenIndex === 1) { ////TODO server side generation (phantomJS?)
-            await fetch("http://localhost:3030/memeIO/generate", {
-                method: "POST",
-                mode: "cors",
-                headers: AuthService.getTokenHeader(),
-                body: JSON.stringify({
-                    url: "http://localhost:3000",
-                    author: localStorage.user,
-                    title: params.title,
-                }),
-            }).then((res) => {
-                return res.text();
-            }).then((data) => {
-                console.log(data);
-            });
-        }
+            }
+        });
     }
 
+    const objectToQueryParam = obj => {
+        const params = Object.entries(obj).map(([key, value]) => `${key}=${value}`);
+        console.log(params.join("&"));
+        return "?" + params.join("&");
+    };
 
+    async function generateMeme() {
+        if (!title) {
+            setTitleError({
+                show: true,
+                text: "Enter a meme title",
+            });
+            return;
+        }
+        setTitleError({
+            show: false,
+            text: "",
+        });
+        if (selectedRenIndex === 0) { //local generation
+            let meme = document.getElementById("memeContainer");
+            domToImage(meme);
+        }
+        if (selectedRenIndex === 1) { ////TODO server side generation (phantomJS/JIMP)
+            /*await fetch("http://localhost:3030/memeIO/generate", {
+                  method: "POST",
+                  mode: "cors",
+                  headers: AuthService.getTokenHeader(),
+                  body: JSON.stringify({
+                      url: "http://localhost:3000",
+                      author: localStorage.user,
+                      title: title,
+                  }),
+              }).then((res) => {
+                  return res.text();
+              }).then((data) => {
+                  console.log(data);
+              });*/
+
+        }
+        if (selectedRenIndex === 2) { //third-party generation with imgFlip API
+            let textArray = params.text.split(/\n/g);
+            let texts = ["", "", "", "", "", "", "", "", "", ""];
+            textArray.forEach(function (item, index) {
+                texts[index] = item;
+            })
+            if (params.template.id) {
+                const par = {
+                    template_id: params.template.id,
+                    text0: `${texts[0]}
+                  ${texts[1]}
+                  ${texts[2]}
+                  ${texts[3]}
+                  ${texts[4]}`,
+                    text1: `
+                  ${texts[5]}
+                  ${texts[6]}
+                  ${texts[7]}
+                  ${texts[8]}
+                  ${texts[9]}`,
+                    username: "xzk03017",
+                    password: "xzk03017@cndps.com",
+                    font: 'impact',
+                    max_font_size: params.fontSize,
+                };
+                const res = await fetch(
+                    `https://api.imgflip.com/caption_image${objectToQueryParam(
+                        par
+                    )}`
+                );
+                const json = await res.json();
+                let response = await fetch(json.data.url);
+                let data = await response.blob();
+                let metadata = {
+                    type: 'image/jpeg'
+                };
+                let file = new File([data], title, metadata);
+                setGeneratedMeme(file);
+                setGeneratedMemeUrl(json.data.url);
+            }
+        }
+
+
+    }
 
 
     return (
@@ -209,7 +285,20 @@ const Generator = params => {
                 <div style={modalStyle} className={classes.paper}>
 
                     <div>
-
+                        {/* Text Field for Meme Title*/}
+                        <TextField
+                            error={titleError.show}
+                            helperText={titleError.text}
+                            className={classes.spacing}
+                            id="name"
+                            label="Meme Title (mandatory)"
+                            placeholder=""
+                            fullWidth
+                            margin="normal"
+                            variant="outlined"
+                            value={title}
+                            onChange={(event) => setTitle(event.target.value)}
+                        />
                         <List component="nav" aria-label="Render settings">
                             <ListItem
                                 button
@@ -230,7 +319,7 @@ const Generator = params => {
                             {renOptions.map((option, index) => (
                                 <MenuItem
                                     key={option}
-                                    //disabled={index === 0}
+                                    disabled={(!params.template.id || params.isFreestyle) && (index === 2)}
                                     selected={index === selectedRenIndex}
                                     onClick={(event) => handleRenItemClick(event, index)}
                                 >
@@ -246,7 +335,8 @@ const Generator = params => {
                                 aria-label="public options"
                                 onClick={handlePubListItem}
                             >
-                                <ListItemText primary="Who can see your Meme?" secondary={pubOptions[selectedPubIndex]} />
+                                <ListItemText primary="Who can see your Meme?"
+                                    secondary={pubOptions[selectedPubIndex]} />
                             </ListItem>
                         </List>
                         <Menu
@@ -258,7 +348,6 @@ const Generator = params => {
                             {pubOptions.map((option, index) => (
                                 <MenuItem
                                     key={option}
-                                    //disabled={index === 0}
                                     selected={index === selectedPubIndex}
                                     onClick={(event) => handlePubItemClick(event, index)}
                                 >
@@ -286,7 +375,6 @@ const Generator = params => {
                             {sizeOptions.map((option, index) => (
                                 <MenuItem
                                     key={option}
-                                    //disabled={index === 0}
                                     selected={index === selectedSizeIndex}
                                     onClick={(event) => handleSizeItemClick(event, index)}
                                 >
@@ -303,10 +391,13 @@ const Generator = params => {
                     >
                         Generate meme
                     </Button>
-
                     {
                         generatedMeme && <FilePond
                             files={[generatedMeme]}
+                            allowImageResize={true}
+                            imageResizeTargetWidth={params.canvasWidth}
+                            imageResizeTargetHeight={params.canvasHeight}
+                            imageResizeMode={"cover"}
                             server={{
                                 url: "http://localhost:3030/memeIO",
                                 process: {
@@ -314,10 +405,9 @@ const Generator = params => {
                                     method: 'POST',
                                     headers: {
                                         'author': localStorage.user,
-                                        'memeTitle': params.title,
+                                        'memeTitle': title,
                                         'isPublic': isPublic,
                                         'type': 'meme',
-
                                     },
                                     onload: (response) => {
                                         console.log(response);
@@ -327,18 +417,11 @@ const Generator = params => {
 
                                 }
                             }}
-                            allowRevert="false"
                             name="file"
-                            labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
                         />}
-                    {/*generatedMemeUrl && (
-                    <img
-                        alt="Preview"
-                        src={generatedMemeUrl}
-                    />
-                )*/}
                     <div>
                         <div>
+                            {/*   //TODO do not download Base64 but file from server */}
                             <Button
                                 className="classes.buttonStyle selection"
                                 startIcon={<CloudDownloadIcon />}
@@ -348,7 +431,7 @@ const Generator = params => {
                                 disabled={!generatedMeme}
                             >
                                 Download
-                        </Button>
+                            </Button>
                             <Button
                                 className="classes.buttonStyle selection"
                                 startIcon={<MailIcon />}
@@ -358,7 +441,7 @@ const Generator = params => {
                                 disabled={!generatedMeme}
                             >
                                 Share
-                         </Button>
+                            </Button>
                             <Popover
                                 id={id}
                                 open={popOpen}
@@ -404,8 +487,8 @@ const Generator = params => {
                         </div>
                     </div>
                 </div>
-            </Modal >
-        </div >
+            </Modal>
+        </div>
     );
 }
 
