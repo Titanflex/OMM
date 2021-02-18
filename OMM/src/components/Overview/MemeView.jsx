@@ -21,6 +21,7 @@ import {
     Share,
     Mail,
     CloudDownload,
+    ThumbDown,
 } from "@material-ui/icons";
 import Moment from 'moment';
 import domtoimage from "dom-to-image";
@@ -35,6 +36,7 @@ const MemeView = params => {
     const [memeInfo, setMemeInfo] = useState(params.memeInfo);
     const [likes, setLikes] = useState(params.memeInfo.likes);
     const [liked, setLiked] = useState(false);
+    const [disliked, setDisliked] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
     const [renAnchorEl, setRenAnchorEl] = useState(null);
 
@@ -60,11 +62,48 @@ const download = () => {
         triggerBase64Download(jpeg, 'my_downloaded_meme');
     }); 
 }
-    
-      
 
-    async function likeMeme() {
-        if (!liked){
+const handleLikeClick = (event) => {
+    if(liked){
+        setLikes(likes-1);
+    }else{
+        setLikes(likes+1);
+    }
+    likeMeme();
+    setLiked(!liked);
+}
+
+
+const handleDislikeClick = (event) => {
+    if(disliked){
+        setLikes(likes+1);
+
+    }else{
+        setLikes(likes-1);
+    }
+    dislikeMeme();
+    setDisliked(!disliked);
+}
+
+
+
+
+async function likeMeme() {
+    if (!liked){
+        await fetch("http://localhost:3030/memeIO/dislike-meme", {
+        method: "POST",
+        mode: "cors",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            id: memeInfo._id,
+        }),
+    }).then((response) => {
+        console.log("liked");
+        }
+    );
+    } else{     
             await fetch("http://localhost:3030/memeIO/like-meme", {
             method: "POST",
             mode: "cors",
@@ -75,8 +114,28 @@ const download = () => {
                 id: memeInfo._id,
             }),
         }).then((response) => {
-            console.log("liked");
-            setLikes(likes+1);
+            
+            }
+        );
+    }    
+    
+}
+
+      
+
+    async function dislikeMeme() {
+        if (!disliked){
+            await fetch("http://localhost:3030/memeIO/like-meme", {
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                id: memeInfo._id,
+            }),
+        }).then((response) => {
+            console.log("disliked");
             }
         );
         } else{     
@@ -97,16 +156,6 @@ const download = () => {
         
     }
 
-    useEffect(() => {
-        // action on update of movies
-    }, [likes]);
-
-    //TODO
-    function shareMeme() {
-
-    }
-
-
 
     return (
         <Container className="memeViewContainer">
@@ -121,8 +170,9 @@ const download = () => {
                         onClick={() => window.open(`/singleview/${memeInfo._id}`, "_self")}
                     />
                 </Grid>
-                <Grid container item xs direction="column" spacing={2}>
-                    <Grid item xs>
+                <Grid container item xs direction="column" spacing={3}>
+
+                    <Grid container item xl={4}>
                         <div className="memeInfo">
                             <Typography gutterBottom variant="h6" id="meme-title">
                                 {memeInfo.hasOwnProperty('title') ? memeInfo.title : "No Title"}
@@ -138,7 +188,8 @@ const download = () => {
                             </Typography>
                         </div>
                     </Grid>
-                    <Grid item xs>
+
+                    <Grid container item xl={4}>
                         <div className={classes.rateMemeButtons}>
                             <Button
 
@@ -204,25 +255,20 @@ const download = () => {
                                     <WhatsappIcon size={36} round/>
                                 </WhatsappShareButton>
                             </Popover>
-                           <ToggleButton
-                                className="classes.buttonStyle selection"
+                            </div>
+                            </Grid>
+                                <Button
                                 variant="contained"
-                                disabled={!memeInfo}
-                                value="check"
-                        selected={liked}
-                        onChange={() => {
-                            if(liked){
-                                setLikes(likes-1);
-                            }else{
-                                setLikes(likes+1);
-                            }
-                            setLiked(!liked); 
-                            likeMeme();
-
-                        }}
-                            >
-                                Like
-                            </ToggleButton>
+                                color="secondary"
+                                onClick={handleLikeClick}
+                            />
+                            <Button
+                                className="classes.buttonStyle likeButton"
+                                startIcon={<ThumbDown />}
+                                variant="contained"
+                                color="secondary"
+                                onClick={handleDislikeClick}
+                            />
                         </div>
                     </Grid>
                 </Grid>

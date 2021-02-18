@@ -1,16 +1,7 @@
 import React, { useState } from "react";
 import {
-    Typography,
-    Button,
     TextField,
-    FormControl,
-    OutlinedInput,
-    IconButton,
-    InputLabel,
-    InputAdornment,
-    makeStyles,
 } from "@material-ui/core";
-import { navigate } from "hookrouter";
 
 
 export default function Searchbar() {
@@ -19,19 +10,11 @@ export default function Searchbar() {
         searchterm: "",
     });
 
-    const handleChange = (prop) => (event) => {
-        setValues({ ...values, [prop]: event.target.value });
+    const handleChange = () => (event) => {
+        setValues({ searchterm: event.target.value });
     };
 
 
-    const handleMouseDownPassword = (event) => {
-        event.preventDefault();
-    };
-
-    const search = () => {
-        navigate("/overview");
-        window.location.reload();
-    };
 
     return (
         <div className="search-container">
@@ -44,6 +27,7 @@ export default function Searchbar() {
                     fullWidth
                     margin="normal"
                     variant="outlined"
+                    onChange={handleChange()}
                 />
             </form>
         </div>

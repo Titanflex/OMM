@@ -13,16 +13,19 @@ import HearingIcon from "@material-ui/icons/Hearing";
 import ArrowRight from "@material-ui/icons/ChevronRight";
 import ArrowLeft from "@material-ui/icons/ChevronLeft";
 
-import "./../../css/Overview/singleView.css";
 
 import MemeView from "./MemeView";
 import Searchbar from "./Searchbar";
-      
+
+
+import "./../../css/Overview/singleView.css";
+
 const useStyles = makeStyles((theme) => ({
     spacing: {
       marginTop: theme.spacing(2),
       marginRight: theme.spacing(2),
     },
+        
     
 }));
 
@@ -193,7 +196,7 @@ const SingleView = () => {
                         <ArrowLeft fontSize="large" />
                     </IconButton>
                 </Grid>
-                <Grid item xs={1}>
+                <Grid item xs={8}>
                     <SingleMeme listmemes={memes} />
 
                 </Grid>

@@ -31,8 +31,15 @@ const theme = createMuiTheme({
             },
         },
         MuiToggleButton: {
+            raisedPrimary: {
+                backgroundColor: '#333333',
+                color: 'white',
+            },
+            
             // Override the styling for selected toggle buttons
             root: {
+               
+
               '&$selected': {
                 backgroundColor: "#1BBAB0", // Greenish
                 color: 'white',

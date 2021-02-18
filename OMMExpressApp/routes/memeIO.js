@@ -208,6 +208,9 @@ memeIO.post('/upload', upload.single("file"), async(req, res) => {
 
 });
 
+
+/* POST /memeIO/like-meme */
+/* update meme likes +1 by id  */
 memeIO.post('/like-meme', (req, res) => {
     try {
         Meme.updateOne({ _id: req.body.id }, { $inc: { likes: 1 } }, function(err) {
@@ -219,15 +222,16 @@ memeIO.post('/like-meme', (req, res) => {
     }
 });
 
+/* POST /memeIO/dislike-meme */
+/* update meme likes -1 by id  */
 memeIO.post('/dislike-meme', (req, res) => {
-    try {
-        Meme.updateOne({ _id: req.body.id }, { $inc: { likes: -1 } }, function(err) {
-
-            return res.status(200)
-        })
-    } catch (error) {
-        return res.status(500).send(err)
-    }
+    try{
+    Meme.updateOne({ _id: req.body.id }, {$inc: {likes: -1}}, function(err) {
+        return res.status(200)
+    })
+} catch (error) {
+    return res.status(500).send(err)
+}
 });
 
 /* GET /memeIO/get-meme */
