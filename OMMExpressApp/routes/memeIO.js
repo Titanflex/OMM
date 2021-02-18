@@ -43,7 +43,7 @@ memeIO.use(function(req, res, next) {
 
     // Request headers you wish to allow
 
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,author,templateName,description,tags, caption');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,author,templateName,description,tags, title, caption');
 
     // Set to true if you need the website to include cookies in the requests sent
     // to the API (e.g. in case you use sessions)
@@ -150,7 +150,7 @@ memeIO.post('/upload', upload.single("file"), async(req, res) => {
         const newMeme = {
             title: req.headers.title,
             url: url,
-            creator: req.headers.author,
+            author: req.headers.author,
             isPublic: req.headers.isPublic,
             creationDate: Date.now(),
             likes: 0,
@@ -194,7 +194,6 @@ memeIO.post('/upload', upload.single("file"), async(req, res) => {
 memeIO.post('/like-meme', (req, res) => {
     try {
         Meme.updateOne({ _id: req.body.id }, { $inc: { likes: 1 } }, function(err) {
-
             return res.status(200)
         })
     } catch (error) {

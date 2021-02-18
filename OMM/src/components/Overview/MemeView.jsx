@@ -29,7 +29,10 @@ import "./../../css/Overview/memeView.css";
 import { triggerBase64Download } from 'react-base64-downloader';
 
 const useStyles = makeStyles((theme) => ({
-
+    likeButton: {
+        "&:hover": { backgroundColor: "yellow" },
+        "&:focus": { backgroundColor: "yellow" }
+      }
 }));
 
 const MemeView = params => {
@@ -66,22 +69,37 @@ const download = () => {
 const handleLikeClick = (event) => {
     if(liked){
         setLikes(likes-1);
+        dislikeMeme();
     }else{
-        setLikes(likes+1);
+        if(disliked){
+            setDisliked(!disliked);
+            setLikes(likes+2);
+            likeMeme();
+        }else{
+            setLikes(likes+1);
+        }
+            likeMeme();
+          
     }
-    likeMeme();
-    setLiked(!liked);
+    setLiked(!liked); 
 }
 
 
 const handleDislikeClick = (event) => {
     if(disliked){
         setLikes(likes+1);
+        likeMeme();
 
     }else{
-        setLikes(likes-1);
+        if(liked){
+            setLiked(!liked);
+            setLikes(likes-2);
+            dislikeMeme();
+        } else {
+            setLikes(likes-1);
+        }
+        dislikeMeme();
     }
-    dislikeMeme();
     setDisliked(!disliked);
 }
 
@@ -89,8 +107,7 @@ const handleDislikeClick = (event) => {
 
 
 async function likeMeme() {
-    if (!liked){
-        await fetch("http://localhost:3030/memeIO/dislike-meme", {
+        await fetch("http://localhost:3030/memeIO/like-meme", {
         method: "POST",
         mode: "cors",
         headers: {
@@ -98,34 +115,19 @@ async function likeMeme() {
         },
         body: JSON.stringify({
             id: memeInfo._id,
+            user: localStorage.user,
+            date: Date.now,
         }),
     }).then((response) => {
         console.log("liked");
-        }
-    );
-    } else{     
-            await fetch("http://localhost:3030/memeIO/like-meme", {
-            method: "POST",
-            mode: "cors",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                id: memeInfo._id,
-            }),
-        }).then((response) => {
-            
-            }
-        );
-    }    
-    
+        });  
 }
 
       
 
     async function dislikeMeme() {
-        if (!disliked){
-            await fetch("http://localhost:3030/memeIO/like-meme", {
+       
+            await fetch("http://localhost:3030/memeIO/dislike-meme", {
             method: "POST",
             mode: "cors",
             headers: {
@@ -136,33 +138,8 @@ async function likeMeme() {
             }),
         }).then((response) => {
             console.log("disliked");
-            }
-        );
-        } else{     
-                await fetch("http://localhost:3030/memeIO/dislike-meme", {
-                method: "POST",
-                mode: "cors",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    id: memeInfo._id,
-                }),
-            }).then((response) => {
-                
-                }
-            );
-        }    
+            });    
         
-    }
-
-    useEffect(() => {
-        // action on update of movies
-    }, [likes]);
-
-    //TODO
-    function shareMeme() {
-
     }
 
     const synth = window.speechSynthesis;
@@ -192,6 +169,7 @@ async function likeMeme() {
 
             <Grid container spacing={2}>
                 <Grid item xs >
+                    <div className="imageDiv">
                     {/*<Meme memeData={memeInfo} isAccessible={props.isAccessible}/>*/}
                     <img
                         id = {"imageid"}
@@ -199,10 +177,11 @@ async function likeMeme() {
                         alt={"meme image"}
                         onClick={() => window.open(`/singleview/${memeInfo._id}`, "_self")}
                     />
+                    </div>
                 </Grid>
-                <Grid container item xs direction="column" spacing={3}>
+                <Grid container xs direction="column" spacing={1}>
 
-                    <Grid container item xl={4}>
+                    <Grid item xs>
                         <div className="memeInfo">
                             <Typography gutterBottom variant="h6" id="meme-title">
                                 {memeInfo.hasOwnProperty('title') ? memeInfo.title : "No Title"}
@@ -214,12 +193,12 @@ async function likeMeme() {
                                 Created: {memeInfo.hasOwnProperty('creationDate') ? Moment(memeInfo.creationDate).format('MMM Do YY') : "No date"}
                             </Typography>
                             <Typography variant="body2">
-                                Likes: {likes}
+                                Votes: {likes}
                             </Typography>
                         </div>
                     </Grid>
 
-                    <Grid container item xl={4}>
+                    <Grid item xs>
                         <div className={classes.rateMemeButtons}>
                             <Button
 
@@ -234,6 +213,7 @@ async function likeMeme() {
                                 Download
                             </Button>
                             <Button
+                    
                                 className="classes.buttonStyle selection"
                                 startIcon={<Mail />}
                                 variant="contained"
@@ -285,26 +265,31 @@ async function likeMeme() {
                                     <WhatsappIcon size={36} round/>
                                 </WhatsappShareButton>
                             </Popover>
-                        
+                            </div>
+                        </Grid>
+                        <Grid item xs>
                             <div>
-                                <Button
-                                className="classes.buttonStyle likeButton"
-                                startIcon={<ThumbUp />}
+                                <IconButton
+                                id="likeButton"
+                                className="classes.buttonStyle selection classes.likeButton"
                                 variant="contained"
-                                color="secondary"
+                                color={(!liked) ? "secondary" : "primary"}
                                 onClick={handleLikeClick}
-                            />
-                            <Button
-                                className="classes.buttonStyle likeButton"
+                            >
+                            <ThumbUp />
+                            </IconButton>
+                            <IconButton
+                                id="dislikeButton"
+                                className="classes.buttonStyle selection classes.likeButton"
                                 startIcon={<ThumbDown />}
                                 variant="contained"
-                                color="secondary"
+                                color={(!disliked) ? "secondary" : "primary"}
                                 onClick={handleDislikeClick}
 
-                            />
+                            >
+                            <ThumbDown />
+                            </IconButton>
                             </div>
-
-                        </div>
                     </Grid>
                 </Grid>
 

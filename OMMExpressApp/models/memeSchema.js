@@ -4,24 +4,26 @@ const Schema = mongoose.Schema;
 const memeSchema = new Schema({
     title: String,
     url: String,
-    creator: String,
+    author: String,
 
     creationDate: {
         type: Date,
-        // `Date.now()` returns the current unix timestamp as a number
-        default: Date.now
     },
 
     isPublic: Boolean,
+
     likes: {
         type: Number,
-        default: 0
     },
+
+    //likes:[{date: Date, user: String }],
+    
+
     description: String,
     caption: Array,
     tags: Array,
 
-    //comments: [{ body: String, date: Date, user: String }],
+    comments: [{ body: String, date: Date, user: String }],
 
 });
 
