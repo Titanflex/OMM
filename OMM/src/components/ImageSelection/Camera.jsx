@@ -38,6 +38,10 @@ const Camera = params => {
     const webcamRef = React.useRef(null);
     const [imgSrc, setImgSrc] = React.useState(null);
     const [templateTitle, setTemplateTitle] = useState("")
+    const [error, setError] = useState({
+        show: false,
+        text: "",
+      });
 
     const handleOpen = () => {
         setOpen(true);
@@ -54,12 +58,12 @@ const Camera = params => {
     }, [webcamRef, setImgSrc]);
 
     function saveCapturedPicture() {
-        if(templateTitle === ""){
-            alert("Enter a title for your new template");
-            return;
-        }
-        params.handleSave(templateTitle, imgSrc, false);
-        handleClose();
+        if(templateTitle == ''){
+            setError({show: true, text:"Please enter a title"});
+        } else {
+            params.handleSave(templateTitle, imgSrc, false);
+            handleClose();
+        } 
     }
 
 
@@ -89,6 +93,8 @@ const Camera = params => {
                             screenshotFormat="image/jpeg"
                         />
                         <TextField
+                            error={error.show}
+                            helperText={error.text}
                             id="standard-basic"
                             label="Template Title"
                             placeholder="Template Title"
@@ -115,7 +121,7 @@ const Camera = params => {
                             className="classes.buttonStyle modal"
                             variant="contained"
                             onClick={saveCapturedPicture}
-                            color="secondary"
+                            color="primary"
                             disabled={save}
                         >
                             Save picture

@@ -3,11 +3,12 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "prestart": "start mongod && mongorestore --drop -d memes_db -c memes ../dump/memes/memes.bson",
+        "prestart": "start mongod && mongorestore--drop - d memes_db - c memes.. / dump / memes / memes.bson ",
         "start": "node ./bin/www",
         "poststart": "start mongo"
     },
     "dependencies": {
+        "@azure/cognitiveservices-computervision": "^7.1.0",
         "bcryptjs": "^2.4.3",
         "body-parser": "^1.19.0",
         "capture-website": "^1.2.8",
@@ -34,7 +35,8 @@
         "multer-gridfs-storage": "^4.2.0",
         "node-persist": "^3.1.0",
         "path": "^0.12.7",
-        "puppeteer": "^7.0.1"
+        "puppeteer": "^7.0.1",
+        "request": "^2.88.2"
     },
     "devDependencies": {
         "formidable": "^1.2.2"

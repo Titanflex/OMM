@@ -156,6 +156,36 @@ async function likeMeme() {
         
     }
 
+    useEffect(() => {
+        // action on update of movies
+    }, [likes]);
+
+    //TODO
+    function shareMeme() {
+
+    }
+
+    const synth = window.speechSynthesis;
+
+    useEffect(()=>{
+        console.log(params.isAccessible);
+        if(params.isAccessible){
+            console.log(memeInfo.description);
+            let captions ="";
+            memeInfo.caption.forEach((item) =>
+                captions += item,
+            );
+            const text = new SpeechSynthesisUtterance(
+                "The meme " + memeInfo.title + " shows " + memeInfo.description + ". The caption of the meme is " +
+                memeInfo.caption[0]);
+            text.voice = synth.getVoices()[3];
+            synth.cancel();
+            synth.speak(text)
+        }
+    }, [memeInfo]);
+
+
+
 
     return (
         <Container className="memeViewContainer">
@@ -255,9 +285,11 @@ async function likeMeme() {
                                     <WhatsappIcon size={36} round/>
                                 </WhatsappShareButton>
                             </Popover>
-                            </div>
-                            </Grid>
+                        
+                            <div>
                                 <Button
+                                className="classes.buttonStyle likeButton"
+                                startIcon={<ThumbUp />}
                                 variant="contained"
                                 color="secondary"
                                 onClick={handleLikeClick}
@@ -268,7 +300,10 @@ async function likeMeme() {
                                 variant="contained"
                                 color="secondary"
                                 onClick={handleDislikeClick}
+
                             />
+                            </div>
+
                         </div>
                     </Grid>
                 </Grid>

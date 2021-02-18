@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
@@ -8,6 +8,8 @@ import TextField from "@material-ui/core/TextField";
 import { CloudDownload } from "@material-ui/icons";
 import { FilePond, registerPlugin } from "react-filepond";
 import { Grid, GridList, GridListTile, GridListTileBar } from "@material-ui/core";
+
+
 
 import "filepond/dist/filepond.min.css";
 
@@ -20,10 +22,10 @@ import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 
 import Camera from "../ImageSelection/Camera";
 import Paint from "../ImageSelection/Paint";
+import URL from "../ImageSelection/URL";
 
 
 import "./../../css/ImageSelection/imageSelection.css";
-import LoadIcon from "@material-ui/icons/Refresh";
 
 // Register the plugins
 registerPlugin(FilePondPluginImagePreview, FilePondPluginFileEncode);
@@ -62,9 +64,9 @@ const useStyles = makeStyles((theme) => ({
 const ImageSelection = params => {
   const classes = useStyles();
   const [modalStyle] = React.useState(getModalStyle);
-  // const [gridStyle] = React.useState(getGridStyle);
   const [open, setOpen] = React.useState(false);
-
+  const [files, setFiles] = useState([]);
+  const [templates, setTemplates] = useState([]);
 
 
   const handleOpen = () => {
@@ -76,10 +78,27 @@ const ImageSelection = params => {
     setOpen(false);
   };
 
-  const [url, setUrl] = useState((''));
-  const [files, setFiles] = useState([]);
+  useEffect(() => {
+    },
+    [templates],
+  );
 
-  function changeMeme(image) {
+  async function loadTemplate() {
+    const res = await fetch("http://localhost:3030/memeIO/get-templates");
+    const json = await res.json();
+    if(json.docs.length > 0) {
+      params.setTemplates(json.docs);
+      setTemplates(json.docs)
+    } else {
+      setTemplates(params.memeTemplates)
+    }
+    //handleClose();
+  }
+
+  function changeShownTemplate(image) {
+    if (params.isFreestyle) {
+      params.setSelectedImage({ url: image.url })
+    } 
     params.setCurrentTemplateIndex(params.memeTemplates.findIndex(function (item, i) {
       return item.name === image.name
     }))
@@ -88,28 +107,13 @@ const ImageSelection = params => {
 
   function addTemplates(image) {
     params.setSelectedImages(image);
-    //handleClose();
+    handleClose();
   }
 
-  const handleChange = ({ target }) => {
-    setUrl((prev) => target.value);
-  }
-  const getTemplateFromURL = (event) => {
-    if (event.key === 'Enter') {
-      saveTemplate("title", url, true);
-    }
-  }
-  async function loadTemplate() {
-    const res = await fetch("http://localhost:3030/memeIO/get-templates");
-    const json = await res.json();
-    params.setCurrentTemplateIndex(0)
-    params.setTemplates(json.docs);
-    //handleClose();
-  }
-
-  function showOwnTemplate(response) {
-    console.log(response)
-    params.setTemplates([{ url: response }])
+  function addNewTemplates(newTemplate) {
+    setTemplates(templates => [...templates, newTemplate])
+    params.setTemplates(templates);
+    setFiles([]);
     //handleClose();
   }
 
@@ -120,7 +124,7 @@ const ImageSelection = params => {
           onClick={() => {
             if (params.isFreestyle) {
               addTemplates(tile)
-            } else { changeMeme(tile) }
+            } else { changeShownTemplate(tile) }
           }}
         >
           <img src={tile.url} alt={(tile.name) ? tile.name : tile.templateName} />
@@ -134,26 +138,10 @@ const ImageSelection = params => {
     </GridList >
   );
 
-  async function handleScreenshot() {
-    await fetch("http://localhost:3030/memeIO/webshot", {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        url: url,
-        author: localStorage.user
-      }),
-    }).then((res) => {
-      return res.text();
-    }).then((data) => {
-      showOwnTemplate(data);
-    });
-  }
+
+
 
   async function saveTemplate(title, src, internetSource) {
-    console.log(title);
     fetch("http://localhost:3030/memeIO/save-template", {
       method: "POST",
       mode: "cors",
@@ -167,9 +155,9 @@ const ImageSelection = params => {
         url: src,
       }),
     }).then((res) => {
-      return res.text();
+      return res.json();
     }).then((data) => {
-      showOwnTemplate(data);
+      addNewTemplates(data);
     });
   }
 
@@ -178,20 +166,11 @@ const ImageSelection = params => {
     const res = await fetch("https://api.imgflip.com/get_memes");
     const json = await res.json();
     params.setCurrentTemplateIndex(0)
-    params.setTemplates(json.data.memes);
-    //handleClose();
+    setTemplates(templates.concat(json.data.memes));
+    params.setTemplates(templates.concat(json.data.memes));
   }
 
-  function showOwnTemplate(response) {
-    console.log(response)
-    if (params.isFreestyle) {
-      params.setSelectedImage({ url: response })
-    } else {
-      params.setTemplates([{ url: response }])
-    }
-    setFiles([]);
-    //handleClose();
-  }
+
 
   return (
     <div>
@@ -212,7 +191,7 @@ const ImageSelection = params => {
           <Grid container spacing={1}>
           <Grid item xs={6} >
               <h2 style={{marginBottom: "32px"}} id="simple-modal-title">Select a template to work on</h2>
-              <ShowTemplates showtemplates={params.memeTemplates} />
+              <ShowTemplates showtemplates={templates} />
             </Grid>
           <Grid item xs={6} style={{maxWidth: 400, marginLeft: 32}}>
           <div>
@@ -230,22 +209,13 @@ const ImageSelection = params => {
                     'templateName': "test"
                   },
                   onload: (response) =>
-                    showOwnTemplate(response)
+                    addNewTemplates(response)
 
                 }
               }}
               name="file"
               labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
             />
-             <Button
-              className="classes.buttonStyle modal"
-              startIcon={<LoadIcon />}
-              variant="contained"
-              onClick={loadTemplate}
-              color="secondary"
-            >
-              Refresh
-          </Button> 
             <Button
               className="classes.buttonStyle modal"
               startIcon={<CloudDownload />}
@@ -262,18 +232,8 @@ const ImageSelection = params => {
             <Paint
               handleSave={saveTemplate}
             />
-            <TextField
-              name="url"
-              className="modal"
-              label="Load Image from URL"
-              onChange={handleChange}
-              onKeyPress={getTemplateFromURL} />
-            <TextField
-              name="url"
-              className="modal"
-              label="Screenshot Image from URL"
-              onChange={handleChange}
-              onKeyPress={handleScreenshot} />
+            <URL handleSave={addNewTemplates}/>
+      
           </div>
           </Grid>
           </Grid>

@@ -35,6 +35,10 @@ const Paint = params => {
     const classes = useStyles();
     const [modalStyle] = useState(getModalStyle);
     const [open, setOpen] = useState(false);
+    const [error, setError] = useState({
+        show: false,
+        text: "",
+      });
 
 
 
@@ -47,8 +51,12 @@ const Paint = params => {
     };
 
     function handleSave(title, url){
-        params.handleSave(title, url, false);
-        handleClose();
+        if(title == ''){
+            setError({show: true, text:"Please enter a title"});
+        } else {
+            params.handleSave(title, url, false);
+            handleClose();
+        }       
     }
 
     return (

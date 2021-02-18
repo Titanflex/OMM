@@ -4,15 +4,16 @@ var memeIO = express.Router();
 var multer = require("multer");
 var fs = require('fs');
 var zip = require('express-zip');
+const util = require('util')
 
-const auth = require('../middleware/auth')
+const analyze = require('../middleware/analyze')
 const captureWebsite = require('capture-website');
 
 const Meme = require('../models/memeSchema');
 const Template = require('../models/templateSchema');
 var Jimp = require('jimp');
 
-const puppeteer = require('puppeteer');
+
 
 
 var storage = multer.diskStorage({
@@ -41,7 +42,8 @@ memeIO.use(function(req, res, next) {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
     // Request headers you wish to allow
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,author,templateName,memeTitle,isPublic,type');
+
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,author,templateName,description,tags, caption');
 
     // Set to true if you need the website to include cookies in the requests sent
     // to the API (e.g. in case you use sessions)
@@ -80,7 +82,7 @@ memeIO.post("/save-template", async(req, res) => {
         let base64String = req.body.url;
         let base64Image = base64String.split(';base64,').pop();
         url = "http://localhost:3030/images/templates/" + title;
-        fs.writeFile('public/images/templates/' + title, base64Image, { encoding: 'base64' }, function(err) {
+        fs_writeFile('public/images/templates/' + title, base64Image, { encoding: 'base64' }, function(err) {
             if (err) console.log(err);
         })
     } else { //keep internet address as url
@@ -95,10 +97,11 @@ memeIO.post("/save-template", async(req, res) => {
 
     Template.create(newTemplate, (err, item) => {
         if (err)
-            console.log(err)
+            res.status(500).error(err)
         else {
-            item.save();
-            res.send(url);
+            template = item.save(function(err, template) {
+                res.json(template);
+            });
         }
     })
 })
@@ -108,82 +111,58 @@ memeIO.post("/save-template", async(req, res) => {
 memeIO.post("/webshot", async(req, res) => {
     let url = req.body.url;
     let shortUrl = url.replace(/(^http[s]?:\/\/)|[.\/\\]/ig, '').slice(0, 20) + '.png';
-    let filePath = "http://localhost:3030/images/" + shortUrl;
+    let filePath = "http://localhost:3030/images/templates/" + shortUrl;
 
     var screenshotTemplate = {
         uploader: req.body.author,
-        templateName: 'test',
+        templateName: req.body.title,
         url: filePath,
     }
+    let template;
     Template.create(screenshotTemplate, (err, item) => {
             if (err)
                 console.log(err)
             else {
                 console.log(item);
-                item.save();
+                item.save(function(err, item) {
+                    template = item;
+                });
             }
         })
         //Make Screenshot and save image to URL
-    await captureWebsite.file(url, 'public/images/templates/' + shortUrl + '.png').then(() => {
+    await captureWebsite.file(url, 'public/images/templates/' + shortUrl).then(() => {
         console.log("savedFile")
     }).catch((err) => console.log(err));
-    res.send(filePath);
+    res.json(template);
 
 });
 
-/* POST /memeIO/generate */
-/* Generate image on server and save as Meme*/
-memeIO.post("/generate", auth, async(req, res) => {
-    let filePath = "http://localhost:3030/images/meme/" + req.body.title + '.png';
-    let uploader = req.body.author;
-    let url = req.body.url;
-    let authToken = req.header('x-auth-token');
-
-    try {
-        let data = {
-            token: authToken,
-            user: uploader,
-        };
-        const browser = await puppeteer.launch(); // run browser
-        const page = await browser.newPage(); // open new tab
-        await page.goto(url);
-        //TODO
-        /*await page.evaluate((data) => {
-            localStorage.setItem("token", '');
-            localStorage.setItem("user", '');
-        });
-        await page.goto(url);
-        await page.waitForSelector('#memeContainer');
-
-        const element = await page.$('#memeContainer');   */ // declare a variable with an ElementHandle
-        await page.screenshot({ path: 'public/images/memes/' + req.body.title + '.png' });
-        res.send(filePath);
-    } catch (e) {
-        res.status(400).json({ msg: e.message });
-    }
-
-    //TODO save as meme
-});
 
 /* POST /memeIO/upload */
 /* upload meme/template to server (via FilePond) */
 //TODO split function
 memeIO.post('/upload', upload.single("file"), async(req, res) => {
     let url;
-
+    const analysis = await analyze(req);
+    console.log(analysis);
     if (req.headers.type === 'meme') { //upload generated meme
         url = "http://localhost:3030/images/memes/" + req.headers.memetitle + '.png';
         const newMeme = {
-            title: req.headers.memetitle,
+            title: req.headers.title,
             url: url,
             creator: req.headers.author,
             isPublic: req.headers.isPublic,
             creationDate: Date.now(),
+            likes: 0,
+            tags: analysis.tags,
+            description: analysis.description.captions[0].text,
+            caption: req.body.upper + " " + req.body.lower,
         }
         Meme.create(newMeme, (err, item) => {
             if (err)
                 console.log(err)
             else {
+                console.log(item.description);
                 item.save();
                 res.send(url);
             }
@@ -198,10 +177,11 @@ memeIO.post('/upload', upload.single("file"), async(req, res) => {
         console.log(uploadedTemplate);
         Template.create(uploadedTemplate, (err, item) => {
             if (err)
-                console.log(err)
+                res.status(500).error(err);
             else {
-                item.save();
-                res.send(url);
+                item.save(function(err, item) {
+                    res.json(item);
+                });
             }
         })
     }
@@ -245,7 +225,7 @@ memeIO.get('/get-meme', (req, res) => {
             res.status(500).send("There is no meme with this title")
         } else {
             if (fs.existsSync("public/images/memes/" + docs[0].title + ".png")) {
-                res.download("public/images/memes/" + docs[0].title + ".png")
+                res.status(200).download("public/images/memes/" + docs[0].title + ".png")
             } else {
                 res.status(500).send("The meme does not exist in your local folder")
             }
@@ -269,20 +249,25 @@ memeIO.post('/create-simple-meme', async(req, res) => {
             //lower text
             .print(font, positionX_lower, image.bitmap.height - (Jimp.measureTextHeight(font, req.body.lower) + 30), req.body.lower, 400)
             //save meme
-            .write("public/images/memes/" +
-                req.body.title + ".png");
+        image = await image.writeAsync("public/images/memes/" +
+            req.body.title + ".png");
 
+        const analysis = await analyze(req);
+        console.log(analysis.description.captions);
         //save the meme to the data base
         const newMeme = new Meme({
             title: req.body.title,
             url: url,
             isPublic: true,
-            likes: 0
+            likes: 0,
+            tags: analysis.tags,
+            description: analysis.description.captions[0].text,
+            caption: req.body.upper + " " + req.body.lower,
         })
         newMeme.save();
-        res.json(newMeme);
+        res.status(200).download("public/images/memes/" + req.body.title + ".png");
     } catch (error) {
-        return res.status(500).send(err)
+        return res.status(500).send(error);
     }
 });
 
@@ -300,17 +285,68 @@ memeIO.post('/create-meme', async(req, res) => {
                 }, textBox.maxWidth,
                 textBox.maxHeight)
         };
-        image.write("public/images/memes/" +
+        image = await image.writeAsync("public/images/memes/" +
             req.body.title + ".png");
         //save the meme to the data base
+        const analysis = await analyze(req);
+
         const newMeme = new Meme({
             title: req.body.title,
             url: url,
             isPublic: true,
-            likes: 0
+            likes: 0,
+            tags: analysis.tags,
+            description: analysis.description.captions[0].text,
+            caption: req.body.upper + " " + req.body.lower,
         })
         newMeme.save();
-        return res.status(200).json(newMeme)
+        return res.status(200).download("public/images/memes/" + req.body.title + ".png")
+    } catch (error) {
+        return res.status(500).send(error);
+    }
+});
+
+/* POST /memeIO/create-memes */
+/* create memes with defined url and several textboxes */
+memeIO.post('/create-memes', async(req, res) => {
+    try {
+        //console.log(req.body.templates, req.body.textBoxes)
+        let memes = []
+        for (const template of req.body.templates) {
+            console.log(template);
+            const url = "http://localhost:3030/images/memes/" + template.name + ".png";
+            let image = await Jimp.read(template.url);
+            image.resize(700, Jimp.AUTO);
+            for (const textBox of req.body.textBoxes) {
+                let font = await Jimp.loadFont(textBox.font ? textBox.font : 'public/assets/impact.ttf/impact.fnt')
+                image.print(font, textBox.x, textBox.y, {
+                        text: textBox.text
+                    }, textBox.maxWidth,
+                    textBox.maxHeight)
+            };
+            image = await image.writeAsnyc("public/images/memes/" +
+                template.name + ".png");
+            //save the meme to the data base
+            const newMeme = new Meme({
+                title: template.name,
+                url: url,
+                isPublic: true,
+                likes: 0
+            })
+            newMeme.save();
+            memes.push({
+                path: "public/images/memes/" +
+                    template.name + ".png",
+                name: template.name + ".png"
+            })
+        }
+        //return zip file
+        console.log(memes);
+        res.status(200).zip({
+            files: memes,
+            filename: 'memes.zip'
+        });
+
     } catch (error) {
         return res.status(500).send(error);
     }
