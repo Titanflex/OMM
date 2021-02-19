@@ -460,7 +460,7 @@ const Generator = params => {
                         server={{
                             url: "http://localhost:3030/memeIO",
                             process: {
-                                url: '/upload',
+                                url: '/upload-Meme',
                                 method: 'POST',
                                 headers: {
                                     'author': localStorage.user,

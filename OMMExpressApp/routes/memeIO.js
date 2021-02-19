@@ -226,19 +226,6 @@ memeIO.post('/like-meme', (req, res) => {
 });
 
 
-
-/* POST /memeIO/like-meme */
-/* update meme likes +1 by id  */
-memeIO.post('/like-meme', (req, res) => {
-    try {
-        Meme.updateOne({ _id: req.body.id }, { $inc: { likes: 1 } }, function (err) {
-            return res.status(200)
-        })
-    } catch (error) {
-        return res.status(500).send(err)
-    }
-});
-
 /* POST /memeIO/dislike-meme */
 /* update meme likes -1 by id  */
 memeIO.post('/dislike-meme', (req, res) => {
@@ -284,6 +271,8 @@ memeIO.post('/create-simple-meme', async (req, res) => {
             description: analysis.description.captions[0].text,
             caption: req.body.upper + " " + req.body.lower,
         })
+        newMeme.save();
+        res.status(200).download("public/images/memes/" + req.body.title + ".png");
     } catch (error) {
         return res.status(500).send(error);
     }
@@ -319,49 +308,6 @@ memeIO.post('/create-meme', async (req, res) => {
         })
         newMeme.save();
         return res.status(200).download("public/images/memes/" + req.body.title + ".png")
-    } catch (error) {
-        return res.status(500).send(error);
-    }
-});
-
-/* POST /memeIO/create-memes */
-/* create memes with defined url and several textboxes */
-memeIO.post('/create-memes', async (req, res) => {
-    try {
-        //console.log(req.body.templates, req.body.textBoxes)
-        let memes = []
-        for (const template of req.body.templates) {
-            console.log(template);
-            const url = "http://localhost:3030/images/memes/" + template.name + ".png";
-            let image = await Jimp.read(template.url);
-            image.resize(700, Jimp.AUTO);
-            let font = await Jimp.loadFont('public/assets/impact.ttf/impact.fnt');
-            let positionX_upper = Jimp.measureText(font, req.body.upper) < 400 ? (image.bitmap.width / 2) - (Jimp.measureText(font, req.body.upper) / 2) : (image.bitmap.width / 2) - 200;
-            let positionX_lower = Jimp.measureText(font, req.body.lower) < 400 ? (image.bitmap.width / 2) - (Jimp.measureText(font, req.body.lower) / 2) : (image.bitmap.width / 2) - 200;
-
-            //upper text
-            image.print(font, positionX_upper, 30, req.body.upper, 400)
-                //lower text
-                .print(font, positionX_lower, image.bitmap.height - (Jimp.measureTextHeight(font, req.body.lower) + 30), req.body.lower, 400)
-            //save meme
-            image = await image.writeAsync("public/images/memes/" +
-                req.body.title + ".png");
-
-            const analysis = await analyze(req);
-            console.log(analysis.description.captions);
-            //save the meme to the data base
-            const newMeme = new Meme({
-                title: req.body.title,
-                url: url,
-                isPublic: true,
-                likes: 0,
-                tags: analysis.tags,
-                description: analysis.description.captions[0].text,
-                caption: req.body.upper + " " + req.body.lower,
-            })
-            newMeme.save();
-            res.status(200).download("public/images/memes/" + req.body.title + ".png");
-        }
     } catch (error) {
         return res.status(500).send(error);
     }
@@ -425,11 +371,17 @@ memeIO.post('/create-memes', async (req, res) => {
             image = await image.writeAsnyc("public/images/memes/" +
                 template.name + ".png");
             //save the meme to the data base
+            const analysis = await analyze(req);
+            console.log(analysis.description.captions);
+            //save the meme to the data base
             const newMeme = new Meme({
-                title: template.name,
+                title: req.body.title,
                 url: url,
                 isPublic: true,
-                likes: 0
+                likes: 0,
+                tags: analysis.tags,
+                description: analysis.description.captions[0].text,
+                caption: req.body.upper + " " + req.body.lower,
             })
             newMeme.save();
             memes.push({
@@ -448,6 +400,25 @@ memeIO.post('/create-memes', async (req, res) => {
     } catch (error) {
         return res.status(500).send(error);
     }
+});
+
+/* GET /memeIO/get-meme */
+/* get meme by title as a png file */
+memeIO.get('/get-meme', (req, res) => {
+    Meme.find({ title: req.body.title }, function (err, docs) {
+        if (err) {
+            return res.status(500).send(err);
+        }
+        if (docs.length == 0) {
+            res.status(500).send("There is no meme with this title")
+        } else {
+            if (fs.existsSync("public/images/memes/" + docs[0].title + ".png")) {
+                res.status(200).download("public/images/memes/" + docs[0].title + ".png")
+            } else {
+                res.status(500).send("The meme does not exist in your local folder")
+            }
+        }
+    })
 });
 
 /* GET /memeIO/get-memes-by */
