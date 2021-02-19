@@ -3,7 +3,7 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "prestart": "start mongod && mongorestore--drop - d memes_db - c memes.. / dump / memes / memes.bson ",
+        "prestart": "start mongod && mongorestore --drop -d memes_db -c memes ../dump/memes/memes.bson ",
         "start": "node ./bin/www",
         "poststart": "start mongo"
     },
@@ -22,6 +22,7 @@
         "express-zip": "^3.0.0",
         "fs": "0.0.1-security",
         "fs-extra": "^9.0.1",
+        "gm": "^1.23.1",
         "http-errors": "~1.6.3",
         "jade": "~1.11.0",
         "jimp": "^0.16.1",

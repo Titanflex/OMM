@@ -1,9 +1,9 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Button from "@material-ui/core/Button";
 
 import "./../../css/ImageSelection/imageSelection.css";
 import ClearIcon from "@material-ui/icons/Clear";
-import {TextField} from "@material-ui/core";
+import { TextField } from "@material-ui/core";
 
 
 const PaintCanvas = params => {
@@ -31,8 +31,8 @@ const PaintCanvas = params => {
     }, [])
 
 
-    const startDrawing = ({nativeEvent}) => {
-        const {offsetX, offsetY} = nativeEvent;
+    const startDrawing = ({ nativeEvent }) => {
+        const { offsetX, offsetY } = nativeEvent;
         contextRef.current.beginPath()
         contextRef.current.moveTo(offsetX, offsetY)
         setIsDrawing(true)
@@ -43,11 +43,11 @@ const PaintCanvas = params => {
         setIsDrawing(false)
     }
 
-    const draw = ({nativeEvent}) => {
+    const draw = ({ nativeEvent }) => {
         if (!isDrawing) {
             return;
         }
-        const {offsetX, offsetY} = nativeEvent;
+        const { offsetX, offsetY } = nativeEvent;
         contextRef.current.lineTo(offsetX, offsetY)
         contextRef.current.stroke();
     }
@@ -56,7 +56,7 @@ const PaintCanvas = params => {
     }
 
     function saveDrawing() {
-        if(templateTitle === ""){
+        if (templateTitle === "") {
             alert("Enter a title for your new template");
             return;
         }
@@ -69,18 +69,18 @@ const PaintCanvas = params => {
         <div>
             <Button
                 className="classes.buttonStyle"
-                startIcon={<ClearIcon/>}
+                startIcon={<ClearIcon />}
                 onClick={clearCanvas}
                 color="secondary"
             > Clear canvas
             </Button>
             <canvas ref={canvasRef}
-                    onMouseDown={startDrawing}
-                    onMouseUp={stopDrawing}
-                    onMouseMove={draw}/>
+                onMouseDown={startDrawing}
+                onMouseUp={stopDrawing}
+                onMouseMove={draw} />
             <TextField
-                error={error.show}
-                helperText={error.text}
+                /* error={error.show}
+                 helperText={error.text}*/
                 id="standard-basic"
                 label="Template Title"
                 placeholder="Template Title"
