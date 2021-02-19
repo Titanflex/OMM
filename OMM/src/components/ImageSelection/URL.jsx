@@ -94,6 +94,7 @@ const URL = params => {
       }
 
     async function handleScreenshot() {
+      console.log(title);
         await fetch("http://localhost:3030/memeIO/webshot", {
           method: "POST",
           mode: "cors",
@@ -103,7 +104,7 @@ const URL = params => {
           body: JSON.stringify({
             url: url,
             author: localStorage.user,
-            titel: title
+            title: title
           }),
         }).then((res) => {
           return res.json();
@@ -166,7 +167,7 @@ const URL = params => {
               className="modal"
               label="Screenshot Image from URL"
               onChange={handleChange}
-              onKeyPress={handleScreenshot} />
+              onKeyPress={handleSave} />
               <TextField
               error={error.show}
               helperText={error.text}
