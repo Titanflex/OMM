@@ -84,8 +84,8 @@ const PaintCanvas = params => {
                 onMouseUp={stopDrawing}
                 onMouseMove={draw} />
             <TextField
-                /* error={error.show}
-                 helperText={error.text}*/
+                 error={error.show}
+                 helperText={error.text}
                 id="standard-basic"
                 label="Template Title"
                 placeholder="Template Title"
