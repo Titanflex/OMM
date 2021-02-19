@@ -9,6 +9,11 @@ import { TextField } from "@material-ui/core";
 const PaintCanvas = params => {
     const [isDrawing, setIsDrawing] = useState(false);
     const [templateTitle, setTemplateTitle] = useState("")
+    let [error, setError] = useState({
+        show: false,
+        text: "",
+    });
+
 
     const canvasRef = useRef(null);
     const contextRef = useRef(null);
@@ -56,9 +61,8 @@ const PaintCanvas = params => {
     }
 
     function saveDrawing() {
-        if (templateTitle === "") {
-            alert("Enter a title for your new template");
-            return;
+        if (title == '') {
+            setError({ show: true, text: "Please enter a title" });
         }
         let paintingSrc = canvasRef.current.toDataURL();
         params.handleSave(templateTitle, paintingSrc);

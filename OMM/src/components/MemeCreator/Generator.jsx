@@ -277,10 +277,14 @@ const Generator = params => {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
+                title: title,
                 url: params.template.url,
+                author: localStorage.user,
+
+                creationDate: Date.now(),
                 upper: params.text,
                 lower: "",
-                title: title,
+
             }),
         }).then((res) => {
             console.log(res.url);
