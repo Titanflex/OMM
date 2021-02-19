@@ -79,8 +79,9 @@ const ImageSelection = params => {
   };
 
   useEffect(() => {
+    params.setTemplates(templates);
     console.log(templates);
-    },
+  },
     [templates],
   );
 
@@ -88,7 +89,7 @@ const ImageSelection = params => {
     params.setCurrentTemplateIndex(0)
     const res = await fetch("http://localhost:3030/memeIO/get-templates");
     const json = await res.json();
-    if(json.docs.length > 0) {
+    if (json.docs.length > 0) {
       console.log(json.docs)
       params.setTemplates(json.docs);
       setTemplates(json.docs)
@@ -101,10 +102,10 @@ const ImageSelection = params => {
   function changeShownTemplate(image) {
     if (params.isFreestyle) {
       params.setSelectedImage({ url: image.url })
-    } 
-   params.setCurrentTemplateIndex(params.memeTemplates.findIndex(function (item) {
-       return item._id === image._id
-     }))
+    }
+    params.setCurrentTemplateIndex(params.memeTemplates.findIndex(function (item) {
+      return item._id === image._id
+    }))
     handleClose();
   }
 
@@ -115,15 +116,14 @@ const ImageSelection = params => {
 
   function addNewTemplates(newTemplate) {
     setTemplates(templates => [newTemplate, ...templates])
-    params.setTemplates(templates);
     setFiles([]);
     //handleClose();
   }
 
   const ShowTemplates = ({ showtemplates }) => (
-    <GridList cellHeight={180} className={classes.gridList} cols={3} style={{height: 450}}>
+    <GridList cellHeight={180} className={classes.gridList} cols={3} style={{ height: 450 }}>
       {showtemplates.map((template) => (
-        <GridListTile key={template.id} style={{'cursor': 'pointer'}} cols={template.cols || 1}
+        <GridListTile key={template.id} style={{ 'cursor': 'pointer' }} cols={template.cols || 1}
           onClick={() => {
             if (params.isFreestyle) {
               addTemplates(template)
@@ -171,8 +171,8 @@ const ImageSelection = params => {
     const json = await res.json();
     params.setCurrentTemplateIndex(0)
     json.data.memes.map(meme => {
-       meme._id = meme.id
-     });
+      meme._id = meme.id
+    });
     setTemplates(templates.concat(json.data.memes));
     params.setTemplates(templates.concat(json.data.memes));
   }
