@@ -182,9 +182,7 @@ const Generator = params => {
 
     //Local meme generation
     function createMemeLocally(quality = 1) {
-        console.log("local");
         let meme = document.getElementById("memeContainer");
-        console.log(meme);
         //improve quality of meme by scaling an d set quality depending on selected file size
         let options = {
             width: meme.clientWidth * 4,
@@ -307,6 +305,23 @@ const Generator = params => {
         if (selectedRenIndex === 2) { //third-party generation with imgFlip API
             createMemeOnImgFlip()
         }
+    }
+
+    function handleDownload() {
+        fetch("http://localhost:3030/memeIO/download-meme", {
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                title: title,
+                url: generatedMemeUrl,
+            }),
+        }).then((res) => {
+            console.log(res.url);
+
+        });
     }
 
     return (
@@ -471,9 +486,10 @@ const Generator = params => {
                                 className="classes.buttonStyle selection"
                                 startIcon={<CloudDownloadIcon />}
                                 variant="contained"
-                                onClick={() => triggerBase64Download(generatedMeme, params.title)}
+                                //onClick={() => triggerBase64Download(generatedMeme, params.title)}
+                                onClick={() => handleDownload()}
                                 color="secondary"
-                                disabled={!generatedMeme}
+                                disabled={generatedMeme}
                             >
                                 Download
                             </Button>
