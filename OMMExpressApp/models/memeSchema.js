@@ -14,6 +14,7 @@ const memeSchema = new Schema({
 
     likes: {
         type: Number,
+        default: 0,
     },
 
     //likes:[{date: Date, user: String }],

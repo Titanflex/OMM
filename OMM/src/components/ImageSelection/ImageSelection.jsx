@@ -196,53 +196,54 @@ const ImageSelection = params => {
         aria-describedby="simple-modal-description">
         <div style={modalStyle} className={classes.paper}>
           <Grid container spacing={1}>
-          <Grid item xs={6} >
-              <h2 style={{marginBottom: "32px"}} id="simple-modal-title">Select a template to work on</h2>
+            <Grid item xs={6} >
+              <h2 style={{ marginBottom: "32px" }} id="simple-modal-title">Select a template to work on</h2>
               <ShowTemplates showtemplates={templates} />
             </Grid>
-          <Grid item xs={6} style={{maxWidth: 400, marginLeft: 32}}>
-          <div>
-            <h4 style={{marginBottom: "32px", marginTop: "32px"}}>Get or create more templates</h4>
-            <FilePond
-              files={files}
-              onupdatefiles={setFiles}
-              server={{
-                url: "http://localhost:3030/memeIO",
-                process: {
-                  url: '/upload',
-                  method: 'POST',
-                  headers: {
-                    'author': localStorage.user,
-                    'templateName': "test"
-                  },
-                  onload: (response) =>
-                    addNewTemplates(response)
+            <Grid item xs={6} style={{ maxWidth: 400, marginLeft: 32 }}>
+              <div>
+                <h4 style={{ marginBottom: "32px", marginTop: "32px" }}>Get or create more templates</h4>
+                <FilePond
+                  files={files}
+                  instantUpload={false}
+                  onupdatefiles={setFiles}
+                  server={{
+                    url: "http://localhost:3030/memeIO",
+                    process: {
+                      url: '/upload-Template',
+                      method: 'POST',
+                      headers: {
+                        'author': localStorage.user,
+                        'templateName': "test"
+                      },
+                      onload: (response) =>
+                        addNewTemplates(response)
 
-                }
-              }}
-              name="file"
-              labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
-            />
-            <Button
-              className="classes.buttonStyle modal"
-              startIcon={<CloudDownload />}
-              variant="contained"
-              onClick={() => { getTemplatesFromImgFlip() }}
-              color="secondary"
-            >
-              Get Images form ImageFlip
+                    }
+                  }}
+                  name="file"
+                  labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
+                />
+                <Button
+                  className="classes.buttonStyle modal"
+                  startIcon={<CloudDownload />}
+                  variant="contained"
+                  onClick={() => { getTemplatesFromImgFlip() }}
+                  color="secondary"
+                >
+                  Get Images form ImageFlip
 
        </Button>
-            <Camera
-              handleSave={saveTemplate}
-            />
-            <Paint
-              handleSave={saveTemplate}
-            />
-            <URL handleSave={addNewTemplates}/>
-      
-          </div>
-          </Grid>
+                <Camera
+                  handleSave={saveTemplate}
+                />
+                <Paint
+                  handleSave={saveTemplate}
+                />
+                <URL handleSave={addNewTemplates} />
+
+              </div>
+            </Grid>
           </Grid>
         </div>
       </Modal>
