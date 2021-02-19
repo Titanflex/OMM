@@ -9,7 +9,12 @@ import {
 import { ToggleButton } from '@material-ui/lab';
 import { makeStyles } from "@material-ui/core";
 
-import HearingIcon from "@material-ui/icons/Hearing";
+import {
+    Hearing,
+    PlayArrow,
+    Pause,
+    Shuffle,
+} from "@material-ui/icons";
 import ArrowRight from "@material-ui/icons/ChevronRight";
 import ArrowLeft from "@material-ui/icons/ChevronLeft";
 
@@ -161,7 +166,8 @@ const SingleView = () => {
                         onChange={() => {
                             setIsPlaying(!isPlaying);
                         }}
-                    >                        Play                </ToggleButton>
+                    > {isPlaying? <Pause /> : <PlayArrow/>}{isPlaying?  "Pause" : "Play"}
+                                 </ToggleButton>
 
                     <ToggleButton
                     className={classes.spacing}
@@ -170,13 +176,13 @@ const SingleView = () => {
                         onChange={() => {
                             setIsRandom(!isRandom);
                         }}
-                    >                        Random                </ToggleButton>
+                    ><Shuffle />                   Random                </ToggleButton>
                     <ToggleButton
                         className={classes.spacing}
                         value="check"
                         selected={isAccessible}
                         onClick={() => setIsAccessible(!isAccessible)}
-                    > <HearingIcon />
+                    > <Hearing />
                     </ToggleButton>
                 </Grid>
                 <Grid item xs={4}>

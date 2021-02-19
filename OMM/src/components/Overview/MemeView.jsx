@@ -82,6 +82,7 @@ const handleLikeClick = (event) => {
           
     }
     setLiked(!liked); 
+    //props.loadMemesFunction();
 }
 
 
@@ -101,6 +102,7 @@ const handleDislikeClick = (event) => {
         dislikeMeme();
     }
     setDisliked(!disliked);
+    //props.loadMemesFunction();
 }
 
 
@@ -138,6 +140,7 @@ async function likeMeme() {
             }),
         }).then((response) => {
             console.log("disliked");
+           
             });    
         
     }
@@ -145,7 +148,6 @@ async function likeMeme() {
     const synth = window.speechSynthesis;
 
     useEffect(()=>{
-        console.log(props.isAccessible);
         if(props.isAccessible){
             console.log(memeInfo.description);
             let captions ="";

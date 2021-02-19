@@ -8,6 +8,7 @@ const memeSchema = new Schema({
 
     creationDate: {
         type: Date,
+        default: Date.now(),
     },
 
     isPublic: Boolean,
