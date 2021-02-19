@@ -35,11 +35,10 @@ const Paint = params => {
     const classes = useStyles();
     const [modalStyle] = useState(getModalStyle);
     const [open, setOpen] = useState(false);
-    const [error, setError] = useState({
+    let [error, setError] = useState({
         show: false,
         text: "",
       });
-
 
 
     const handleOpen = () => {
