@@ -61,13 +61,13 @@ const PaintCanvas = params => {
     }
 
     function saveDrawing() {
-
         if(title == ''){
             setError({show: true, text:"Please enter a title"});
+        } else {
+            let paintingSrc = canvasRef.current.toDataURL();
+            params.handleSave(title, paintingSrc);
+            clearCanvas();
         }
-        let paintingSrc = canvasRef.current.toDataURL();
-        params.handleSave(title, paintingSrc);
-        clearCanvas();
     }
 
     return (
