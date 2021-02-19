@@ -284,7 +284,10 @@ memeIO.post('/create-simple-meme', async (req, res) => {
             description: analysis.description.captions[0].text,
             caption: req.body.upper + " " + req.body.lower,
         })
-    });
+    } catch (error) {
+        return res.status(500).send(error);
+    }
+});
 
 /* POST /memeIO/create-meme */
 /* create meme with defined textboxes */
@@ -358,10 +361,11 @@ memeIO.post('/create-memes', async (req, res) => {
             })
             newMeme.save();
             res.status(200).download("public/images/memes/" + req.body.title + ".png");
-        } catch (error) {
-            return res.status(500).send(error);
         }
-    });
+    } catch (error) {
+        return res.status(500).send(error);
+    }
+});
 
 /* POST /memeIO/create-meme */
 /* create meme with defined textboxes */
