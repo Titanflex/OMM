@@ -17,7 +17,7 @@ import { triggerBase64Download } from 'react-base64-downloader';
 import "./../../css/ImageSelection/imageSelection.css";
 import domtoimage from "dom-to-image";
 
-import {Menu, MenuItem, TextField} from "@material-ui/core";
+import { Menu, MenuItem, TextField } from "@material-ui/core";
 
 import { FilePond, registerPlugin } from "react-filepond";
 import "filepond/dist/filepond.min.css";
@@ -118,7 +118,7 @@ const Generator = params => {
         setRenAnchorEl(event.currentTarget);
     };
 
-    //RenderMenu
+    //SizeMenu
     const sizeOptions = [
         'small (max. 200KB)',
         'large (max. 600KB)',
@@ -463,7 +463,7 @@ const Generator = params => {
                         name="file"
                     />}
                     {generatedMemeUrl && !generatedMeme && <img
-                        src = {generatedMemeUrl}/>}
+                        src={generatedMemeUrl} />}
                     <div>
                         <div>
                             {/*   //TODO do not download Base64 but file from server */}
