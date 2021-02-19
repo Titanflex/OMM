@@ -86,7 +86,7 @@ memeIO.post("/save-template", async (req, res) => {
         let base64String = req.body.url;
         let base64Image = base64String.split(';base64,').pop();
         url = "http://localhost:3030/images/templates/" + title;
-        fs_writeFile('public/images/templates/' + title, base64Image, { encoding: 'base64' }, function (err) {
+        fs.writeFile('public/images/templates/' + title, base64Image, { encoding: 'base64' }, function (err) {
             if (err) console.log(err);
         })
     } else { //keep internet address as url
@@ -195,6 +195,17 @@ memeIO.post('/upload-Meme', uploadMeme.single("file"), async (req, res) => {
     })
 });
 
+/* POST /memeIO/download-meme */
+/* download meme to desktop */
+memeIO.post('/download-meme', (req, res) => {
+    try {
+        res.download(req.url, path.join('C:\\Users\\verav\\Downloads' + req.title + ".png"));
+    } catch (error) {
+        return res.status(500).send(err)
+    }
+});
+
+
 var gm = require("gm");
 
 memeIO.get('/upload-Gif', (req, res) => {
@@ -259,7 +270,9 @@ memeIO.get('/get-meme', (req, res) => {
 /* create simple meme with lower and upper text */
 memeIO.post('/create-simple-meme', async (req, res) => {
     try {
+
         const url = "http://localhost:3030/images/memes/" + req.body.title + ".png";
+        console.log(url);
         let image = await Jimp.read(req.body.url);
         image.resize(700, Jimp.AUTO);
         let font = await Jimp.loadFont('public/assets/impact.ttf/impact.fnt');
