@@ -61,7 +61,7 @@ const PaintCanvas = params => {
     }
 
     function saveDrawing() {
-        if(title == ''){
+        if(templateTitle == ''){
             setError({show: true, text:"Please enter a title"});
         }
         let paintingSrc = canvasRef.current.toDataURL();
