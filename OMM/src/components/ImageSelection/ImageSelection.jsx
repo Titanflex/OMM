@@ -79,7 +79,9 @@ const ImageSelection = params => {
   };
 
   useEffect(() => {
-    console.log(templates);
+    if(templates.length > 0) {
+      params.setTemplates(templates);
+    }
     },
     [templates],
   );
