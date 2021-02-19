@@ -1,0 +1,12 @@
+.empty-state>* {
+    padding: 32px;
+}
+
+.empty-state {
+    text-align: center;
+}
+
+.empty-state img {
+    width: 600px;
+    margin: 0 auto;
+}
