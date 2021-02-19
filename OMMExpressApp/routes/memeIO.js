@@ -82,7 +82,7 @@ memeIO.post("/save-template", async(req, res) => {
         let base64String = req.body.url;
         let base64Image = base64String.split(';base64,').pop();
         url = "http://localhost:3030/images/templates/" + title;
-        fs_writeFile('public/images/templates/' + title, base64Image, { encoding: 'base64' }, function(err) {
+        fs.writeFile('public/images/templates/' + title, base64Image, { encoding: 'base64' }, function(err) {
             if (err) console.log(err);
         })
     } else { //keep internet address as url
@@ -97,7 +97,7 @@ memeIO.post("/save-template", async(req, res) => {
 
     Template.create(newTemplate, (err, item) => {
         if (err)
-            res.status(500).error(err)
+            res.status(500).send(err)
         else {
             template = item.save(function(err, template) {
                 res.json(template);
@@ -177,7 +177,7 @@ memeIO.post('/upload', upload.single("file"), async(req, res) => {
         console.log(uploadedTemplate);
         Template.create(uploadedTemplate, (err, item) => {
             if (err)
-                res.status(500).error(err);
+                res.status(500).send(err);
             else {
                 item.save(function(err, item) {
                     res.json(item);
@@ -204,13 +204,13 @@ memeIO.post('/like-meme', (req, res) => {
 /* POST /memeIO/dislike-meme */
 /* update meme likes -1 by id  */
 memeIO.post('/dislike-meme', (req, res) => {
-    try{
-    Meme.updateOne({ _id: req.body.id }, {$inc: {likes: -1}}, function(err) {
-        return res.status(200)
-    })
-} catch (error) {
-    return res.status(500).send(err)
-}
+    try {
+        Meme.updateOne({ _id: req.body.id }, { $inc: { likes: -1 } }, function(err) {
+            return res.status(200)
+        })
+    } catch (error) {
+        return res.status(500).send(err)
+    }
 });
 
 /* GET /memeIO/get-meme */

@@ -79,14 +79,17 @@ const ImageSelection = params => {
   };
 
   useEffect(() => {
+    console.log(templates);
     },
     [templates],
   );
 
   async function loadTemplate() {
+    params.setCurrentTemplateIndex(0)
     const res = await fetch("http://localhost:3030/memeIO/get-templates");
     const json = await res.json();
     if(json.docs.length > 0) {
+      console.log(json.docs)
       params.setTemplates(json.docs);
       setTemplates(json.docs)
     } else {
@@ -99,9 +102,9 @@ const ImageSelection = params => {
     if (params.isFreestyle) {
       params.setSelectedImage({ url: image.url })
     } 
-    params.setCurrentTemplateIndex(params.memeTemplates.findIndex(function (item, i) {
-      return item.name === image.name
-    }))
+   params.setCurrentTemplateIndex(params.memeTemplates.findIndex(function (item) {
+       return item._id === image._id
+     }))
     handleClose();
   }
 
@@ -111,7 +114,7 @@ const ImageSelection = params => {
   }
 
   function addNewTemplates(newTemplate) {
-    setTemplates(templates => [...templates, newTemplate])
+    setTemplates(templates => [newTemplate, ...templates])
     params.setTemplates(templates);
     setFiles([]);
     //handleClose();
@@ -119,17 +122,17 @@ const ImageSelection = params => {
 
   const ShowTemplates = ({ showtemplates }) => (
     <GridList cellHeight={180} className={classes.gridList} cols={3} style={{height: 450}}>
-      {showtemplates.map((tile) => (
-        <GridListTile key={tile.name} style={{'cursor': 'pointer'}} cols={tile.cols || 1}
+      {showtemplates.map((template) => (
+        <GridListTile key={template.id} style={{'cursor': 'pointer'}} cols={template.cols || 1}
           onClick={() => {
             if (params.isFreestyle) {
-              addTemplates(tile)
-            } else { changeShownTemplate(tile) }
+              addTemplates(template)
+            } else { changeShownTemplate(template) }
           }}
         >
-          <img src={tile.url} alt={(tile.name) ? tile.name : tile.templateName} />
+          <img src={template.url} alt={(template.name) ? template.name : template.templateName} />
           <GridListTileBar
-            title={(tile.name) ? tile.name : tile.templateName}
+            title={(template.name) ? template.name : template.templateName}
             titlePosition="top"
           />
         </GridListTile>
@@ -157,6 +160,7 @@ const ImageSelection = params => {
     }).then((res) => {
       return res.json();
     }).then((data) => {
+      console.log(data)
       addNewTemplates(data);
     });
   }
@@ -166,6 +170,9 @@ const ImageSelection = params => {
     const res = await fetch("https://api.imgflip.com/get_memes");
     const json = await res.json();
     params.setCurrentTemplateIndex(0)
+    json.data.memes.map(meme => {
+       meme._id = meme.id
+     });
     setTemplates(templates.concat(json.data.memes));
     params.setTemplates(templates.concat(json.data.memes));
   }

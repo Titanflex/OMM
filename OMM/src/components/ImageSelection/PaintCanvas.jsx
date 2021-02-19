@@ -8,7 +8,7 @@ import {TextField} from "@material-ui/core";
 
 const PaintCanvas = params => {
     const [isDrawing, setIsDrawing] = useState(false);
-    const [templateTitle, setTemplateTitle] = useState("")
+    const [title, setTitle] = useState("")
     let [error, setError] = useState({
         show: false,
         text: "",
@@ -65,7 +65,7 @@ const PaintCanvas = params => {
             setError({show: true, text:"Please enter a title"});
         }
         let paintingSrc = canvasRef.current.toDataURL();
-        params.handleSave(templateTitle, paintingSrc);
+        params.handleSave(title, paintingSrc);
         clearCanvas();
     }
 
@@ -88,8 +88,8 @@ const PaintCanvas = params => {
                 id="standard-basic"
                 label="Template Title"
                 placeholder="Template Title"
-                value={templateTitle}
-                onChange={(event) => setTemplateTitle(event.target.value)}
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
             />
             <Button
                 className="classes.buttonStyle modal"
