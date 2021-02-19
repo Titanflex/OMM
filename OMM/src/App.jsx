@@ -5,6 +5,7 @@ import MemeScrollList from "./components/Overview/MemeScrollList";
 import SingleView from "./components/Overview/SingleView";
 import NavBar from "./components/NavBar/NavBar";
 import AuthService from "./services/auth.service";
+import MyOverview from "./components/MyOverview/MyOverview";
 import { useEffect, useState } from "react";
 
 import "./css/global_style.css";
@@ -14,6 +15,7 @@ const routes = {
   "/": () => <MemeCreator />,
   "/overview": () => <MemeScrollList />,
   "/singleview/:id": () => <SingleView />,
+  "/my-memes": () => <MyOverview /> 
 };
 
 function App() {
