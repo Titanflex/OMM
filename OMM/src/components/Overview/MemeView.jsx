@@ -35,9 +35,9 @@ const useStyles = makeStyles((theme) => ({
       }
 }));
 
-const MemeView = params => {
-    const [memeInfo, setMemeInfo] = useState(params.memeInfo);
-    const [likes, setLikes] = useState(params.memeInfo.likes);
+const MemeView = props => {
+    const [memeInfo, setMemeInfo] = useState(props.memeInfo);
+    const [likes, setLikes] = useState(props.memeInfo.likes);
     const [liked, setLiked] = useState(false);
     const [disliked, setDisliked] = useState(false);
     const [anchorEl, setAnchorEl] = useState(null);
@@ -145,8 +145,8 @@ async function likeMeme() {
     const synth = window.speechSynthesis;
 
     useEffect(()=>{
-        console.log(params.isAccessible);
-        if(params.isAccessible){
+        console.log(props.isAccessible);
+        if(props.isAccessible){
             console.log(memeInfo.description);
             let captions ="";
             memeInfo.caption.forEach((item) =>
@@ -175,6 +175,7 @@ async function likeMeme() {
                         id = {"imageid"}
                         src={memeInfo.url}
                         alt={"meme image"}
+                        isAccessible={props.isAccessible}
                         onClick={() => window.open(`/singleview/${memeInfo._id}`, "_self")}
                     />
                     </div>
