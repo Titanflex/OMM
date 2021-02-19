@@ -263,7 +263,7 @@ memeIO.post('/create-simple-meme', async (req, res) => {
         const newMeme = new Meme({
             title: req.body.title,
             author: req.body.author,
-            creationDate: req.body.author,
+            creationDate: Date.now(),
             url: url,
             isPublic: true,
             likes: 0,
@@ -292,42 +292,6 @@ memeIO.post('/create-meme', async (req, res) => {
             }, textBox.maxWidth,
                 textBox.maxHeight)
         };
-        image = await image.writeAsync("public/images/memes/" +
-            req.body.title + ".png");
-        //save the meme to the data base
-        const analysis = await analyze(req);
-
-        const newMeme = new Meme({
-            title: req.body.title,
-            url: url,
-            isPublic: true,
-            likes: 0,
-            tags: analysis.tags,
-            description: analysis.description.captions[0].text,
-            caption: req.body.upper + " " + req.body.lower,
-        })
-        newMeme.save();
-        return res.status(200).download("public/images/memes/" + req.body.title + ".png")
-    } catch (error) {
-        return res.status(500).send(error);
-    }
-});
-
-/* POST /memeIO/create-meme */
-/* create meme with defined textboxes */
-memeIO.post('/create-meme', async (req, res) => {
-    try {
-        const url = "http://localhost:3030/images/memes/" + req.body.title + ".png";
-        let image = await Jimp.read(req.body.url);
-        image = await image.resize(700, Jimp.AUTO);
-        for (const textBox of req.body.textBoxes) {
-            let font = await Jimp.loadFont(textBox.font ? textBox.font : 'public/assets/impact.ttf/impact.fnt')
-            image.print(font, textBox.x, textBox.y, {
-                text: textBox.text
-            }, textBox.maxWidth,
-                textBox.maxHeight)
-        }
-        ;
         image = await image.writeAsync("public/images/memes/" +
             req.body.title + ".png");
         //save the meme to the data base
