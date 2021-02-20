@@ -27,7 +27,7 @@ var storageTemplate = multer.diskStorage({
 var storageMeme = multer.diskStorage({
     destination: './public/images/memes',
     filename: function (req, file, cb) {
-        cb(null, file.originalname);
+        cb(null, req.headers.title+".png");
     }
 });
 
@@ -171,9 +171,10 @@ memeIO.post('/upload-Template', uploadTemplate.single("file"), async (req, res) 
 /* upload meme to server (via FilePond) */
 memeIO.post('/upload-Meme', uploadMeme.single("file"), async (req, res) => {
     let url;
-    const analysis = await analyze(req);
+    console.log(req.headers.title)
+    const analysis = await analyze(req.headers.title);
     console.log(analysis);
-    url = "http://localhost:3030/images/memes/" + req.headers.memetitle + '.png';
+    url = "http://localhost:3030/images/memes/" + req.headers.title + '.png';
     const newMeme = {
         title: req.headers.title,
         url: url,
@@ -183,7 +184,7 @@ memeIO.post('/upload-Meme', uploadMeme.single("file"), async (req, res) => {
         likes: 0,
         tags: analysis.tags,
         description: analysis.description.captions[0].text,
-        caption: req.body.upper + " " + req.body.lower,
+        caption: req.headers.upper,
     }
     Meme.create(newMeme, (err, item) => {
         if (err)
@@ -243,22 +244,35 @@ memeIO.post('/dislike-meme', (req, res) => {
 memeIO.post('/create-simple-meme', async (req, res) => {
     try {
         const url = "http://localhost:3030/images/memes/" + req.body.title + ".png";
-        let image = await Jimp.read(req.body.url);
-        image.resize(700, Jimp.AUTO);
+        let image;
+        if(req.body.width){ //for images created with advanced options
+            image = await Jimp.read(Buffer.from(req.body.url.split(',')[1], 'base64'));
+            image.resize(req.body.width, req.body.height);
+        }else{
+            image = await Jimp.read(req.body.url);
+            image.resize(700, Jimp.AUTO);
+        }
         let font = await Jimp.loadFont('public/assets/impact.ttf/impact.fnt');
-        let positionX_upper = Jimp.measureText(font, req.body.upper) < 400 ? (image.bitmap.width / 2) - (Jimp.measureText(font, req.body.upper) / 2) : (image.bitmap.width / 2) - 200;
-        let positionX_lower = Jimp.measureText(font, req.body.lower) < 400 ? (image.bitmap.width / 2) - (Jimp.measureText(font, req.body.lower) / 2) : (image.bitmap.width / 2) - 200;
-
-        //upper text
-        image.print(font, positionX_upper, 30, req.body.upper, 400)
-            //lower text
-            .print(font, positionX_lower, image.bitmap.height - (Jimp.measureTextHeight(font, req.body.lower) + 30), req.body.lower, 400)
+        if(req.body.fromGenerator){ //for images generated in the webapp
+            req.body.upper.forEach((element, index) => {
+                let positionX = Jimp.measureText(font, element) < 400 ? (image.bitmap.width / 2) - (Jimp.measureText(font, element) / 2) : (image.bitmap.width / 2) - 200;
+                let positionY = ((Jimp.measureTextHeight(font, element)+10)*(index+1));
+                image.print(font, positionX, positionY, element, 400)
+            })
+        }else{ // for memes created in the command line
+            let positionX_upper = Jimp.measureText(font, req.body.upper) < 400 ? (image.bitmap.width / 2) - (Jimp.measureText(font, req.body.upper) / 2) : (image.bitmap.width / 2) - 200;
+            let positionX_lower = Jimp.measureText(font, req.body.lower) < 400 ? (image.bitmap.width / 2) - (Jimp.measureText(font, req.body.lower) / 2) : (image.bitmap.width / 2) - 200;
+            //upper text
+            image.print(font, positionX_upper, 30, req.body.upper, 400)
+                //lower text
+                .print(font, positionX_lower, image.bitmap.height - (Jimp.measureTextHeight(font, req.body.lower) + 30), req.body.lower, 400)
+            //save meme
+        }
         //save meme
         image = await image.writeAsync("public/images/memes/" +
             req.body.title + ".png");
 
-        const analysis = await analyze(req);
-        console.log(analysis.description.captions);
+        const analysis = await analyze(req.body.title);
         //save the meme to the data base
         const newMeme = new Meme({
             title: req.body.title,
@@ -272,7 +286,13 @@ memeIO.post('/create-simple-meme', async (req, res) => {
             caption: req.body.upper + " " + req.body.lower,
         })
         newMeme.save();
-        res.status(200).download("public/images/memes/" + req.body.title + ".png");
+
+        if(req.body.fromGenerator){
+            return res.status(200).json({"url":url});
+        }else{
+            return res.status(200).download("public/images/memes/" + req.body.title + ".png");
+        }
+
     } catch (error) {
         return res.status(500).send(error);
     }
@@ -295,7 +315,7 @@ memeIO.post('/create-meme', async (req, res) => {
         image = await image.writeAsync("public/images/memes/" +
             req.body.title + ".png");
         //save the meme to the data base
-        const analysis = await analyze(req);
+        const analysis = await analyze(req.body.title);
 
         const newMeme = new Meme({
             title: req.body.title,
@@ -335,7 +355,7 @@ memeIO.post('/create-memes', async (req, res) => {
             image = await image.writeAsnyc("public/images/memes/" +
                 template.name + ".png");
             //save the meme to the data base
-            const analysis = await analyze(req);
+            const analysis = await analyze(req.body.title);
             console.log(analysis.description.captions);
             //save the meme to the data base
             const newMeme = new Meme({

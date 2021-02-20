@@ -122,8 +122,14 @@ function MemeCreator() {
             'max-width': maxWidth + 'px',
             'max-height': maxHeight + 'px',
             height: (isFreestyle) ? (canvasHeight + "px") : 'auto',
-            border: (isFreestyle) ? '1px solid grey' : 'none',
-        }, memeImg: {
+
+        }, freestyleCanvas: {
+            width: canvasWidth + "px",
+            height: canvasHeight + "px",
+            backgroundColor: "white",
+            border: '1px solid grey',
+        },
+        memeImg: {
             width: '350px',
             height: 'auto',
             display: 'block',
@@ -289,7 +295,7 @@ function MemeCreator() {
                                 {!isFreestyle && templates.length > 0 &&
                                     <img className={classes.memeImg} src={templates[currentTemplateIndex].url}
                                         alt={"meme image"} />}
-                                {isFreestyle && images}
+                                {isFreestyle && <div id="freestyleCanvas" className={classes.freestyleCanvas}> {images} </div> }
                                 <textarea
                                     type="text"
                                     className={classes.textFormat + " memeText " + classes.upperText}

@@ -10,16 +10,10 @@ if (!key) { throw new Error('Set your environment variables for your subscriptio
 const computerVisionClient = new ComputerVisionClient(
     new ApiKeyCredentials({ inHeader: { 'Ocp-Apim-Subscription-Key': key } }), endpoint);
 
-async function analyze(req) {
-    console.log(req);
-    const url = path.join(__dirname, '..\\public\\images\\memes\\' + req.body.title +'.png');
-    console.log(url);
+async function analyze(title) {
+    const url = path.join(__dirname, '..\\public\\images\\memes\\' + title +'.png');
     const analysis = (await computerVisionClient.analyzeImageInStream(
         () => createReadStream(url), { visualFeatures: ['Tags', "Description"] }));
-
-    console.log(analysis);
-
-
    return analysis;
 
 }

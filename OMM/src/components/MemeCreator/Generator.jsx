@@ -29,6 +29,7 @@ import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import "./../../css/MemeCreator/Generator.css";
 
 
+
 registerPlugin(FilePondPluginFileEncode, FilePondPluginImageResize, FilePondPluginImageTransform);
 
 
@@ -100,9 +101,9 @@ const Generator = params => {
 
     //RenderMenu
     const renOptions = [
-        'Local',
-        'Server-side',
-        'Third-party',
+        'Local (for best results)',
+        'Server-side (slightly different result) ',
+        'Third-party (only for image flip templates)',
     ];
 
     const handleRenClose = () => {
@@ -194,18 +195,17 @@ const Generator = params => {
             quality: quality,
         }
 
-        domtoimage.toJpeg(meme, options).then(function (jpeg) {
+        domtoimage.toBlob(meme, options).then(function (jpeg) {
             //check if size is within limits
             let stringLength = jpeg.length - 'data:image/png;base64,'.length;
             let sizeInKb = (4 * Math.ceil((stringLength / 3)) * 0.5624896334383812) / 1000;
             if ((selectedSizeIndex === 0 && sizeInKb > 200) || (selectedSizeIndex === 1 && sizeInKb > 600)) {
                 //decrease quality if size is too large and rerender meme
-                console.log("toobig");
                 createMemeLocally(quality - 0.05);
-            } else {
-                console.log("set" + jpeg);
+           } else {
+                setTexts([params.text]);
                 setGeneratedMeme(jpeg);
-            }
+           }
 
         });
     }
@@ -248,7 +248,6 @@ const Generator = params => {
         const json = await res.json();
         let response = await fetch(json.data.url);
         let data = await response.blob();
-
         //check if created meme is too large and adapt quality
         if (selectedSizeIndex === 0 && data.size / 1000 > 200) {
             setQuality((200 / (data.size / 1000)) * 100);
@@ -262,12 +261,31 @@ const Generator = params => {
         reader.readAsDataURL(data);
         reader.onloadend = function () {
             let base64data = reader.result;
+            console.log(base64data);
             setGeneratedMeme(base64data);
+            console.log(generatedMeme);
             setGeneratedMemeUrl(response);
         }
     }
 
-    function createMemeOnServer() {
+    async function createMemeOnServer() {
+        let textArray = params.text.split(/\n/g);  //split text into lines
+        let imageUrl;
+        let meme;
+        if(params.isFreestyle){
+            meme = document.getElementById("freestyleCanvas");
+            let options = {
+                quality: quality,
+            }
+            await domtoimage.toJpeg(meme, options).then(function (jpeg) {
+                //check if size is within limits
+                    imageUrl = jpeg;
+                    console.log(jpeg);
+            })
+        }else {
+            imageUrl = params.template.url;
+        }
+
         fetch("http://localhost:3030/memeIO/create-simple-meme", {
             method: "POST",
             mode: "cors",
@@ -276,18 +294,21 @@ const Generator = params => {
             },
             body: JSON.stringify({
                 title: title,
-                url: params.template.url,
+                url: imageUrl,
                 author: localStorage.user,
-
                 creationDate: Date.now(),
-                upper: params.text,
+                upper: textArray,
                 lower: "",
-
+                fromGenerator: true,
+                width: params.isFreestyle ? meme.clientWidth : null,
+                height: params.isFreestyle ? meme.clientHeight : null,
             }),
         }).then((res) => {
-            console.log(res.url);
-            //TODO show preview
-        });
+            return(res.json())
+        }).then((data)=>{
+                setGeneratedMemeUrl(data.url);
+        }
+        );
     }
 
     async function generateMeme() {
@@ -299,7 +320,6 @@ const Generator = params => {
             await createMemeLocally();
         }
         if (selectedRenIndex === 1) {
-            //TODO server side generation (phantomJS/JIMP)
             createMemeOnServer();
         }
         if (selectedRenIndex === 2) { //third-party generation with imgFlip API
@@ -453,6 +473,7 @@ const Generator = params => {
                     {generatedMeme && quality && <FilePond
                         files={[generatedMeme]}
                         allowImageResize={true}
+                        allowFileEncode={true}
                         imageResizeTargetWidth={params.canvasWidth}
                         imageTransformOutputQuality={quality}
                         imageResizeTargetHeight={params.canvasHeight}
@@ -477,7 +498,7 @@ const Generator = params => {
                         }}
                         name="file"
                     />}
-                    {generatedMemeUrl && !generatedMeme && <img
+                    {generatedMemeUrl && !generatedMeme && <img id={"preview"}
                         src={generatedMemeUrl} />}
                     <div>
                         <div>
