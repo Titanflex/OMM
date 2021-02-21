@@ -52,7 +52,13 @@ To Start Server:
 
 To Visit App:
 
-`localhost:3000`  
+`localhost:3000`
+
+# API Documentation
+
+The API Documentation for this application can be found here:
+
+https://documenter.getpostman.com/view/14051059/TW76E5FW
 
 ## Implemented Features
 | Feature  | Status |Points|
