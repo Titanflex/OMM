@@ -13,19 +13,30 @@ const memeSchema = new Schema({
 
     isPublic: Boolean,
 
-    likes: {
+    /*likes: {
         type: Number,
         default: 0,
     },
+    */
 
-    //likes:[{date: Date, user: String }],
-    
+    listlikes:[{
+        date: Date, 
+        user: String 
+    }],
+
+    dislikes: [{
+        date: Date, 
+        user: String 
+    }],
 
     description: String,
     caption: Array,
     tags: Array,
 
-    comments: [{ body: String, date: Date, user: String }],
+    comments: [{ 
+        body: String, 
+        date: Date, 
+        user: String }],
 
 });
 

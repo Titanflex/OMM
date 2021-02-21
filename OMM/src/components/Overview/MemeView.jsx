@@ -38,11 +38,15 @@ const useStyles = makeStyles((theme) => ({
 
 const MemeView = props => {
     const [memeInfo, setMemeInfo] = useState(props.memeInfo);
-    const [likes, setLikes] = useState(props.memeInfo.likes);
-    const [liked, setLiked] = useState(false);
-    const [disliked, setDisliked] = useState(false);
+
+    const [votes, setVotes] = useState(null);
+    const [likes, setLikes] = useState(props.memeInfo.listlikes);
+    const [dislikes, setDislikes] = useState(props.memeInfo.dislikes);
+
+
+    const [liked, setLiked] = useState(likes? likes.some(like => like.user === localStorage.user): null );
+    const [disliked, setDisliked] = useState(dislikes? dislikes.some(dislike => dislike.user === localStorage.user): null );
     const [anchorEl, setAnchorEl] = useState(null);
-    const [renAnchorEl, setRenAnchorEl] = useState(null);
 
     const classes = useStyles();
 
@@ -69,15 +73,11 @@ const download = () => {
 
 const handleLikeClick = (event) => {
     if(liked){
-        setLikes(likes-1);
-        dislikeMeme();
+        removelikeMeme();
     }else{
         if(disliked){
-            setDisliked(!disliked);
-            setLikes(likes+2);
+           setDisliked(!disliked);
             likeMeme();
-        }else{
-            setLikes(likes+1);
         }
             likeMeme();
           
@@ -89,21 +89,16 @@ const handleLikeClick = (event) => {
 
 const handleDislikeClick = (event) => {
     if(disliked){
-        setLikes(likes+1);
-        likeMeme();
+        removedislikeMeme();
 
     }else{
         if(liked){
             setLiked(!liked);
-            setLikes(likes-2);
-            dislikeMeme();
-        } else {
-            setLikes(likes-1);
+           dislikeMeme();
         }
-        dislikeMeme();
+       dislikeMeme();
     }
     setDisliked(!disliked);
-    //props.loadMemesFunction();
 }
 
 
@@ -119,11 +114,27 @@ async function likeMeme() {
         body: JSON.stringify({
             id: memeInfo._id,
             user: localStorage.user,
-            date: Date.now,
+            date: Date.now(),
         }),
     }).then((response) => {
-        console.log("liked");
+        console.log(response);
         });  
+}
+
+async function removelikeMeme() {
+    await fetch("http://localhost:3030/memeIO/remove-like-meme", {
+    method: "POST",
+    mode: "cors",
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+        id: memeInfo._id,
+        user: localStorage.user,
+    }),
+}).then((response) => {
+    console.log(response);
+    });  
 }
 
       
@@ -138,12 +149,30 @@ async function likeMeme() {
             },
             body: JSON.stringify({
                 id: memeInfo._id,
+            user: localStorage.user,
+            date: Date.now,
             }),
         }).then((response) => {
             console.log("disliked");
            
             });    
         
+    }
+
+    async function removedislikeMeme() {
+        await fetch("http://localhost:3030/memeIO/remove-dislike-meme", {
+        method: "POST",
+        mode: "cors",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            id: memeInfo._id,
+            user: localStorage.user,
+        }),
+    }).then((response) => {
+        console.log(response);
+        });  
     }
 
     const synth = window.speechSynthesis;
@@ -200,8 +229,13 @@ async function likeMeme() {
                                 Created: {memeInfo.hasOwnProperty('creationDate') ? Moment(memeInfo.creationDate).format('MMM Do YY') : "No date"}
                             </Typography>
                             <Typography variant="body2">
-                                Votes: {likes}
+                            Votes: {(likes? likes.length:0) - (dislikes? dislikes.length: 0)}
                             </Typography>
+                            <Typography variant="body2">
+                                Likes: {likes? likes.length: "no likes"}
+                                </Typography>
+                                <Typography variant="body2">
+                                Dislikes: {dislikes? dislikes.length: "no dislikes"}             </Typography>
                         </div>
                     </Grid>
 

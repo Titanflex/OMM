@@ -174,7 +174,7 @@ const Generator = params => {
 
         domtoimage.toBlob(meme, options).then(function (jpeg) {
             //check if size is within limits
-            let stringLength = jpeg.length - 'data:image/png;base64,'.length;
+            let stringLength = jpeg.length - 'data:image/jpeg;base64,'.length;
             let sizeInKb = (4 * Math.ceil((stringLength / 3)) * 0.5624896334383812) / 1000;
             if ((selectedSizeIndex === 0 && sizeInKb > 200) || (selectedSizeIndex === 1 && sizeInKb > 600)) {
                 //decrease quality if size is too large and rerender meme
@@ -256,9 +256,7 @@ const Generator = params => {
                 quality: quality,
             }
             await domtoimage.toJpeg(meme, options).then(function (jpeg) {
-                //check if size is within limits
                 imageUrl = jpeg;
-                console.log(jpeg);
             })
         } else {
             imageUrl = params.template.url;
@@ -280,6 +278,8 @@ const Generator = params => {
                 fromGenerator: true,
                 width: params.isFreestyle ? meme.clientWidth : null,
                 height: params.isFreestyle ? meme.clientHeight : null,
+                fileSize: selectedSizeIndex === 0 ? 200 : 600,
+
             }),
         }).then((res) => {
             return (res.json())
@@ -321,14 +321,14 @@ const Generator = params => {
         }).then((res) => {
             return (res.json())
         }).then(json => {
-                fetch("data:image/png;base64," + json.data)
+                fetch("data:image/jpeg;base64," + json.data)
                     .then(res => res.blob())
                     .then(data => {
                         let a = document.createElement("a");
                         let url = window.URL.createObjectURL(data);
                         a.style = "display: none";
                         a.href = url;
-                        a.download = title + ".png";
+                        a.download = title + ".jpeg";
                         a.click();
                     });
 
@@ -483,12 +483,10 @@ const Generator = params => {
                                                                 src={generatedMemeUrl}/>}
                     <div>
                         <div>
-                            {/*   //TODO do not download Base64 but file from server */}
                             <Button
                                 className="classes.buttonStyle selection"
                                 startIcon={<CloudDownloadIcon/>}
                                 variant="contained"
-                                //onClick={() => triggerBase64Download(generatedMemeUrl, params.title)}
                                 onClick={() => handleDownload()}
                                 color="secondary"
                                 disabled={!generatedMemeUrl}
