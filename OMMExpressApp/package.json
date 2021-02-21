@@ -3,7 +3,7 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "prestart": "mongorestore --drop -d memes_db -c memes ../dump/memes/memes.bson ",
+        "prestart": "start mongod && mongorestore --drop -d memes_db -c memes ../dump/memes/memes.bson ",
         "start": "node ./bin/www",
         "poststart": "start mongo"
     },
