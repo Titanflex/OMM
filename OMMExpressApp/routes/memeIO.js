@@ -27,7 +27,7 @@ var storageTemplate = multer.diskStorage({
 var storageMeme = multer.diskStorage({
     destination: './public/images/memes',
     filename: function(req, file, cb) {
-        cb(null, req.headers.title + ".png");
+        cb(null, req.headers.title + ".jpeg");
     }
 });
 
@@ -80,7 +80,7 @@ memeIO.get('/get-templates', (req, res) => {
 /* POST /memeIO/save-template */
 /* Create new Template from URL */
 memeIO.post("/save-template", async(req, res) => {
-    let title = req.body.title + ".png";
+    let title = req.body.title + ".jpeg";
     let url;
     if (!req.body.internetSource) { //save base64 string to file
         let base64String = req.body.url;
@@ -115,7 +115,7 @@ memeIO.post("/save-template", async(req, res) => {
 /* Make Screenshot of provided website and save as template */
 memeIO.post("/webshot", async(req, res) => {
     let url = req.body.url;
-    let shortUrl = url.replace(/(^http[s]?:\/\/)|[.\/\\]/ig, '').slice(0, 20) + '.png';
+    let shortUrl = url.replace(/(^http[s]?:\/\/)|[.\/\\]/ig, '').slice(0, 20) + '.jpeg';
     let filePath = "http://localhost:3030/images/templates/" + shortUrl;
 
     var screenshotTemplate = {
@@ -173,7 +173,7 @@ memeIO.post('/upload-Meme', uploadMeme.single("file"), async(req, res) => {
     console.log(req.headers.title)
     const analysis = await analyze(req.headers.title);
     console.log(analysis);
-    url = "http://localhost:3030/images/memes/" + req.headers.title + '.png';
+    url = "http://localhost:3030/images/memes/" + req.headers.title + '.jpeg';
     const newMeme = {
         title: req.headers.title,
         url: url,
@@ -266,7 +266,7 @@ memeIO.post('/remove-dislike-meme', (req, res) => {
 /* create simple meme with lower and upper text */
 memeIO.post('/create-simple-meme', async(req, res) => {
     try {
-        const url = "http://localhost:3030/images/memes/" + req.body.title + ".png";
+        const url = "http://localhost:3030/images/memes/" + req.body.title + ".jpeg";
         let image;
         if (req.body.width) { //for images created with advanced options
             image = await Jimp.read(Buffer.from(req.body.url.split(',')[1], 'base64'));
@@ -281,7 +281,16 @@ memeIO.post('/create-simple-meme', async(req, res) => {
                 let positionX = Jimp.measureText(font, element) < 400 ? (image.bitmap.width / 2) - (Jimp.measureText(font, element) / 2) : (image.bitmap.width / 2) - 200;
                 let positionY = ((Jimp.measureTextHeight(font, element) + 10) * (index + 1));
                 image.print(font, positionX, positionY, element, 400)
-            })
+            });
+            image = await image.writeAsync("public/images/memes/" + req.body.title + ".jpeg");
+            let  stats = fs.statSync("public/images/memes/" + req.body.title + ".jpeg");
+            let quality = 100;
+            while((req.body.fileSize < stats.size/1000)){ //check file size and decrease quality if needed
+                quality -= 20;
+                image.quality(quality);
+                image = await image.writeAsync("public/images/memes/" + req.body.title + ".jpeg");
+                stats = fs.statSync("public/images/memes/" + req.body.title + ".jpeg");
+            }
         } else { // for memes created in the command line
             let positionX_upper = Jimp.measureText(font, req.body.upper) < 400 ? (image.bitmap.width / 2) - (Jimp.measureText(font, req.body.upper) / 2) : (image.bitmap.width / 2) - 200;
             let positionX_lower = Jimp.measureText(font, req.body.lower) < 400 ? (image.bitmap.width / 2) - (Jimp.measureText(font, req.body.lower) / 2) : (image.bitmap.width / 2) - 200;
@@ -289,11 +298,12 @@ memeIO.post('/create-simple-meme', async(req, res) => {
             image.print(font, positionX_upper, 30, req.body.upper, 400)
                 //lower text
                 .print(font, positionX_lower, image.bitmap.height - (Jimp.measureTextHeight(font, req.body.lower) + 30), req.body.lower, 400)
-                //save meme
+
+            //save meme
+            image = await image.writeAsync("public/images/memes/" +
+                req.body.title + ".jpeg");
         }
-        //save meme
-        image = await image.writeAsync("public/images/memes/" +
-            req.body.title + ".png");
+
 
         const analysis = await analyze(req.body.title);
         //save the meme to the data base
@@ -313,7 +323,7 @@ memeIO.post('/create-simple-meme', async(req, res) => {
         if (req.body.fromGenerator) {
             return res.status(200).json({ "url": url });
         } else {
-            return res.status(200).download("public/images/memes/" + req.body.title + ".png");
+            return res.status(200).download("public/images/memes/" + req.body.title + ".jpeg");
         }
 
     } catch (error) {
@@ -325,7 +335,7 @@ memeIO.post('/create-simple-meme', async(req, res) => {
 /* create meme with defined textboxes */
 memeIO.post('/create-meme', async(req, res) => {
     try {
-        const url = "http://localhost:3030/images/memes/" + req.body.title + ".png";
+        const url = "http://localhost:3030/images/memes/" + req.body.title + ".jpeg";
         let image = await Jimp.read(req.body.url);
         image = await image.resize(700, Jimp.AUTO);
         for (const textBox of req.body.textBoxes) {
@@ -336,7 +346,7 @@ memeIO.post('/create-meme', async(req, res) => {
                 textBox.maxHeight)
         };
         image = await image.writeAsync("public/images/memes/" +
-            req.body.title + ".png");
+            req.body.title + ".jpeg");
         //save the meme to the data base
         const analysis = await analyze(req.body.title);
 
@@ -349,7 +359,7 @@ memeIO.post('/create-meme', async(req, res) => {
             caption: req.body.textBoxes.map(textBox => textBox.text),
         })
         newMeme.save();
-        return res.status(200).download("public/images/memes/" + req.body.title + ".png")
+        return res.status(200).download("public/images/memes/" + req.body.title + ".jpeg")
     } catch (error) {
         return res.status(500).send(error);
     }
@@ -362,7 +372,7 @@ memeIO.post('/create-memes', async(req, res) => {
         //console.log(req.body.templates, req.body.textBoxes)
         let memes = []
         for (const template of req.body.templates) {
-            const url = "http://localhost:3030/images/memes/" + template.name + ".png";
+            const url = "http://localhost:3030/images/memes/" + template.name + ".jpeg";
             let image = await Jimp.read(template.url);
             image.resize(700, Jimp.AUTO);
             for (const textBox of req.body.textBoxes) {
@@ -373,7 +383,7 @@ memeIO.post('/create-memes', async(req, res) => {
                     textBox.maxHeight)
             };
             await image.writeAsync("public/images/memes/" +
-                template.name + ".png");
+                template.name + ".jpeg");
             //save the meme to the data base
             const analysis = await analyze(template.name);
             //save the meme to the data base
@@ -389,8 +399,8 @@ memeIO.post('/create-memes', async(req, res) => {
             newMeme.save();
             memes.push({
                 path: "public/images/memes/" +
-                    template.name + ".png",
-                name: template.name + ".png"
+                    template.name + ".jpeg",
+                name: template.name + ".jpeg"
             })
         }
         //return zip file
@@ -406,7 +416,7 @@ memeIO.post('/create-memes', async(req, res) => {
 });
 
 /* GET /memeIO/get-meme */
-/* get meme by title as a png file */
+/* get meme by title as a jpeg file */
 memeIO.get('/get-meme', (req, res) => {
     Meme.find({ title: req.body.title }, function(err, docs) {
         if (err) {
@@ -415,8 +425,8 @@ memeIO.get('/get-meme', (req, res) => {
         if (docs.length == 0) {
             res.status(500).send("There is no meme with this title")
         } else {
-            if (fs.existsSync("public/images/memes/" + docs[0].title + ".png")) {
-                res.status(200).download("public/images/memes/" + docs[0].title + ".png")
+            if (fs.existsSync("public/images/memes/" + docs[0].title + ".jpeg")) {
+                res.status(200).download("public/images/memes/" + docs[0].title + ".jpeg")
             } else {
                 res.status(500).send("The meme does not exist in your local folder")
             }
@@ -428,7 +438,7 @@ memeIO.get('/get-meme', (req, res) => {
 memeIO.post('/download-meme', (req, res) => {
     try {
         console.log(req.body.title);
-        let base64 = fs.readFileSync("./public/images/memes/" + req.body.title + ".png").toString('base64');
+        let base64 = fs.readFileSync("./public/images/memes/" + req.body.title + ".jpeg").toString('base64');
         res.status(200).send({ "data": base64 });
     } catch (error) {
         return res.status(500).send(err);
@@ -473,8 +483,8 @@ memeIO.get('/get-memes-by', (req, res) => {
             let memes = []
             docs.forEach((doc, index) => {
                 memes[index] = {
-                    path: 'public/images/memes/' + doc.title + '.png',
-                    name: doc.title + '.png'
+                    path: 'public/images/memes/' + doc.title + '.jpeg',
+                    name: doc.title + '.jpeg'
                 }
             });
             //return zip file
