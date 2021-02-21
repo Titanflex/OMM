@@ -38,6 +38,7 @@ import AccordionSummary from "@material-ui/core/AccordionSummary";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Tooltip from "@material-ui/core/Tooltip";
+import SpeechInput from "./SpeechInput";
 
 function MemeCreator() {
 
@@ -325,9 +326,9 @@ function MemeCreator() {
                         setCurrentTemplateIndex={setCurrentTemplateIndex}
                         isFreestyle={isFreestyle}
                     />
-
-
-
+                    <SpeechInput
+                        setValue={setUpper}
+                    />
                     <Accordion>
                         <AccordionSummary
                             aria-label="Expand"
