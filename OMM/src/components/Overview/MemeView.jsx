@@ -190,7 +190,7 @@ async function likeMeme() {
                                 {memeInfo.hasOwnProperty('title') ? memeInfo.title : "No Title"}
                             </Typography>
                             <Typography gutterBottom variant="body1">
-                                Author: {memeInfo.hasOwnProperty('creator') ? memeInfo.creator : "Anonymous"}
+                                Author: {memeInfo.hasOwnProperty('author') ? memeInfo.author : "Anonymous"}
                             </Typography>
                             <Typography variant="body2">
                                 Created: {memeInfo.hasOwnProperty('creationDate') ? Moment(memeInfo.creationDate).format('MMM Do YY') : "No date"}
