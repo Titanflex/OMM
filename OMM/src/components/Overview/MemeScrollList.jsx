@@ -96,7 +96,7 @@ function MemeScrollList() {
     const [isFilteredByFileFormat, setIsFilteredByFileFormat] = useState(false);
     const [fileFormatOpt, setfileFormatOpt] = useState(null);
 
-    
+
     const [open, setOpen] = useState(false);
 
 
@@ -123,10 +123,10 @@ function MemeScrollList() {
         setSearchTerm(event.target.value);
         const searchList = memes;
         searchList.filter(meme => meme.title.includes(event.target.value));
-        if(searchList.length ===0){
+        if (searchList.length === 0) {
             console.log("no memes");
             return;
-        } 
+        }
         setMemes(searchList);
         //filterMemesBySearch(event.target.value);
     };
@@ -190,12 +190,32 @@ function MemeScrollList() {
 
 
     const filterMemesByDate = () => {
-        /*
-        {memes.filter(list => memes.includes('J')).map(filteredName => (
-           
-        ))}
-        */
+        console.log("filterDateFrom? " + filterDateFrom);
+        console.log(Moment(filterDateFrom));
 
+        console.log("filterDateTill? " + filterDateTill);
+
+        let filteredList = [];
+
+        if (filterDateFrom && filterDateTill) {
+            filteredList = memes.filter(meme => Moment(meme.creationDate) >= Moment(filterDateFrom));
+            filteredList = filteredList.filter(meme => Moment(meme.creationDate) <= Moment(filterDateTill));
+
+            setMemes(filteredList);
+            return;
+        }
+        if (filterDateFrom) {
+            filteredList = memes.filter(meme => Moment(meme.creationDate) >= Moment(filterDateFrom));
+            setMemes(filteredList);
+        }
+        if (filterDateTill) {
+            filteredList = memes.filter(meme => Moment(meme.creationDate) <= Moment(filterDateTill));
+            setMemes(filteredList);
+        }
+        
+        if (filteredList.length === 0) {
+            console.log("no memes");
+        }
     }
 
     const filterMemesByFileFormat = () => {
@@ -210,9 +230,7 @@ function MemeScrollList() {
     const filterMemesByVote = () => {
         let filteredList = [];
 
-        console.log("Equals? " +voteEquals);
-
-        if(!voteNumber){
+        if (!voteNumber) {
             console.log("No number to filter by.")
             return;
         }
@@ -224,17 +242,17 @@ function MemeScrollList() {
         } else if (voteEquals === "smaller") {
             filteredList = memes.filter(meme => meme.likes < voteNumber);
         }
-        if(filteredList.length ===0){
+        if (filteredList.length === 0) {
             console.log("no memes");
             return;
-        } 
+        }
         setMemes(filteredList);
     }
 
 
 
     const filterMemesBySearch = async () => {
-  
+
     }
 
 
@@ -353,7 +371,7 @@ function MemeScrollList() {
                                             id="select-Vote-Option"
                                             value={voteEquals}
                                             onChange={handleFilterVoteChange}
-                                            
+
                                         >
                                             <option value={"equals"}>equals</option>
                                             <option value={"greater"}>greater</option>

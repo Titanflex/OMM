@@ -6,6 +6,7 @@ import {
     Typography,
     Button,
     Popover,
+    Link,
 } from "@material-ui/core";
 
 import {FacebookShareButton, TwitterShareButton, RedditShareButton, WhatsappShareButton, FacebookIcon, TwitterIcon, RedditIcon, WhatsappIcon} from "react-share";
@@ -187,7 +188,10 @@ async function likeMeme() {
                     <Grid item xs>
                         <div className="memeInfo">
                             <Typography gutterBottom variant="h6" id="meme-title">
-                                {memeInfo.hasOwnProperty('title') ? memeInfo.title : "No Title"}
+                            <Link href="#" onClick={() => window.open(`/singleview/${memeInfo._id}`, "_self")} color="inherit">
+   
+                            {memeInfo.hasOwnProperty('title') ? memeInfo.title : "No Title"}
+  </Link>
                             </Typography>
                             <Typography gutterBottom variant="body1">
                                 Author: {memeInfo.hasOwnProperty('creator') ? memeInfo.creator : "Anonymous"}
