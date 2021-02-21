@@ -405,6 +405,17 @@ memeIO.get('/get-meme', (req, res) => {
     })
 });
 
+
+memeIO.post('/download-meme',  (req, res) => {
+    try {
+        console.log(req.body.title);
+        let base64 = fs.readFileSync("./public/images/memes/" + req.body.title + ".png").toString('base64');
+        res.status(200).send({"data" : base64});
+    } catch (error) {
+        return res.status(500).send(err);
+    }
+});
+
 /* GET /memeIO/get-memes-by */
 /* get memes by given search parameters as zip file */
 memeIO.get('/get-memes-by', (req, res) => {
