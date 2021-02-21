@@ -16,8 +16,13 @@ import {
     Modal,
     FormControlLabel,
     Checkbox,
+    Snackbar,
 
 } from "@material-ui/core";
+
+import {
+    Alert,
+} from '@material-ui/lab';
 
 import Moment from 'moment';
 
@@ -94,10 +99,12 @@ function MemeScrollList() {
     const [filterDateTill, setFilterDateTill] = useState(new Date());
 
     const [isFilteredByFileFormat, setIsFilteredByFileFormat] = useState(false);
-    const [fileFormatOpt, setfileFormatOpt] = useState(null);
+    const [fileFormatOpt, setfileFormatOpt] = useState("png");
 
 
     const [open, setOpen] = useState(false);
+    const [openSnack, setOpenSnack] = useState(false);
+
 
 
     const [modalStyle] = useState(getModalStyle);
@@ -116,20 +123,18 @@ function MemeScrollList() {
         setOpen(false);
     };
 
-
-
-    /* TODO Search*/
-    const handleChange = () => (event) => {
-        setSearchTerm(event.target.value);
-        const searchList = memes;
-        searchList.filter(meme => meme.title.includes(event.target.value));
-        if (searchList.length === 0) {
-            console.log("no memes");
-            return;
-        }
-        setMemes(searchList);
-        //filterMemesBySearch(event.target.value);
+    //SnackBar
+    const handleOpenSnack = () => {
+        setOpenSnack(true);
     };
+
+    const handleCloseSnack = () => {
+        setOpenSnack(false);
+    };
+
+
+
+
 
     /*Sort*/
     const handleSortOptChange = (event) => {
@@ -159,7 +164,6 @@ function MemeScrollList() {
         }
     }
 
-    //TODO
     const sortMemesByDate = () => {
         if (!sortDown) {
             memes.sort((memeA, memeB) => (Moment(memeA.creationDate) - Moment(memeB.creationDate)));
@@ -173,6 +177,10 @@ function MemeScrollList() {
     /*Filter*/
     const handleFilterVoteChange = (event) => {
         setVoteEquals(event.target.value);
+    }
+
+    const handleFilterFileFormatChange = (event) => {
+        setfileFormatOpt(event.target.value);
     }
 
     const filterMemes = () => {
@@ -190,10 +198,6 @@ function MemeScrollList() {
 
 
     const filterMemesByDate = () => {
-        console.log("filterDateFrom? " + filterDateFrom);
-        console.log(Moment(filterDateFrom));
-
-        console.log("filterDateTill? " + filterDateTill);
 
         let filteredList = [];
 
@@ -212,18 +216,29 @@ function MemeScrollList() {
             filteredList = memes.filter(meme => Moment(meme.creationDate) <= Moment(filterDateTill));
             setMemes(filteredList);
         }
-        
+
         if (filteredList.length === 0) {
+            handleOpenSnack();
             console.log("no memes");
         }
     }
 
     const filterMemesByFileFormat = () => {
-        /*
-        {memes.filter(list => memes.includes('J')).map(filteredName => (
-           
-        ))}
-        */
+        let filteredList = [];
+
+        console.log(fileFormatOpt);
+
+        if (fileFormatOpt === "jpg") {
+            filteredList = memes.filter(meme => meme.url.includes("jpg"));
+
+        } else if (fileFormatOpt === "png") {
+            filteredList = memes.filter(meme => meme.url.includes("png"));
+        }
+        if (filteredList.length === 0) {
+            handleOpenSnack();
+            console.log("no memes");
+        }
+        setMemes(filteredList);
 
     }
 
@@ -231,10 +246,9 @@ function MemeScrollList() {
         let filteredList = [];
 
         if (!voteNumber) {
-            console.log("No number to filter by.")
+            console.log("No number to filter by.");
             return;
         }
-        console.log(voteNumber);
         if (voteEquals === "equals") {
             filteredList = memes.filter(meme => meme.likes == voteNumber);
         } else if (voteEquals === "greater") {
@@ -243,17 +257,28 @@ function MemeScrollList() {
             filteredList = memes.filter(meme => meme.likes < voteNumber);
         }
         if (filteredList.length === 0) {
+            handleOpenSnack();
             console.log("no memes");
-            return;
         }
         setMemes(filteredList);
     }
 
 
+    /* TODO Search*/
+    const handleChange = () => (event) => {
+        let filteredList = originalMemes;
 
-    const filterMemesBySearch = async () => {
-
-    }
+        if (event.target.value != "") {
+            filteredList = originalMemes.filter(meme => {
+                return meme.title.toLowerCase().includes(event.target.value.toLowerCase());
+            })
+        }
+        if (filteredList.length === 0) {
+            handleOpenSnack();
+            console.log("no memes");
+        }
+        setMemes(filteredList);
+    };
 
 
     const ListMemes = ({ listmemes }) => {
@@ -277,8 +302,6 @@ function MemeScrollList() {
         })
     };
 
-    // useEffect for componentDidMount
-    // see: https://reactjs.org/docs/hooks-effect.html
     useEffect(() => {
         loadMemes();
     }, []);
@@ -413,13 +436,13 @@ function MemeScrollList() {
                                             labelId="label-FileFormat-Option"
                                             id="select-FileFormat-Option"
                                             value={fileFormatOpt}
-                                            //onChange={}
+                                            onChange={handleFilterFileFormatChange}
                                             inputProps={{
                                                 id: 'outlined-age-native-simple',
                                             }}
                                         >
                                             <option value={"png"}>png</option>
-                                            <option value={"jpeg"}>jpeg</option>
+                                            <option value={"jpg"}>jpg</option>
 
                                         </Select>
                                     </FormControl>
@@ -437,8 +460,15 @@ function MemeScrollList() {
                                 Apply
                             </Button>
 
+
                         </div>
                     </Modal>
+
+                    <Snackbar open={openSnack} autoHideDuration={6000} onClose={handleCloseSnack}>
+                                <Alert onClose={handleCloseSnack} severity="error">
+                                    No memes
+  </Alert>
+                            </Snackbar>
 
                 </Grid>
                 <Grid item xs={4}>
