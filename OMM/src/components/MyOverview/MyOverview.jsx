@@ -53,12 +53,11 @@ function MyOverview() {
         await fetch("http://localhost:3030/memeIO/get-memes").then(res => {
             res.json().then(json => {
                 let fetchedMemes = json.docs;
-                fetchedMemes.filter(function(meme) {
+                let myMemes = fetchedMemes.filter(function(meme) {
                     return (meme.author && meme.author == localStorage.user);
                 })
-                setMemes(memes);
-                console.log(memes)
-                return memes;
+                setMemes(myMemes);
+                return myMemes;
             })
         })
     };
