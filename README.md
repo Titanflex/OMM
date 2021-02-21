@@ -54,7 +54,7 @@ To Visit App:
 
 `localhost:3000`
 
-# API Documentation
+## API Documentation
 
 The API Documentation for this application can be found here:
 
