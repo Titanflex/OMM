@@ -215,8 +215,21 @@ memeIO.get('/upload-Gif', (req, res) => {
 /* POST /memeIO/like-meme */
 /* update meme likes +1 by id  */
 memeIO.post('/like-meme', (req, res) => {
+
     try {
-        Meme.updateOne({ _id: req.body.id }, { $inc: { likes: 1 } }, function(err) {
+        Meme.updateOne({ _id: req.body.id }, { $push: { listlikes: {  date: req.body.date, user: req.body.user}}}, function(err) {
+            return res.status(200)
+        })
+    } catch (error) {
+        return res.status(500).send(err)
+    }
+});
+
+/* POST /memeIO/like-meme */
+/* update meme likes +1 by id  */
+memeIO.post('/remove-like-meme', (req, res) => {
+    try {
+        Meme.findByIdAndUpdate(req.body.id, { $pull: { listlikes: {  user: req.body.user}}}, function(err) {
             return res.status(200)
         })
     } catch (error) {
@@ -229,7 +242,19 @@ memeIO.post('/like-meme', (req, res) => {
 /* update meme likes -1 by id  */
 memeIO.post('/dislike-meme', (req, res) => {
     try {
-        Meme.updateOne({ _id: req.body.id }, { $inc: { likes: -1 } }, function(err) {
+        Meme.updateOne({ _id: req.body.id }, { $push: { dislikes: {  date: req.body.date, user: req.body.user}}}, function(err) {
+            return res.status(200)
+        })
+    } catch (error) {
+        return res.status(500).send(err)
+    }
+});
+
+/* POST /memeIO/like-meme */
+/* update meme likes +1 by id  */
+memeIO.post('/remove-dislike-meme', (req, res) => {
+    try {
+        Meme.findByIdAndUpdate(req.body.id, { $pull: { dislikes: {  user: req.body.user}}}, function(err) {
             return res.status(200)
         })
     } catch (error) {
@@ -319,7 +344,6 @@ memeIO.post('/create-meme', async(req, res) => {
             title: req.body.title,
             url: url,
             isPublic: true,
-            likes: 0,
             tags: analysis.tags,
             description: analysis.description.captions[0].text,
             caption: req.body.textBoxes.map(textBox => textBox.text),
@@ -357,7 +381,6 @@ memeIO.post('/create-memes', async(req, res) => {
                 title: template.name,
                 url: url,
                 isPublic: true,
-                likes: 0,
                 tags: analysis.tags,
                 description: analysis.description.captions[0].text,
                 caption: req.body.textBoxes.map(textBox => textBox.text),
