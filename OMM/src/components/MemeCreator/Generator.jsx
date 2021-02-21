@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Button from "@material-ui/core/Button";
@@ -27,6 +27,7 @@ import FilePondPluginImageResize from 'filepond-plugin-image-resize';
 
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import "./../../css/MemeCreator/Generator.css";
+import SpeechInputField from '../shared/SpeechInputField';
 
 
 registerPlugin(FilePondPluginFileEncode, FilePondPluginImageResize, FilePondPluginImageTransform);
@@ -67,13 +68,9 @@ const Generator = params => {
     const [selectedPubIndex, setSelectedPubIndex] = React.useState(1);
     const [sizeAnchorEl, setSizeAnchorEl] = React.useState(null);
     const [selectedSizeIndex, setSelectedSizeIndex] = React.useState(1);
-
+    const memeTitleRef = useRef();
     const [texts, setTexts] = useState([""]);
     const [title, setTitle] = useState("");
-    const [titleError, setTitleError] = useState({
-        show: false,
-        text: "",
-    });
     const [quality, setQuality] = useState(100);
 
 
@@ -158,26 +155,7 @@ const Generator = params => {
         setOpen(false);
         setGeneratedMemeUrl(null);
         setGeneratedMeme(null);
-        setTitleError({
-            show: false,
-            text: "",
-        });
     };
-
-    const handleTitleInput = (event) => {
-        setTitle(event.target.value);
-        setTitleError({
-            show: false,
-            text: "",
-        });
-    }
-
-    const handleMissingTitle = () => {
-        setTitleError({
-            show: true,
-            text: "Enter a meme title",
-        });
-    }
 
 
     //Local meme generation
@@ -312,8 +290,9 @@ const Generator = params => {
     }
 
     async function generateMeme() {
+        console.log(title);
         if (!title) {
-            handleMissingTitle();
+            memeTitleRef.current.setError()
             return;
         }
         if (selectedRenIndex === 0) { //local generation
@@ -379,19 +358,7 @@ const Generator = params => {
 
                     <div>
                         {/* Text Field for Meme Title*/}
-                        <TextField
-                            error={titleError.show}
-                            helperText={titleError.text}
-                            className={classes.spacing}
-                            id="name"
-                            label="Meme Title (mandatory)"
-                            placeholder=""
-                            fullWidth
-                            margin="normal"
-                            variant="outlined"
-                            value={title}
-                            onChange={(event) => handleTitleInput(event)}
-                        />
+                        <SpeechInputField ref={memeTitleRef} value={title} label="Meme Title" setValue={setTitle}/>
                         <List component="nav" aria-label="Render settings">
                             <ListItem
                                 button
