@@ -8,9 +8,6 @@ import {
     Select,
     FormControl,
     InputLabel,
-    MenuItem,
-    FormHelperText,
-    Popover,
     Typography,
     Button,
     Modal,
@@ -24,19 +21,17 @@ import {
     Alert,
 } from '@material-ui/lab';
 
-import Moment from 'moment';
-
 import {
     Tune,
     ArrowDownward,
     ArrowUpward,
 } from '@material-ui/icons';
 
+import Moment from 'moment';
 
 import "./../../css/Overview/scrolllist.css";
 
 import {
-    DatePicker,
     KeyboardDatePicker,
     MuiPickersUtilsProvider,
 } from '@material-ui/pickers';
@@ -44,7 +39,6 @@ import {
 import DateFnsUtils from '@date-io/date-fns';
 
 import MemeView from "./MemeView";
-import Searchbar from "./Searchbar";
 
 function getModalStyle() {
     const top = 50;
@@ -85,8 +79,6 @@ function MemeScrollList() {
     const [memes, setMemes] = useState([{ caption: Array(0), tags: Array(0), _id: "5fdf7a7a65f604350c20b629", upper: "Uploading the group task before deadline", lower: "Uni2work NOT working" }]);
     const [originalMemes, setOriginalMemes] = useState([{ caption: Array(0), tags: Array(0), _id: "5fdf7a7a65f604350c20b629", upper: "Uploading the group task before deadline", lower: "Uni2work NOT working" }]);
 
-
-    const [searchTerm, setSearchTerm] = useState(null);
     const [sortOpt, setSortOpt] = useState(null);
     const [sortDown, setSortDown] = useState(false);
 
@@ -101,11 +93,8 @@ function MemeScrollList() {
     const [isFilteredByFileFormat, setIsFilteredByFileFormat] = useState(false);
     const [fileFormatOpt, setfileFormatOpt] = useState("png");
 
-
     const [open, setOpen] = useState(false);
     const [openSnack, setOpenSnack] = useState(false);
-
-
 
     const [modalStyle] = useState(getModalStyle);
     const classes = useStyles();
@@ -156,11 +145,10 @@ function MemeScrollList() {
     }
 
     const sortMemesByVote = () => {
-        const sortedMemeList = memes;
         if (!sortDown) {
-            memes.sort((memeA, memeB) => (memeA.likes - memeB.likes));
+            memes.sort((memeA, memeB) => ((memeA.listlikes.length - memeA.dislikes.length ) - (memeB.listlikes.length - memeB.dislikes.length )));
         } else {
-            memes.sort((memeA, memeB) => (memeB.likes - memeA.likes));
+            memes.sort((memeA, memeB) => ((memeB.listlikes.length  - memeB.dislikes.length ) - (memeA.listlikes.length  - memeA.dislikes.length )));
         }
     }
 
@@ -171,8 +159,6 @@ function MemeScrollList() {
             memes.sort((memeA, memeB) => (Moment(memeB.creationDate) - Moment(memeA.creationDate)));
         }
     }
-
-
 
     /*Filter*/
     const handleFilterVoteChange = (event) => {
@@ -250,11 +236,11 @@ function MemeScrollList() {
             return;
         }
         if (voteEquals === "equals") {
-            filteredList = memes.filter(meme => meme.likes == voteNumber);
+            filteredList = memes.filter(meme => (meme.listlikes.length - meme.dislikes.length) == voteNumber);
         } else if (voteEquals === "greater") {
-            filteredList = memes.filter(meme => meme.likes > voteNumber);
+            filteredList = memes.filter(meme => (meme.listlikes.length - meme.dislikes.length)  > voteNumber);
         } else if (voteEquals === "smaller") {
-            filteredList = memes.filter(meme => meme.likes < voteNumber);
+            filteredList = memes.filter(meme => (meme.listlikes.length - meme.dislikes.length)  < voteNumber);
         }
         if (filteredList.length === 0) {
             handleOpenSnack();
@@ -264,11 +250,11 @@ function MemeScrollList() {
     }
 
 
-    /* TODO Search*/
+    /* Search*/
     const handleChange = () => (event) => {
         let filteredList = originalMemes;
 
-        if (event.target.value != "") {
+        if (event.target.value !== "") {
             filteredList = originalMemes.filter(meme => {
                 return meme.title.toLowerCase().includes(event.target.value.toLowerCase());
             })

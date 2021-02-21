@@ -212,8 +212,21 @@ memeIO.get('/upload-Gif', (req, res) => {
 })
 
 
+/* POST /memeIO/add-comment */
+/* add a comment to a meme with account*/
+memeIO.post('/add-comment', (req, res) => {
+    try {
+        Meme.updateOne({ _id: req.body.id }, { $push: { comments: {  date: req.body.date, user: req.body.user,  commenttext : req.body.commenttext}}}, function(err) {
+            return res.status(200)
+        })
+    } catch (error) {
+        return res.status(500).send(err)
+    }
+});
+
+
 /* POST /memeIO/like-meme */
-/* update meme likes +1 by id  */
+/* add a like to a meme with account*/
 memeIO.post('/like-meme', (req, res) => {
 
     try {
@@ -225,8 +238,8 @@ memeIO.post('/like-meme', (req, res) => {
     }
 });
 
-/* POST /memeIO/like-meme */
-/* update meme likes +1 by id  */
+/* POST /memeIO/remove-like-meme */
+/* remove a like from a meme by account*/
 memeIO.post('/remove-like-meme', (req, res) => {
     try {
         Meme.findByIdAndUpdate(req.body.id, { $pull: { listlikes: {  user: req.body.user}}}, function(err) {
@@ -239,7 +252,7 @@ memeIO.post('/remove-like-meme', (req, res) => {
 
 
 /* POST /memeIO/dislike-meme */
-/* update meme likes -1 by id  */
+/* add a dislike to a meme with account*/
 memeIO.post('/dislike-meme', (req, res) => {
     try {
         Meme.updateOne({ _id: req.body.id }, { $push: { dislikes: {  date: req.body.date, user: req.body.user}}}, function(err) {
@@ -250,8 +263,8 @@ memeIO.post('/dislike-meme', (req, res) => {
     }
 });
 
-/* POST /memeIO/like-meme */
-/* update meme likes +1 by id  */
+/* POST /memeIO/remove-dislike-meme */
+/* remove a dislike from a meme by account*/
 memeIO.post('/remove-dislike-meme', (req, res) => {
     try {
         Meme.findByIdAndUpdate(req.body.id, { $pull: { dislikes: {  user: req.body.user}}}, function(err) {
