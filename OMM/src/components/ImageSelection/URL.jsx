@@ -71,7 +71,6 @@ const URL = params => {
     }
 
     async function saveTemplate() {
-        console.log("here we are")
         fetch("http://localhost:3030/memeIO/save-template", {
           method: "POST",
           mode: "cors",
@@ -94,7 +93,6 @@ const URL = params => {
       }
 
     async function handleScreenshot() {
-      console.log(title);
         await fetch("http://localhost:3030/memeIO/webshot", {
           method: "POST",
           mode: "cors",

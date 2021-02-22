@@ -334,7 +334,7 @@ const Generator = params => {
 
             }
         )
-    };
+    }
 
 
     return (

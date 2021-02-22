@@ -1,36 +1,25 @@
-
 import React, { useState, useEffect } from 'react';
 
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
 import { CloudDownload } from "@material-ui/icons";
 import { FilePond, registerPlugin } from "react-filepond";
 import { Grid, GridList, GridListTile, GridListTileBar } from "@material-ui/core";
 
-
-
 import "filepond/dist/filepond.min.css";
-
-
-
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import FilePondPluginFileEncode from 'filepond-plugin-file-encode';
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
-
 
 import Camera from "../ImageSelection/Camera";
 import Paint from "../ImageSelection/Paint";
 import URL from "../ImageSelection/URL";
 
-
 import "./../../css/ImageSelection/imageSelection.css";
 
 // Register the plugins
 registerPlugin(FilePondPluginImagePreview, FilePondPluginFileEncode);
-
-
 
 function getModalStyle() {
   const top = 50;
@@ -41,7 +30,6 @@ function getModalStyle() {
     transform: `translate(-${top}%, -${left}%)`,
   };
 }
-
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -61,6 +49,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+//component for different image/template selection options
 const ImageSelection = params => {
   const classes = useStyles();
   const [modalStyle] = React.useState(getModalStyle);
@@ -143,8 +132,13 @@ const ImageSelection = params => {
   );
 
 
-
-
+  /**
+   * sends new image to server and receives created template
+   *
+   * @param {String} title The title of the template
+   * @param {String} src The url of the template
+   * @param {boolean} internetSource Is true for images directly downloaded from user provided URL
+   */
   async function saveTemplate(title, src, internetSource) {
     fetch("http://localhost:3030/memeIO/save-template", {
       method: "POST",
@@ -161,12 +155,14 @@ const ImageSelection = params => {
     }).then((res) => {
       return res.json();
     }).then((data) => {
-      console.log(data)
-      addNewTemplates(data);
+      addNewTemplates(data)
     });
+
   }
 
-
+  /**
+   * fetches templates with the imageflip API
+   */
   async function getTemplatesFromImgFlip() {
     const res = await fetch("https://api.imgflip.com/get_memes");
     const json = await res.json();
@@ -201,7 +197,7 @@ const ImageSelection = params => {
               <h2 style={{ marginBottom: "32px" }} id="simple-modal-title">Select a template to work on</h2>
               <ShowTemplates showtemplates={templates} />
             </Grid>
-            <Grid item xs={6} style={{ maxWidth: 400, marginLeft: 32 }}>
+            <Grid item xs={6} style={{ maxWidth: 400, marginLeft: 32, overflow: "auto"}}>
               <div>
                 <h4 style={{ marginBottom: "32px", marginTop: "32px" }}>Get or create more templates</h4>
                 <FilePond

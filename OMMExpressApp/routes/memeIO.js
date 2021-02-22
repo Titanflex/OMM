@@ -115,8 +115,7 @@ memeIO.post("/save-template", async(req, res) => {
 /* Make Screenshot of provided website and save as template */
 memeIO.post("/webshot", async(req, res) => {
     let url = req.body.url;
-    let shortUrl = url.replace(/(^http[s]?:\/\/)|[.\/\\]/ig, '').slice(0, 20) + '.jpeg';
-    let filePath = "http://localhost:3030/images/templates/" + shortUrl;
+    let filePath = "http://localhost:3030/images/templates/" + req.body.title + '.jpeg';
 
     var screenshotTemplate = {
         uploader: req.body.author,
@@ -135,7 +134,7 @@ memeIO.post("/webshot", async(req, res) => {
             }
         })
         //Make Screenshot and save image to URL
-    await captureWebsite.file(url, 'public/images/templates/' + shortUrl).then(() => {
+    await captureWebsite.file(url, 'public/images/templates/' + req.body.title+".jpeg").then(() => {
         console.log("savedFile")
     }).catch((err) => console.log(err));
     res.json(template);
@@ -156,7 +155,7 @@ memeIO.post('/upload-Template', uploadTemplate.single("file"), async(req, res) =
     console.log(uploadedTemplate);
     Template.create(uploadedTemplate, (err, item) => {
         if (err)
-            res.status(500).error(err);
+            res.status(500).send(err);
         else {
             item.save(function(err, item) {
                 res.json(item);
@@ -357,7 +356,7 @@ memeIO.post('/create-meme', async(req, res) => {
                     text: textBox.text
                 }, textBox.maxWidth,
                 textBox.maxHeight)
-        };
+        }
         image = await image.writeAsync("public/images/memes/" +
             req.body.title + ".jpeg");
         //save the meme to the data base
@@ -394,7 +393,7 @@ memeIO.post('/create-memes', async(req, res) => {
                         text: textBox.text
                     }, textBox.maxWidth,
                     textBox.maxHeight)
-            };
+            }
             await image.writeAsync("public/images/memes/" +
                 template.name + ".jpeg");
             //save the meme to the data base

@@ -327,7 +327,7 @@ function MemeCreator() {
                         isFreestyle={isFreestyle}
                     />
                     <SpeechInput
-                        setValue={setUpper}
+                        setCaption={setUpper}
                     />
                     <Accordion>
                         <AccordionSummary
