@@ -184,12 +184,13 @@ async function removelikeMeme() {
             const text = new SpeechSynthesisUtterance(
                 "The meme " + memeInfo.title + " shows " + memeInfo.description + ". The caption of the meme is " +
                 memeInfo.caption[0]);
-            text.voice = synth.getVoices()[3];
+            text.voice = synth.getVoices().filter(voice => {
+                return voice.lang == 'en-US';
+            })[0];
             synth.cancel();
             synth.speak(text)
         }
     }, [memeInfo]);
-
 
 
 
