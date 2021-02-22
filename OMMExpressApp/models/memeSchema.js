@@ -34,7 +34,7 @@ const memeSchema = new Schema({
     tags: Array,
 
     comments: [{ 
-        body: String, 
+        commenttext: String, 
         date: Date, 
         user: String }],
 

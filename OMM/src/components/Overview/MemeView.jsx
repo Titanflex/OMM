@@ -39,7 +39,6 @@ const useStyles = makeStyles((theme) => ({
 const MemeView = props => {
     const [memeInfo, setMemeInfo] = useState(props.memeInfo);
 
-    const [votes, setVotes] = useState(null);
     const [likes, setLikes] = useState(props.memeInfo.listlikes);
     const [dislikes, setDislikes] = useState(props.memeInfo.dislikes);
 
@@ -76,11 +75,10 @@ const handleLikeClick = (event) => {
         removelikeMeme();
     }else{
         if(disliked){
-           setDisliked(!disliked);
-            likeMeme();
+            setDisliked(!disliked);
+            removedislikeMeme();
         }
             likeMeme();
-          
     }
     setLiked(!liked); 
     //props.loadMemesFunction();
@@ -90,11 +88,10 @@ const handleLikeClick = (event) => {
 const handleDislikeClick = (event) => {
     if(disliked){
         removedislikeMeme();
-
     }else{
         if(liked){
             setLiked(!liked);
-           dislikeMeme();
+            removelikeMeme();
         }
        dislikeMeme();
     }

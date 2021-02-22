@@ -5,9 +5,13 @@ import {
     Container,
     IconButton,
     Toolbar,
+    Typography,
+    TextField,
+    Box,
 } from "@material-ui/core";
 import { ToggleButton } from '@material-ui/lab';
 import { makeStyles } from "@material-ui/core";
+
 
 import {
     Hearing,
@@ -15,6 +19,10 @@ import {
     Pause,
     Shuffle,
 } from "@material-ui/icons";
+
+
+import Moment from 'moment';
+
 import ArrowRight from "@material-ui/icons/ChevronRight";
 import ArrowLeft from "@material-ui/icons/ChevronLeft";
 
@@ -27,16 +35,16 @@ import "./../../css/Overview/singleView.css";
 
 const useStyles = makeStyles((theme) => ({
     spacing: {
-      marginTop: theme.spacing(2),
-      marginRight: theme.spacing(2),
+        marginTop: theme.spacing(2),
+        marginRight: theme.spacing(2),
     },
-        
-    
+
+
 }));
 
 
 function useInterval(callback, delay) {
-  
+
     const savedCallback = useRef();
 
     // Remember the latest callback.
@@ -56,16 +64,17 @@ function useInterval(callback, delay) {
 
 
 const SingleView = () => {
-    
+
     const [memes, setMemes] = useState([{ url: null }]);
     const [currentMemeIndex, setCurrentMemeIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isRandom, setIsRandom] = useState(false);
+    const [comment, setComment] = useState("");
 
     const classes = useStyles();
 
 
-//randomize index
+    //randomize index
     const [isAccessible, setIsAccessible] = useState(false);
 
 
@@ -111,10 +120,45 @@ const SingleView = () => {
 
 
 
-    // useEffect for componentDidMount
-    // see: https://reactjs.org/docs/hooks-effect.html
-    useEffect(() => {
-        const loadMemes = async () => {
+    const handleCommentClick = () => {
+        if (comment !== "") {
+            addComment();
+        }
+    }
+
+    const handleKeyPress = (event) => {
+        if (event.key == 'Enter') {
+            if (comment !== "") {
+                addComment();
+            }
+        }
+    }
+
+
+    async function addComment() {
+        setComment("");
+        const currentMemeId = memes[currentMemeIndex]._id;
+        await fetch("http://localhost:3030/memeIO/add-comment", {
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                id: currentMemeId,
+                user: localStorage.user,
+                date: Date.now(),
+                commenttext: comment,
+            }),
+        }).then((response) => {
+            console.log(response);
+            loadMemes();
+        });
+
+
+
+    }
+ const loadMemes = async () => {
             await fetch("http://localhost:3030/memeIO/get-memes").then(res => {
                 res.json().then(json => {
                     setMemes(json.docs);
@@ -132,8 +176,11 @@ const SingleView = () => {
                 });
             })
         };
+
+    useEffect(() => {
+       
         loadMemes();
-        
+
     }, []);
 
     //Interval setting for autoplay
@@ -152,25 +199,59 @@ const SingleView = () => {
         }
     }, 5000);
 
+    //Comments
+    const ListComments = ({ currentMeme }) => {
+        return (
+            <Grid container spacing={1}>
+                {
+                    (currentMeme.hasOwnProperty("comments") ?
+                        currentMeme.comments.map((comment) => (
+
+                            <div style={{ width: '100%' }}>
+                                <Box
+                                    className="classes.spacing"
+                                    bgcolor="background.theme.palette.paper"
+                                    p={{ xs: 2, sm: 3, md: 4 }}
+                                >
+                                    <Typography variant="body1">
+                                        Author: {comment.hasOwnProperty('user') ? comment.user : "Anonymous"}
+                                    </Typography>
+                                    <Typography variant="body2">
+                                        Created: {comment.hasOwnProperty('date') ? Moment(comment.date).format('MMM Do YY') : "No date"}
+                                    </Typography>
+                                    <Typography variant="body2">
+                                        {comment.hasOwnProperty('commenttext') ? comment.commenttext : "No text"}
+                                    </Typography>
+                                </Box>
+                            </div>
+                        )) : null)
+
+                }
+
+            </Grid>
+        )
+    };
+
+
 
 
     return (
         <Container className="memeScrollListContainer" >
             <Grid container spacing={3}>
                 <Grid item xs>
-                    <ToggleButton            
-                        
-                      className={classes.spacing}
+                    <ToggleButton
+
+                        className={classes.spacing}
                         value="check"
                         selected={isPlaying}
                         onChange={() => {
                             setIsPlaying(!isPlaying);
                         }}
-                    > {isPlaying? <Pause /> : <PlayArrow/>}{isPlaying?  "Pause" : "Play"}
-                                 </ToggleButton>
+                    > {isPlaying ? <Pause /> : <PlayArrow />}{isPlaying ? "Pause" : "Play"}
+                    </ToggleButton>
 
                     <ToggleButton
-                    className={classes.spacing}
+                        className={classes.spacing}
                         value="check"
                         selected={isRandom}
                         onChange={() => {
@@ -189,6 +270,7 @@ const SingleView = () => {
                     <Searchbar /></Grid>
                 <Grid item xs></Grid>
             </Grid>
+
             <Grid container spacing={3}>
                 <Grid item xs={1} >
                     <IconButton className="arrows" onClick={previousMeme} aria-label="previous">
@@ -204,7 +286,42 @@ const SingleView = () => {
                         <ArrowRight fontSize="large" />
                     </IconButton>
                 </Grid>
+            </Grid>
+
+            <Grid container spacing={3}>
+                <Grid item xs={1} ></Grid>
+                <Grid container item xs={8}>
+                  
+                    <Grid item xs>
+                        <ListComments className={classes.spacing} currentMeme={memes[currentMemeIndex]} />
+                    </Grid>
+
+                    <Grid item xs>
+                        <TextField
+                            id="outlined-multiline-static"
+                            label="Add comment"
+                            multiline
+                            rows={4}
+                            variant="outlined"
+                            onChange={(event) => setComment(event.target.value)}
+                            value={comment}
+                        />
+
+                        <Button
+                            className="classes.buttonStyle selection"
+                            //startIcon={<CloudDownload />}
+                            variant="contained"
+                            color="secondary"
+                            disabled={!memes[currentMemeIndex]}
+                            onClick={handleCommentClick}
+                        >
+                            Publish
+                        </Button>
+
+                    </Grid>
                 </Grid>
+                <Grid item xs={1} ></Grid>
+            </Grid>
 
         </Container >
     );
