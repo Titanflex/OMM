@@ -224,6 +224,19 @@ memeIO.post('/add-comment', (req, res) => {
     }
 });
 
+/* POST /memeIO/remove-comment */
+/* remove a like from a meme by account*/
+memeIO.post('/remove-comment', (req, res) => {
+    try {
+        Meme.findByIdAndUpdate(req.body.id , { $pull: { comments: {  user: req.body.user,  commenttext : req.body.commenttext}}}, function(err) {
+            return res.status(200)
+        })
+    } catch (error) {
+        return res.status(500).send(err)
+    }
+});
+
+
 
 /* POST /memeIO/like-meme */
 /* add a like to a meme with account*/

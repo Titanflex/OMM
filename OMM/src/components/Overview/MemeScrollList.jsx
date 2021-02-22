@@ -219,6 +219,8 @@ function MemeScrollList() {
 
         } else if (fileFormatOpt === "png") {
             filteredList = memes.filter(meme => meme.url.includes("png"));
+        } else if (fileFormatOpt === "jpeg") {
+            filteredList = memes.filter(meme => meme.url.includes("jpeg"));
         }
         if (filteredList.length === 0) {
             handleOpenSnack();
@@ -272,11 +274,12 @@ function MemeScrollList() {
             <Grid container spacing={1}>
                 {
                     listmemes.map((meme) => (
-                        <MemeView memeInfo={meme} loadMemesFunction={loadMemes} key={meme._id} />
+                        <MemeView memeInfo={meme} getUpdatedMemes={loadMemes} key={meme._id} />
                     ))}
             </Grid>
         )
     };
+
     const loadMemes = async () => {
         await fetch("http://localhost:3030/memeIO/get-memes").then(res => {
             res.json().then(json => {
@@ -429,6 +432,7 @@ function MemeScrollList() {
                                         >
                                             <option value={"png"}>png</option>
                                             <option value={"jpg"}>jpg</option>
+                                            <option value={"jpeg"}>jpeg</option>
 
                                         </Select>
                                     </FormControl>
