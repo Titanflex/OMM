@@ -61,6 +61,7 @@ const Generator = params => {
     const [generatedMeme, setGeneratedMeme] = useState(null);
     const [generatedMemeUrl, setGeneratedMemeUrl] = useState(null);
     const [isPublic, setIsPublic] = useState(true);
+    const [publicOpt, setpublicOpt] = useState("public");
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [renAnchorEl, setRenAnchorEl] = React.useState(null);
     const [selectedRenIndex, setSelectedRenIndex] = React.useState(1);
@@ -76,9 +77,9 @@ const Generator = params => {
 
     //PublicMenu
     const pubOptions = [
-        'Private',
-        'Public',
-        'Unlisted',
+        'private',
+        'public',
+        'unlisted',
     ];
 
 
@@ -271,6 +272,7 @@ const Generator = params => {
             body: JSON.stringify({
                 title: title,
                 url: imageUrl,
+                publicOpt: pubOptions[selectedPubIndex],
                 author: localStorage.user,
                 creationDate: Date.now(),
                 upper: textArray,
@@ -468,6 +470,7 @@ const Generator = params => {
                                     'author': localStorage.user,
                                     'title': title,
                                     'isPublic': isPublic,
+                                    'publicOpt': publicOpt,
                                     'type': 'meme',
                                     'upper': texts,
                                     'lower': "",
