@@ -289,25 +289,43 @@ const Generator = params => {
         );
     }
 
+
+    async function checkForDuplicateTitle(){
+
+    }
     async function generateMeme() {
         console.log(title);
         if (!title) {
             memeTitleRef.current.setError()
             return;
         }
-        if (selectedRenIndex === 0) { //local generation
-            await createMemeLocally();
-        }
-        if (selectedRenIndex === 1) {
-            createMemeOnServer();
-        }
-        if (selectedRenIndex === 2) { //third-party generation with imgFlip API
-            createMemeOnImgFlip()
-        }
+        let isDuplicate;
+        await fetch("http://localhost:3030/memeIO/get-memes").then(res => {
+            res.json().then(json => {
+                console.log(json.docs)
+                json.docs.forEach(meme => {
+                    if(meme.title === title && !isDuplicate) {
+                        alert("the meme title already exists");
+                        isDuplicate = true;
+                    }
+                });
+            }).then(() => {
+                if (isDuplicate) return;
+                console.log("nope");
+                if (selectedRenIndex === 0) { //local generation
+                    createMemeLocally();
+                }
+                if (selectedRenIndex === 1) {
+                    createMemeOnServer();
+                }
+                if (selectedRenIndex === 2) { //third-party generation with imgFlip API
+                    createMemeOnImgFlip()
+                }
+            })
+        });
     }
 
     async function handleDownload() {
-        console.log(generatedMemeUrl);
         fetch("http://localhost:3030/memeIO/download-meme", {
             method: "POST",
             mode: "cors",
@@ -354,9 +372,9 @@ const Generator = params => {
                 onClose={handleClose}
                 aria-labelledby="simple-modal-title"
                 aria-describedby="simple-modal-description">
-                <div style={modalStyle} className={classes.paper}>
+                <div style={modalStyle} className={classes.paper} >
 
-                    <div>
+                    <div style={{maxHeight: window.innerHeight-100, overflow:"auto"}}>
                         {/* Text Field for Meme Title*/}
                         <SpeechInputField ref={memeTitleRef} value={title} label="Meme Title" setValue={setTitle}/>
                         <List component="nav" aria-label="Render settings">
@@ -442,7 +460,7 @@ const Generator = params => {
                                 </MenuItem>
                             ))}
                         </Menu>
-                    </div>
+
                     <Button
                         className="classes.buttonStyle selection"
                         variant="contained"
@@ -547,6 +565,7 @@ const Generator = params => {
                             </Popover>
                         </div>
                     </div>
+                </div>
                 </div>
             </Modal>
         </div>
