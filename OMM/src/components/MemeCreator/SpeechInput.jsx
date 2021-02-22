@@ -11,24 +11,26 @@ const useStyles = makeStyles((theme) => ({}));
 const SpeechInput = (params) => {
   const [speaking, setSpeaking] = useState(false);
 
-  const { transcript, resetTranscript } = useSpeechRecognition();
+  const { transcript } = useSpeechRecognition();
 
   useEffect(() => {
-    params.setValue(transcript);
+    params.setCaption(transcript);
   }, [transcript]);
 
   if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
     return null;
   }
 
+  const speech = SpeechRecognition;
+
   const toggleSpeech = () => {
     if (speaking) {
-      SpeechRecognition.stopListening();
+      speech.stopListening();
     } else {
-      SpeechRecognition.startListening({ language: "en-US" });
+      speech.startListening({ language: "en-US" });
       //stop listening after five seconds
       setTimeout(function() {
-        SpeechRecognition.stopListening();
+        speech.abortListening()
         setSpeaking(false);
       }, 3000);
     }

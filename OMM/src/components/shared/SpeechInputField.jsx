@@ -42,14 +42,16 @@ const SpeechInputField = forwardRef((params, ref) => {
     return null;
   }
 
+  const speechRecognition = SpeechRecognition
+
   const toggleSpeech = () => {
     if (speaking) {
-      SpeechRecognition.stopListening();
+        speechRecognition.stopListening();
     } else {
-      SpeechRecognition.startListening({ language: "en-US" });
+        speechRecognition.startListening({ language: "en-US" });
       //stop listening after five seconds
       setTimeout(function() {
-        SpeechRecognition.stopListening();
+        speechRecognition.stopListening();
         setSpeaking(false);
       }, 3000);
     }
