@@ -140,6 +140,7 @@ const ImageSelection = params => {
    * @param {boolean} internetSource Is true for images directly downloaded from user provided URL
    */
   async function saveTemplate(title, src, internetSource) {
+    console.log(title + "  " + src + "  "+ internetSource);
     fetch("http://localhost:3030/memeIO/save-template", {
       method: "POST",
       mode: "cors",

@@ -84,6 +84,7 @@ memeIO.post("/save-template", async(req, res) => {
     let url;
     if (!req.body.internetSource) { //save base64 string to file
         let base64String = req.body.url;
+        console.log(base64String);
         let base64Image = base64String.split(';base64,').pop();
         url = "http://localhost:3030/images/templates/" + title;
 
