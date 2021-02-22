@@ -185,6 +185,7 @@ async function removelikeMeme() {
                 "The meme " + memeInfo.title + " shows " + memeInfo.description + ". The caption of the meme is " +
                 memeInfo.caption[0]);
             text.voice = synth.getVoices()[3];
+            console.log(synth.getVoices());
             synth.cancel();
             synth.speak(text)
         }

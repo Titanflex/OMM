@@ -340,7 +340,7 @@ const Generator = params => {
     return (
         <div>
             <Button
-                className="classes.buttonStyle selection"
+                className="classes.buttonStyle modal"
                 startIcon={<ImageIcon/>}
                 variant="contained"
                 onClick={handleOpen}

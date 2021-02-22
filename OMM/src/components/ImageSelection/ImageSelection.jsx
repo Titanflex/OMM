@@ -198,7 +198,7 @@ const ImageSelection = params => {
               <h2 style={{ marginBottom: "32px" }} id="simple-modal-title">Select a template to work on</h2>
               <ShowTemplates showtemplates={templates} />
             </Grid>
-            <Grid item xs={6} style={{ maxWidth: 400, marginLeft: 32, overflow: "auto"}}>
+            <Grid item xs={6} style={{ maxWidth: 400, marginLeft: 32, overflow: "auto", maxHeight:520}}>
               <div>
                 <h4 style={{ marginBottom: "32px", marginTop: "32px" }}>Get or create more templates</h4>
                 <FilePond
