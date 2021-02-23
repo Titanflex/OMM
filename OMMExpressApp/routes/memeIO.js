@@ -179,6 +179,7 @@ memeIO.post('/upload-Meme', uploadMeme.single("file"), async(req, res) => {
         url: url,
         author: req.headers.author,
         isPublic: req.headers.isPublic,
+        publicOpt: req.headers.publicOpt,
         creationDate: Date.now(),
         likes: 0,
         tags: analysis.tags,
@@ -223,6 +224,19 @@ memeIO.post('/add-comment', (req, res) => {
         return res.status(500).send(err)
     }
 });
+
+/* POST /memeIO/remove-comment */
+/* remove a like from a meme by account*/
+memeIO.post('/remove-comment', (req, res) => {
+    try {
+        Meme.findByIdAndUpdate(req.body.id , { $pull: { comments: {  user: req.body.user,  commenttext : req.body.commenttext}}}, function(err) {
+            return res.status(200)
+        })
+    } catch (error) {
+        return res.status(500).send(err)
+    }
+});
+
 
 
 /* POST /memeIO/like-meme */
@@ -326,6 +340,7 @@ memeIO.post('/create-simple-meme', async(req, res) => {
             creationDate: Date.now(),
             url: url,
             isPublic: true,
+            publicOpt: "public",
             likes: 0,
             tags: analysis.tags,
             description: analysis.description.captions[0].text,
@@ -367,6 +382,7 @@ memeIO.post('/create-meme', async(req, res) => {
             title: req.body.title,
             url: url,
             isPublic: true,
+            publicOpt: req.body.publicOpt,
             tags: analysis.tags,
             description: analysis.description.captions[0].text,
             caption: req.body.textBoxes.map(textBox => textBox.text),
@@ -404,6 +420,7 @@ memeIO.post('/create-memes', async(req, res) => {
                 title: template.name,
                 url: url,
                 isPublic: true,
+                publicOpt: true,
                 tags: analysis.tags,
                 description: analysis.description.captions[0].text,
                 caption: req.body.textBoxes.map(textBox => textBox.text),

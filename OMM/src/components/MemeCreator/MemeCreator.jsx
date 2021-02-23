@@ -238,7 +238,7 @@ function MemeCreator() {
             <Typography className={classes.heading} variant="h4">
                 Hello {localStorage.user}!
             </Typography>
-            <Grid container alignItems="center" spacing={3}>
+            <Grid container alignItems="start" spacing={3} >
                 <Grid item s={1} >
                     <IconButton className="arrows" onClick={previousMeme} aria-label="previous" disabled={isFreestyle}>
                         <ArrowLeft fontSize="large" />
