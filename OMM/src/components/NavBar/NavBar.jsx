@@ -13,6 +13,7 @@ import { navigate } from "hookrouter";
 import AuthService from "../../services/auth.service";
 
 import "./../../css/NavBar/navbar.css";
+import SpeechInput from "./SpeechInput";
 
 const navLinks = [
   { title: "generator", path: "/" },
@@ -82,10 +83,11 @@ const NavBar = () => {
         <Button
           className={classes.button}
           color="inherit"
-          onClick={(event) => logout()}
+          onClick={logout}
         >
           Logout
         </Button>
+        <SpeechInput/> 
       </Toolbar>
     </AppBar>
   );

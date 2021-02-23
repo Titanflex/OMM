@@ -73,6 +73,11 @@ const Generator = params => {
     const [title, setTitle] = useState("");
     const [quality, setQuality] = useState(100);
 
+    const [titleError, setTitleError] = useState({
+        show: false,
+        text: "",
+    });
+
 
     //PublicMenu
     const pubOptions = [
@@ -156,6 +161,22 @@ const Generator = params => {
         setGeneratedMemeUrl(null);
         setGeneratedMeme(null);
     };
+
+    const handleTitleInput = (event) => {
+        setTitle(event.target.value);
+        setTitleError({
+            show: false,
+            text: "",
+        });
+    }
+
+    const handleMissingTitle = () => {
+        setTitleError({
+            show: true,
+            text: "Enter a meme title",
+        });
+    }
+
 
 
     //Local meme generation
@@ -358,7 +379,20 @@ const Generator = params => {
 
                     <div>
                         {/* Text Field for Meme Title*/}
-                        <SpeechInputField ref={memeTitleRef} value={title} label="Meme Title" setValue={setTitle}/>
+                                                <TextField
+                            error={titleError.show}
+                            helperText={titleError.text}
+                            className={classes.spacing}
+                            id="name"
+                            label="Meme Title (mandatory)"
+                            placeholder=""
+                            fullWidth
+                            margin="normal"
+                            variant="outlined"
+                            value={title}
+                            onChange={(event) => handleTitleInput(event)}
+                        />
+                        {/* <SpeechInputField ref={memeTitleRef} value={title} label="Meme Title" setValue={setTitle}/> */}
                         <List component="nav" aria-label="Render settings">
                             <ListItem
                                 button
