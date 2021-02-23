@@ -215,7 +215,7 @@ const ImageSelection = params => {
                         'templateName': "test"
                       },
                       onload: (response) =>
-                        addNewTemplates(response)
+                        addNewTemplates(JSON.parse(response))
 
                     }
                   }}

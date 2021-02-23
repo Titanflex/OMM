@@ -141,6 +141,9 @@ function MemeCreator() {
             'max-width': maxWidth + 'px',
             'max-height': maxHeight + 'px',
             overflow: 'hidden',
+        },
+        buttonStyle: {
+            height: 'fit-content',
         }
     }));
 

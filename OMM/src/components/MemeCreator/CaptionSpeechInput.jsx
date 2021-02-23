@@ -6,7 +6,7 @@ import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 
-const useStyles = makeStyles((theme) => ({}));
+import "./../../css/MemeCreator/speechInput.css";
 
 const SpeechInput = (params) => {
   const [speaking, setSpeaking] = useState(false);
@@ -27,6 +27,14 @@ const SpeechInput = (params) => {
       setWaitForResponse(false);
     }
   }, [finalTranscript]);
+
+
+  const useStyles = makeStyles((theme) => ({
+    buttonStyle: {
+        height: 'fit-content',
+    }
+}));
+
 
   if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
     return null;
@@ -52,7 +60,7 @@ const SpeechInput = (params) => {
 
   return (
     <Button
-      className="classes.buttonStyle modal"
+      className="classes.buttonStyle button modal"
       startIcon={<Mic />}
       variant="contained"
       onClick={() => toggleSpeech()}
