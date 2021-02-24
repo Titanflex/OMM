@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Button from "@material-ui/core/Button";
@@ -16,6 +16,9 @@ function getModalStyle() {
         top: `${top}%`,
         left: `${left}%`,
         transform: `translate(-${top}%, -${left}%)`,
+        maxHeight: window.innerHeight - 100,
+        overflow: 'auto',
+
     };
 }
 
@@ -41,7 +44,12 @@ const Camera = params => {
     const [error, setError] = useState({
         show: false,
         text: "",
-      });
+    });
+
+    const handleChange = (event) => {
+        setError({show:false, text:""});
+        setTemplateTitle(event.target.value);
+    }
 
     const handleOpen = () => {
         setOpen(true);
@@ -49,6 +57,7 @@ const Camera = params => {
 
     const handleClose = () => {
         setOpen(false);
+        setError({show:false, text:""});
     };
 
     const capture = React.useCallback(() => {
@@ -57,15 +66,28 @@ const Camera = params => {
         setSave(false);
     }, [webcamRef, setImgSrc]);
 
-    function saveCapturedPicture() {
-        if(templateTitle == ''){
-            setError({show: true, text:"Please enter a title"});
-        } else {
-            params.handleSave(templateTitle, imgSrc, false);
-            handleClose();
-        } 
+    async function saveCapturedPicture() {
+        if (templateTitle === '') {
+            setError({show: true, text: "Please enter a title"});
+            return;
+        }
+        let isDuplicate = false;
+        await fetch("http://localhost:3030/memeIO/get-templates").then(res => {
+            res.json().then(json => {
+                json.docs.forEach(template => {
+                    if (template.templateName === templateTitle && !isDuplicate) {
+                        setError({show: true, text: "Template title is already used"});
+                        isDuplicate = true;
+                    }
+                });
+        }).then(() => {
+                if (!isDuplicate) {
+                    params.handleSave(templateTitle, imgSrc, false);
+                    handleClose();
+                }
+            }
+        )})
     }
-
 
     return (
         <div>
@@ -78,7 +100,7 @@ const Camera = params => {
             >
                 Photo from camera
             </Button>
-            
+
             <Modal
                 open={open}
                 onClose={handleClose}
@@ -99,7 +121,7 @@ const Camera = params => {
                             label="Template Title"
                             placeholder="Template Title"
                             value={templateTitle}
-                            onChange={(event) => setTemplateTitle(event.target.value)}
+                            onChange={(event) => handleChange(event)}
                         />
                         <Button
                             className="classes.buttonStyle modal"

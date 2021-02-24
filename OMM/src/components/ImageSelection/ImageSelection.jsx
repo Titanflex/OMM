@@ -131,6 +131,17 @@ const ImageSelection = params => {
     </GridList >
   );
 
+  const [titleError, setTitleError] = useState({
+    show: false,
+    text: "",
+  });
+
+  const handleDuplicateTitle = () => {
+    setTitleError({
+      show: true,
+      text: "Template title already exists",
+    });
+  }
 
   /**
    * sends new image to server and receives created template
@@ -140,24 +151,25 @@ const ImageSelection = params => {
    * @param {boolean} internetSource Is true for images directly downloaded from user provided URL
    */
   async function saveTemplate(title, src, internetSource) {
-    fetch("http://localhost:3030/memeIO/save-template", {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        internetSource: internetSource,
-        author: localStorage.user,
-        title: title,
-        url: src,
-      }),
-    }).then((res) => {
-      return res.json();
-    }).then((data) => {
-      addNewTemplates(data)
-    });
 
+
+        fetch("http://localhost:3030/memeIO/save-template", {
+          method: "POST",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            internetSource: internetSource,
+            author: localStorage.user,
+            title: title,
+            url: src,
+          }),
+        }).then((res) => {
+          return res.json();
+        }).then((data) => {
+          addNewTemplates(data)
+        });
   }
 
   /**
@@ -213,8 +225,14 @@ const ImageSelection = params => {
                         'author': localStorage.user,
                         'templateName': "test"
                       },
-                      onload: (response) =>
-                        addNewTemplates(JSON.parse(response))
+                      onload: (response) =>{
+                        let json = JSON.parse(response);
+                        if(json.message){
+                          alert(json.message);
+                        }else {
+                          addNewTemplates(json);
+                        }
+                      }
 
                     }
                   }}
@@ -232,6 +250,7 @@ const ImageSelection = params => {
 
        </Button>
                 <Camera
+                    titleError={titleError}
                   handleSave={saveTemplate}
                 />
                 <Paint

@@ -30,7 +30,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-
 const URL = params => {
     const classes = useStyles();
     const [modalStyle] = useState(getModalStyle);
@@ -43,7 +42,7 @@ const URL = params => {
     const [error, setError] = useState({
         show: false,
         text: "",
-      });
+    });
 
     const handleOpen = () => {
         setTitle('');
@@ -57,93 +56,110 @@ const URL = params => {
         setOpen(false);
     };
 
-    function handleSave() {
-        if (title == '') {
-            setError({show: true, text:"Please enter a title"});
-        } else {
-            setIsLoading(true);
-            if (URLDisabled) {
-                handleScreenshot()
-            } else {
-                saveTemplate();
-            }
+    async function handleSave() {
+        if (title === '') {
+            setError({show: true, text: "Please enter a title"});
+            return;
         }
+        let isDuplicate = false;
+        await fetch("http://localhost:3030/memeIO/get-templates").then(res => {
+            res.json().then(json => {
+                json.docs.forEach(template => {
+                    if (template.templateName === title && !isDuplicate) {
+                        setError({show: true, text: "Template title is already used"});
+                        isDuplicate = true;
+                    }
+                });
+            }).then(() => {
+                    if (!isDuplicate) {
+                        setIsLoading(true);
+                        if (URLDisabled) {
+                            handleScreenshot()
+                        } else {
+                            saveTemplate();
+                        }
+                    }
+                }
+            )
+        })
+
+
     }
 
     async function saveTemplate() {
         fetch("http://localhost:3030/memeIO/save-template", {
-          method: "POST",
-          mode: "cors",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            internetSource: true,
-            author: localStorage.user,
-            title: title,
-            url: url,
-          }),
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                internetSource: true,
+                author: localStorage.user,
+                title: title,
+                url: url,
+            }),
         }).then((res) => {
-          return res.json();
+            return res.json();
         }).then((data) => {
-          params.handleSave(data);
-          setIsLoading(false);
-          handleClose();
+            params.handleSave(data);
+            setIsLoading(false);
+            handleClose();
         });
-      }
+    }
 
     async function handleScreenshot() {
         await fetch("http://localhost:3030/memeIO/webshot", {
-          method: "POST",
-          mode: "cors",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            url: url,
-            author: localStorage.user,
-            title: title
-          }),
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                url: url,
+                author: localStorage.user,
+                title: title
+            }),
         }).then((res) => {
-          return res.json();
+            return res.json();
         }).then((data) => {
-          params.handleSave(data);
-          setIsLoading(false);
-          handleClose();
+            params.handleSave(data);
+            setIsLoading(false);
+            handleClose();
         });
-      }
+    }
 
-      const handleChange = ({ target }) => {
+    const handleChange = ({target}) => {
         setScreenShotDisabled(target.name == 'url' && (target.value !== ""));
         setURLDisabled(target.name == 'screenshot' && (target.value !== ""));
         setUrl((prev) => target.value);
-      }
+    }
 
-      const handleChangeTitle = ({ target }) => {
-        setError({show: false, text:""});
+    const handleChangeTitle = ({target}) => {
+        setError({show: false, text: ""});
         setTitle(target.value);
-      }
+    }
 
 
-      const getTemplateFromURL = (event) => {
+    const getTemplateFromURL = (event) => {
         if (event.key === 'Enter') {
-          params.handleSave("title", url, true);
+            params.handleSave("title", url, true);
         }
-      }
-    
+    }
+
 
     return (
         <div>
             <Button
-              className="classes.buttonStyle modal"
-              startIcon={<LinkIcon />}
-              variant="contained"
-              onClick={handleOpen}
-              color="secondary"
+                className="classes.buttonStyle modal"
+                startIcon={<LinkIcon/>}
+                variant="contained"
+                onClick={handleOpen}
+                color="secondary"
             >
-              Get Image from URL
-          </Button> 
-            
+                Get Image from URL
+            </Button>
+
             <Modal
                 open={open}
                 onClose={handleClose}
@@ -151,38 +167,38 @@ const URL = params => {
                 aria-describedby="simple-modal-description">
                 <div style={modalStyle} className={classes.paper}>
 
-                <TextField
-              disabled={URLDisabled}
-              name="url"
-              className="modal"
-              label="Load Image from URL"
-              onChange={handleChange}
-              onKeyPress={getTemplateFromURL} />
-              
-            <TextField
-              disabled={screenShotDisabled}
-              name="screenshot"
-              className="modal"
-              label="Screenshot Image from URL"
-              onChange={handleChange}
-              onKeyPress={handleSave} />
-              <TextField
-              error={error.show}
-              helperText={error.text}
-              name="title"
-              className="modal"
-              label="Title"
-              onChange={handleChangeTitle}
-               />
-              <Button
-              className="classes.buttonStyle modal"
-              variant="contained"
-              onClick={handleSave}
-              color="secondary"
-            >
-              {isLoading ?  <CircularProgress color="white" />: "Load Image"}
-             
-          </Button> 
+                    <TextField
+                        disabled={URLDisabled}
+                        name="url"
+                        className="modal"
+                        label="Load Image from URL"
+                        onChange={handleChange}
+                        onKeyPress={getTemplateFromURL}/>
+
+                    <TextField
+                        disabled={screenShotDisabled}
+                        name="screenshot"
+                        className="modal"
+                        label="Screenshot Image from URL"
+                        onChange={handleChange}
+                        onKeyPress={handleSave}/>
+                    <TextField
+                        error={error.show}
+                        helperText={error.text}
+                        name="title"
+                        className="modal"
+                        label="Title"
+                        onChange={handleChangeTitle}
+                    />
+                    <Button
+                        className="classes.buttonStyle modal"
+                        variant="contained"
+                        onClick={handleSave}
+                        color="secondary"
+                    >
+                        {isLoading ? <CircularProgress color="white"/> : "Load Image"}
+
+                    </Button>
                 </div>
             </Modal>
 
