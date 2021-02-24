@@ -230,6 +230,7 @@ memeIO.post('/upload-Template', uploadTemplate.single("file"), async(req, res) =
 memeIO.post('/upload-Meme', uploadMeme.single("file"), async(req, res) => {
     let url;
     console.log(req.headers.title)
+    console.log(req.headers)
     const analysis = await analyze(req.headers.title);
     console.log(analysis);
     url = "http://localhost:3030/images/memes/" + req.headers.title + '.jpeg';
@@ -237,8 +238,8 @@ memeIO.post('/upload-Meme', uploadMeme.single("file"), async(req, res) => {
         title: req.headers.title,
         url: url,
         author: req.headers.author,
-        isPublic: req.headers.isPublic,
-        publicOpt: req.headers.publicOpt,
+        isPublic: req.headers.ispublic,
+        publicOpt: req.headers.publicopt,
         creationDate: Date.now(),
         likes: 0,
         tags: analysis.tags,

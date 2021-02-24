@@ -160,6 +160,7 @@ const SingleView = () => {
     const [open, setOpen] = useState(false);
     const [openSnack, setOpenSnack] = useState(false);
 
+    const [moreModuleOpen, setMoreModuleOpen] = useState(false);
     const [modalStyle] = useState(getModalStyle);
 
 
@@ -190,6 +191,19 @@ const SingleView = () => {
     const handleClose = () => {
         setOpen(false);
     };
+   
+      /* 
+    Modal
+    handels opening and closing of the filter Modal.
+    When opend it sets the filtered Memelist to the originalMemes from the database.
+    */
+   const handleMoreModuleOpen = () => {
+    setMoreModuleOpen(true);
+};
+
+const handleMoreModuleClose = () => {
+    setMoreModuleOpen(false);
+};
 
     /*
     SnackBar
@@ -434,11 +448,11 @@ const SingleView = () => {
         }
     }
 
-      /*
-    The method nextMeme will show the previous meme.
-    It is called when the usere clicks the Arrow Button to the left.
-    Otherwise it decreases the memeindex and starts with the first meme when it is on the end.
-    */
+    /*
+  The method nextMeme will show the previous meme.
+  It is called when the usere clicks the Arrow Button to the left.
+  Otherwise it decreases the memeindex and starts with the first meme when it is on the end.
+  */
     function previousMeme() {
         let current = currentMemeIndex;
         if (memes.length > 1) {
@@ -451,9 +465,9 @@ const SingleView = () => {
     /*
     Comments
     */
-   /*
-    The method handleCommentClick will call addComment when the comment is not empty.
-    */
+    /*
+     The method handleCommentClick will call addComment when the comment is not empty.
+     */
     const handleCommentClick = () => {
         if (comment !== "") {
             addComment();
@@ -494,9 +508,9 @@ const SingleView = () => {
         getUpdatedMemes();
     }
 
-     /*
-    The method removeComment pulls the comment by the user from the server.
-    */
+    /*
+   The method removeComment pulls the comment by the user from the server.
+   */
     async function removeComment(comment) {
         const currentMemeId = memes[currentMemeIndex]._id;
         await fetch("http://localhost:3030/memeIO/remove-comment", {
@@ -515,10 +529,10 @@ const SingleView = () => {
         });
     }
 
-     /*
-    The method loadMemes gets all public memes from the server.
-    It takes the index of the selected meme and therefore changes the currentMemeIndex to show at the beginning the right meme.
-    */
+    /*
+   The method loadMemes gets all public memes from the server.
+   It takes the index of the selected meme and therefore changes the currentMemeIndex to show at the beginning the right meme.
+   */
     const loadMemes = async () => {
         await fetch("http://localhost:3030/memeIO/get-public-memes").then(res => {
             res.json().then(json => {
@@ -539,10 +553,10 @@ const SingleView = () => {
         })
     };
 
-     /*
-    The method loadMemes gets all public memes from the server.
-    It does not change the index.
-    */
+    /*
+   The method loadMemes gets all public memes from the server.
+   It does not change the index.
+   */
     const getUpdatedMemes = async () => {
         console.log("update Parent");
         await fetch("http://localhost:3030/memeIO/get-public-memes").then(res => {
@@ -554,10 +568,10 @@ const SingleView = () => {
         })
     }
 
-   
-      /*
-    The tick loadMemes changes the image in the canvas every 2 seconds.
-    */
+
+    /*
+  The tick loadMemes changes the image in the canvas every 2 seconds.
+  */
     const tick = () => {
         const memeList = memes;
         const checkVideoState = setInterval(() => {
@@ -591,10 +605,10 @@ const SingleView = () => {
     }
 
 
-  /*
-    The  useEffect is called at the beginning of the mounted component.
-    It loads the memes of the server and starts the animation video.
-    */
+    /*
+      The  useEffect is called at the beginning of the mounted component.
+      It loads the memes of the server and starts the animation video.
+      */
     useEffect(() => {
         const video = videoTag.current;
         video.setAttribute("playsinline", true);
@@ -604,11 +618,11 @@ const SingleView = () => {
         //return () => cancelAnimationFrame(requestRef.tick);
     }, []);
 
-   
-     /*
-    The method useInterval checks if autoplay is selected.
-    It increases the new memeindex or calls randomize method whe it is selected.
-    */
+
+    /*
+   The method useInterval checks if autoplay is selected.
+   It increases the new memeindex or calls randomize method whe it is selected.
+   */
     useInterval(() => {
         if (isPlaying) {
             let current = currentMemeIndex;
@@ -624,12 +638,12 @@ const SingleView = () => {
         }
     }, 5000);
 
-  //Meme Component
-  const SingleMeme = () => {
-    return (
-        <MemeView memeInfo={memes[currentMemeIndex]} isAccessible={isAccessible} getUpdatedMemes={getUpdatedMemes} />
-    )
-};
+    //Meme Component
+    const SingleMeme = () => {
+        return (
+            <MemeView memeInfo={memes[currentMemeIndex]} isAccessible={isAccessible} getUpdatedMemes={getUpdatedMemes} />
+        )
+    };
 
     //Comments Component
     const ListComments = ({ currentMeme }) => {
@@ -978,36 +992,62 @@ const SingleView = () => {
             <Grid container spacing={3}>
                 <Grid item xs={1} ></Grid>
                 <Grid container item xs={8}>
-                    <Chart
-                        width={'500px'}
-                        height={'300px'}
-                        chartType="PieChart"
-                        loader={<div>Loading Chart</div>}
-                        data={[
-                            ['Likes and Dislikes', 'Number'],
-                            ['Likes', memes[currentMemeIndex].hasOwnProperty("listlikes") ? memes[currentMemeIndex].listlikes.length : 0],
-                            ['Dislikes', memes[currentMemeIndex].hasOwnProperty("dislikes") ? memes[currentMemeIndex].dislikes.length : 0],
-                        ]}
-                        options={{
-                            title: 'Distribution of likes',
-                        }}
-                        rootProps={{ 'data-testid': '1' }}
-                    />
-                </Grid>
-                <Grid item xs >
-                    <div>
-                        <video
-                            ref={videoTag}
-                            width="400"
-                            height="400"
-                            autoPlay
-                            style={{ display: "none" }}
-                        />
+                    <Button
+                        onClick={handleMoreModuleOpen}
+                        className={classes.filterButton}
+                        variant="outlined"
+                        edge="end"
+                        size="medium"
+                    >
+                        More infos
+                    </Button>
+                    <Modal
+                        open={moreModuleOpen}
+                        onClose={handleMoreModuleClose}
+                        aria-labelledby="simple-modal-title"
+                        aria-describedby="simple-modal-description">
+                        <div style={modalStyle} className={classes.paper}>
 
-                        {!isVideoLoading && <canvas ref={canvasRef} />}
 
-                        {isVideoLoading && <p>Please wait while we load the video stream.</p>}
-                    </div>
+                            <Typography variant="h5">
+                                Graph
+                            </Typography>
+                            <Grid>
+                                <Chart
+                                    width={'500px'}
+                                    height={'300px'}
+                                    chartType="PieChart"
+                                    loader={<div>Loading Chart</div>}
+                                    data={[
+                                        ['Likes and Dislikes', 'Number'],
+                                        ['Likes', memes[currentMemeIndex].hasOwnProperty("listlikes") ? memes[currentMemeIndex].listlikes.length : 0],
+                                        ['Dislikes', memes[currentMemeIndex].hasOwnProperty("dislikes") ? memes[currentMemeIndex].dislikes.length : 0],
+                                    ]}
+                                    options={{
+                                        title: 'Distribution of likes',
+                                    }}
+                                    rootProps={{ 'data-testid': '1' }}
+                                />
+                            </Grid>
+                       
+
+                        </div>
+                    </Modal>
+                    <Grid item xs >
+                                <div>
+                                    <video
+                                        ref={videoTag}
+                                        width="400"
+                                        height="400"
+                                        autoPlay
+                                        style={{ display: "none" }}
+                                    />
+
+                                    {!isVideoLoading && <canvas ref={canvasRef} />}
+
+                                    {isVideoLoading && <p>Please wait while we load the video stream.</p>}
+                                </div>
+                            </Grid>
                 </Grid>
             </Grid>
 
