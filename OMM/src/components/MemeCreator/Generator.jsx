@@ -178,6 +178,13 @@ const Generator = params => {
         });
     }
 
+    const handleDuplicateTitle = () => {
+        setTitleError({
+            show: true,
+            text: "Meme title already exists",
+        });
+    }
+
 
 
     //Local meme generation
@@ -202,7 +209,8 @@ const Generator = params => {
                 //decrease quality if size is too large and rerender meme
                 createMemeLocally(quality - 0.05);
             } else {
-                setTexts([params.text]);
+                let textArray = params.text.split(/\n/g);  //split text into lines
+                setTexts(textArray);
                 setGeneratedMeme(jpeg);
             }
 
@@ -321,10 +329,9 @@ const Generator = params => {
         let isDuplicate;
         await fetch("http://localhost:3030/memeIO/get-memes").then(res => {
             res.json().then(json => {
-                console.log(json.docs)
                 json.docs.forEach(meme => {
                     if(meme.title === title && !isDuplicate) {
-                        alert("the meme title already exists");
+                        handleDuplicateTitle();
                         isDuplicate = true;
                     }
                 });
