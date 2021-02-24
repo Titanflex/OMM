@@ -62,10 +62,13 @@ memeIO.use(function(req, res, next) {
 
 /* POST /memeIO/save-draft */
 /* Create new Draft */
-memeIO.post("/save-draft", async(req, res) => {
+memeIO.post("/save-draft", auth, async(req, res) => {
+    //get the user from the db
+    let user = await User.findById(req.user.id);
+    let author = user.name;
     console.log(req.body);
     let newDraft = {
-        author: req.body.author,
+        author: author,
         creationDate: Date.now(),
         src: req.body.src,
         bold: req.body.bold,
@@ -93,8 +96,11 @@ memeIO.post("/save-draft", async(req, res) => {
 
 /* GET memeIO/get-memes */
 /* Get all memes from the database */
-memeIO.post('/get-drafts', (req, res) => {
-    Draft.find({ author: req.body.author }, function(err, docs) {
+memeIO.post('/get-drafts', auth, async(req, res) => {
+    //get the user from the db
+    let user = await User.findById(req.user.id);
+    let author = user.name;
+    Draft.find({ author: author }, function(err, docs) {
         if (err)
             return res.status(500).send(err);
         res.json({ code: 200, docs })
@@ -137,7 +143,7 @@ memeIO.post("/save-template", auth, async(req, res) => {
     let title = req.body.title;
     let url;
     //get the user from the db
-    user = await User.findById(req.user.id);
+    let user = await User.findById(req.user.id);
     let author = user.name
 
     if (!req.body.internetSource) { //save base64 string to file
@@ -176,7 +182,7 @@ memeIO.post("/webshot", auth, async(req, res) => {
 
     //get the user from the db
     //get the user from the db
-    user = await User.findById(req.user.id);
+    let user = await User.findById(req.user.id);
     let author = user.name
 
     const url = req.body.url;
@@ -218,7 +224,7 @@ memeIO.post('/upload-Template', uploadTemplate.single("file"), auth, async(req, 
                 return res.json({ "message": "File name already exists" })
         })
         //get the user from the db
-    user = await User.findById(req.user.id);
+    let user = await User.findById(req.user.id);
     let author = user.name
     let url = "http://localhost:3030/images/templates/" + req.file.originalname;
     var uploadedTemplate = {
@@ -245,13 +251,13 @@ memeIO.post('/upload-Meme', uploadMeme.single("file"), auth, async(req, res) => 
     let url;
     const analysis = await analyze(req.headers.title);
     //get the user from the db
-    user = await User.findById(req.user.id);
+    let user = await User.findById(req.user.id);
     let author = user.name
     url = "http://localhost:3030/images/memes/" + req.headers.title + '.jpeg';
     const newMeme = {
         title: req.headers.title,
         url: url,
-        author: req.headers.author,
+        author: author,
         isPublic: req.headers.ispublic,
         publicOpt: req.headers.publicopt,
         creationDate: Date.now(),
@@ -289,12 +295,12 @@ memeIO.get('/upload-Gif', (req, res) => {
 
 /* POST /memeIO/add-comment */
 /* add a comment to a meme with account*/
-memeIO.post('/add-comment', auth, (req, res) => {
+memeIO.post('/add-comment', auth, async(req, res) => {
     //get the user from the db
-    user = await User.findById(req.user.id);
-    let user = user.name
+    let user = await User.findById(req.user.id);
+    let name = user.name;
     try {
-        Meme.updateOne({ _id: req.body.id }, { $push: { comments: { date: req.body.date, user: user, commenttext: req.body.commenttext } } }, function(err) {
+        Meme.updateOne({ _id: req.body.id }, { $push: { comments: { date: req.body.date, user: name, commenttext: req.body.commenttext } } }, function(err) {
             return res.status(200)
         })
     } catch (error) {
@@ -304,12 +310,12 @@ memeIO.post('/add-comment', auth, (req, res) => {
 
 /* POST /memeIO/remove-comment */
 /* remove a like from a meme by account*/
-memeIO.post('/remove-comment', auth, (req, res) => {
+memeIO.post('/remove-comment', auth, async(req, res) => {
     //get the user from the db
-    user = await User.findById(req.user.id);
-    let user = user.name
+    let user = await User.findById(req.user.id);
+    let name = user.name;
     try {
-        Meme.findByIdAndUpdate(req.body.id, { $pull: { comments: { user: user, commenttext: req.body.commenttext } } }, function(err) {
+        Meme.findByIdAndUpdate(req.body.id, { $pull: { comments: { user: name, commenttext: req.body.commenttext } } }, function(err) {
             return res.status(200)
         })
     } catch (error) {
@@ -321,12 +327,12 @@ memeIO.post('/remove-comment', auth, (req, res) => {
 
 /* POST /memeIO/like-meme */
 /* add a like to a meme with account*/
-memeIO.post('/like-meme', auth, (req, res) => {
+memeIO.post('/like-meme', auth, async(req, res) => {
     //get the user from the db
-    user = await User.findById(req.user.id);
-    let user = user.name
+    let user = await User.findById(req.user.id);
+    let name = user.name;
     try {
-        Meme.updateOne({ _id: req.body.id }, { $push: { listlikes: { date: req.body.date, user: user } } }, function(err) {
+        Meme.updateOne({ _id: req.body.id }, { $push: { listlikes: { date: req.body.date, user: name } } }, function(err) {
             return res.status(200)
         })
     } catch (error) {
@@ -336,12 +342,12 @@ memeIO.post('/like-meme', auth, (req, res) => {
 
 /* POST /memeIO/remove-like-meme */
 /* remove a like from a meme by account*/
-memeIO.post('/remove-like-meme', auth, (req, res) => {
+memeIO.post('/remove-like-meme', auth, async(req, res) => {
     //get the user from the db
-    user = await User.findById(req.user.id);
-    let user = user.name
+    let user = await User.findById(req.user.id);
+    let name = user.name;
     try {
-        Meme.findByIdAndUpdate(req.body.id, { $pull: { listlikes: { user: user } } }, function(err) {
+        Meme.findByIdAndUpdate(req.body.id, { $pull: { listlikes: { user: name } } }, function(err) {
             return res.status(200)
         })
     } catch (error) {
@@ -352,12 +358,12 @@ memeIO.post('/remove-like-meme', auth, (req, res) => {
 
 /* POST /memeIO/dislike-meme */
 /* add a dislike to a meme with account*/
-memeIO.post('/dislike-meme', auth, (req, res) => {
+memeIO.post('/dislike-meme', auth, async(req, res) => {
     //get the user from the db
-    user = await User.findById(req.user.id);
-    let user = user.name
+    let user = await User.findById(req.user.id);
+    let name = user.name;
     try {
-        Meme.updateOne({ _id: req.body.id }, { $push: { dislikes: { date: req.body.date, user: user } } }, function(err) {
+        Meme.updateOne({ _id: req.body.id }, { $push: { dislikes: { date: req.body.date, user: name } } }, function(err) {
             return res.status(200)
         })
     } catch (error) {
@@ -367,12 +373,12 @@ memeIO.post('/dislike-meme', auth, (req, res) => {
 
 /* POST /memeIO/remove-dislike-meme */
 /* remove a dislike from a meme by account*/
-memeIO.post('/remove-dislike-meme', auth, (req, res) => {
+memeIO.post('/remove-dislike-meme', auth, async(req, res) => {
     //get the user from the db
-    user = await User.findById(req.user.id);
-    let user = user.name
+    let user = await User.findById(req.user.id);
+    let name = user.name;
     try {
-        Meme.findByIdAndUpdate(req.body.id, { $pull: { dislikes: { user: user } } }, function(err) {
+        Meme.findByIdAndUpdate(req.body.id, { $pull: { dislikes: { user: name } } }, function(err) {
             return res.status(200)
         })
     } catch (error) {
