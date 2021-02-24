@@ -138,7 +138,6 @@ memeIO.post("/webshot", async(req, res) => {
             if (err)
                 console.log(err)
             else {
-                console.log(item);
                 item.save(function(err, item) {
                     template = item;
                 });
@@ -148,6 +147,7 @@ memeIO.post("/webshot", async(req, res) => {
     await captureWebsite.file(url, 'public/images/templates/' + req.body.title+".jpeg").then(() => {
         console.log("savedFile")
     }).catch((err) => console.log(err));
+
     res.json(template);
 
 });
@@ -156,7 +156,13 @@ memeIO.post("/webshot", async(req, res) => {
 /* POST /memeIO/upload */
 /* upload template to server (via FilePond) */
 memeIO.post('/upload-Template', uploadTemplate.single("file"), async(req, res) => {
-    //upload template
+    Template.find({templateName: req.file.originalname}, function(err, docs) {
+        console.log(docs);
+        if (err)
+            return res.status(500).send(err);
+        if(docs.length > 0)
+            return res.json({"message": "File name already exists"})
+    })
     let url = "http://localhost:3030/images/templates/" + req.file.originalname;
     var uploadedTemplate = {
         uploader: req.headers.author,
@@ -166,7 +172,7 @@ memeIO.post('/upload-Template', uploadTemplate.single("file"), async(req, res) =
     console.log(uploadedTemplate);
     Template.create(uploadedTemplate, (err, item) => {
         if (err)
-            res.status(500).send(err);
+            console.log(err);
         else {
             item.save(function(err, item) {
                 res.json(item);
