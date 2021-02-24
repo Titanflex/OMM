@@ -313,13 +313,9 @@ const Generator = params => {
     }
 
 
-    async function checkForDuplicateTitle(){
-
-    }
     async function generateMeme() {
-        console.log(title);
         if (!title) {
-            memeTitleRef.current.setError()
+            handleMissingTitle();
             return;
         }
         let isDuplicate;
@@ -334,7 +330,6 @@ const Generator = params => {
                 });
             }).then(() => {
                 if (isDuplicate) return;
-                console.log("nope");
                 if (selectedRenIndex === 0) { //local generation
                     createMemeLocally();
                 }
