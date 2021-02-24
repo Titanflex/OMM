@@ -89,15 +89,15 @@ memeIO.get('/get-templates', (req, res) => {
 /* POST /memeIO/save-template */
 /* Create new Template from URL */
 memeIO.post("/save-template", async(req, res) => {
-    let title = req.body.title + ".jpeg";
+    let title = req.body.title;
     let url;
     if (!req.body.internetSource) { //save base64 string to file
         let base64String = req.body.url;
         console.log(base64String);
         let base64Image = base64String.split(';base64,').pop();
-        url = "http://localhost:3030/images/templates/" + title;
+        url = "http://localhost:3030/images/templates/" + title + ".jpeg";
 
-        fs.writeFile('public/images/templates/' + title, base64Image, { encoding: 'base64' }, function(err) {
+        fs.writeFile('public/images/templates/' + title + ".jpeg", base64Image, { encoding: 'base64' }, function(err) {
             if (err) console.log(err);
         })
     } else { //keep internet address as url
@@ -111,10 +111,11 @@ memeIO.post("/save-template", async(req, res) => {
     }
 
     Template.create(newTemplate, (err, item) => {
-        if (err)
-            res.status(500).error(err)
-        else {
-            template = item.save(function(err, template) {
+        if (err){
+            console.log(err);
+            res.status(500).send(err);
+        }else {
+            item.save(function(err, template) {
                 res.json(template);
             });
         }
