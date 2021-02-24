@@ -38,7 +38,7 @@ import AccordionSummary from "@material-ui/core/AccordionSummary";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Tooltip from "@material-ui/core/Tooltip";
-import SpeechInput from "./SpeechInput";
+import SpeechInput from "./CaptionSpeechInput";
 
 function MemeCreator() {
 
@@ -141,6 +141,9 @@ function MemeCreator() {
             'max-width': maxWidth + 'px',
             'max-height': maxHeight + 'px',
             overflow: 'hidden',
+        },
+        buttonStyle: {
+            height: 'fit-content',
         }
     }));
 

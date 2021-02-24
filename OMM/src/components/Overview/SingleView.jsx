@@ -17,11 +17,10 @@ import {
     Snackbar,
 } from "@material-ui/core";
 
-import { 
+import {
     ToggleButton,
     Alert,
- } from '@material-ui/lab';
-
+} from '@material-ui/lab';
 
 import {
     Hearing,
@@ -40,6 +39,8 @@ import {
     KeyboardDatePicker,
     MuiPickersUtilsProvider,
 } from '@material-ui/pickers';
+
+import { Chart } from "react-google-charts";
 
 import DateFnsUtils from '@date-io/date-fns';
 
@@ -231,7 +232,7 @@ const SingleView = () => {
         if (filterDateFrom && filterDateTill) {
             filteredList = memes.filter(meme => Moment(meme.creationDate) >= Moment(filterDateFrom));
             filteredList = filteredList.filter(meme => Moment(meme.creationDate) <= Moment(filterDateTill));
-        } else if(filterDateFrom) {
+        } else if (filterDateFrom) {
             filteredList = memes.filter(meme => Moment(meme.creationDate) >= Moment(filterDateFrom));
         } else if (filterDateTill) {
             filteredList = memes.filter(meme => Moment(meme.creationDate) <= Moment(filterDateTill));
@@ -327,7 +328,7 @@ const SingleView = () => {
                 randomize();
             } else {
                 current = currentMemeIndex === 0 ? memes.length - 1 : currentMemeIndex - 1;
-                 setCurrentMemeIndex(current);
+                setCurrentMemeIndex(current);
             }
 
         }
@@ -498,7 +499,6 @@ const SingleView = () => {
             </Grid>
         )
     };
-
 
 
 
@@ -782,6 +782,27 @@ const SingleView = () => {
                         </Button>
 
                     </Grid>
+                </Grid>
+                <Grid item xs={1} ></Grid>
+            </Grid>
+            <Grid container spacing={3}>
+                <Grid item xs={1} ></Grid>
+                <Grid container item xs={8}>
+                    <Chart
+                        width={'500px'}
+                        height={'300px'}
+                        chartType="PieChart"
+                        loader={<div>Loading Chart</div>}
+                        data={[
+                            ['Likes and Dislikes', 'Number'],
+                            ['Likes', memes[currentMemeIndex].hasOwnProperty("listlikes")? memes[currentMemeIndex].listlikes.length : 0],
+                            ['Dislikes', memes[currentMemeIndex].hasOwnProperty("dislikes")? memes[currentMemeIndex].dislikes.length : 0],
+                        ]}
+                        options={{
+                            title: 'Distribution of likes',
+                        }}
+                        rootProps={{ 'data-testid': '1' }}
+                    />
                 </Grid>
                 <Grid item xs={1} ></Grid>
             </Grid>

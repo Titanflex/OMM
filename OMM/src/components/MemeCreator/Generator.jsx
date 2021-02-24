@@ -61,6 +61,7 @@ const Generator = params => {
     const [generatedMeme, setGeneratedMeme] = useState(null);
     const [generatedMemeUrl, setGeneratedMemeUrl] = useState(null);
     const [isPublic, setIsPublic] = useState(true);
+    const [publicOpt, setpublicOpt] = useState("public");
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [renAnchorEl, setRenAnchorEl] = React.useState(null);
     const [selectedRenIndex, setSelectedRenIndex] = React.useState(1);
@@ -73,12 +74,17 @@ const Generator = params => {
     const [title, setTitle] = useState("");
     const [quality, setQuality] = useState(100);
 
+    const [titleError, setTitleError] = useState({
+        show: false,
+        text: "",
+    });
+
 
     //PublicMenu
     const pubOptions = [
-        'Private',
-        'Public',
-        'Unlisted',
+        'private',
+        'public',
+        'unlisted',
     ];
 
 
@@ -156,6 +162,22 @@ const Generator = params => {
         setGeneratedMemeUrl(null);
         setGeneratedMeme(null);
     };
+
+    const handleTitleInput = (event) => {
+        setTitle(event.target.value);
+        setTitleError({
+            show: false,
+            text: "",
+        });
+    }
+
+    const handleMissingTitle = () => {
+        setTitleError({
+            show: true,
+            text: "Enter a meme title",
+        });
+    }
+
 
 
     //Local meme generation
@@ -271,6 +293,7 @@ const Generator = params => {
             body: JSON.stringify({
                 title: title,
                 url: imageUrl,
+                publicOpt: pubOptions[selectedPubIndex],
                 author: localStorage.user,
                 creationDate: Date.now(),
                 upper: textArray,
@@ -376,7 +399,20 @@ const Generator = params => {
 
                     <div style={{maxHeight: window.innerHeight-100, overflow:"auto"}}>
                         {/* Text Field for Meme Title*/}
-                        <SpeechInputField ref={memeTitleRef} value={title} label="Meme Title" setValue={setTitle}/>
+                                                <TextField
+                            error={titleError.show}
+                            helperText={titleError.text}
+                            className={classes.spacing}
+                            id="name"
+                            label="Meme Title (mandatory)"
+                            placeholder=""
+                            fullWidth
+                            margin="normal"
+                            variant="outlined"
+                            value={title}
+                            onChange={(event) => handleTitleInput(event)}
+                        />
+                        {/* <SpeechInputField ref={memeTitleRef} value={title} label="Meme Title" setValue={setTitle}/> */}
                         <List component="nav" aria-label="Render settings">
                             <ListItem
                                 button
@@ -486,6 +522,7 @@ const Generator = params => {
                                     'author': localStorage.user,
                                     'title': title,
                                     'isPublic': isPublic,
+                                    'publicOpt': publicOpt,
                                     'type': 'meme',
                                     'upper': texts,
                                     'lower': "",

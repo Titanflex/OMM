@@ -12,28 +12,17 @@ import {
 import { FacebookShareButton, TwitterShareButton, RedditShareButton, WhatsappShareButton, FacebookIcon, TwitterIcon, RedditIcon, WhatsappIcon } from "react-share";
 
 
-import { ToggleButton } from '@material-ui/lab';
-
-
 import { makeStyles } from "@material-ui/core";
 import {
     ThumbUp,
-    GetApp,
-    Share,
     Mail,
     CloudDownload,
     ThumbDown,
 } from "@material-ui/icons";
 import Moment from 'moment';
-import domtoimage from "dom-to-image";
 import "./../../css/Overview/memeView.css";
-import { triggerBase64Download } from 'react-base64-downloader';
 
 const useStyles = makeStyles((theme) => ({
-    likeButton: {
-        "&:hover": { backgroundColor: "yellow" },
-        "&:focus": { backgroundColor: "yellow" }
-    }
 }));
 
 const MemeView = props => {
