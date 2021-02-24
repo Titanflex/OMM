@@ -11,7 +11,7 @@ import {
 
 import { FacebookShareButton, TwitterShareButton, RedditShareButton, WhatsappShareButton, FacebookIcon, TwitterIcon, RedditIcon, WhatsappIcon } from "react-share";
 
-
+import AuthService from "../../services/auth.service";
 import { makeStyles } from "@material-ui/core";
 import {
     ThumbUp,
@@ -114,12 +114,9 @@ const MemeView = props => {
         await fetch("http://localhost:3030/memeIO/like-meme", {
             method: "POST",
             mode: "cors",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: AuthService.getTokenHeader(),
             body: JSON.stringify({
                 id: memeInfo._id,
-                user: localStorage.user,
                 date: Date.now(),
             }),
         }).then((response) => {
@@ -132,12 +129,9 @@ const MemeView = props => {
         await fetch("http://localhost:3030/memeIO/remove-like-meme", {
             method: "POST",
             mode: "cors",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: AuthService.getTokenHeader(),
             body: JSON.stringify({
-                id: memeInfo._id,
-                user: localStorage.user,
+                id: memeInfo._id
             }),
         }).then((response) => {
             console.log(response);
@@ -149,12 +143,9 @@ const MemeView = props => {
         await fetch("http://localhost:3030/memeIO/dislike-meme", {
             method: "POST",
             mode: "cors",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: AuthService.getTokenHeader(),
             body: JSON.stringify({
                 id: memeInfo._id,
-                user: localStorage.user,
                 date: Date.now,
             }),
         }).then((response) => {
@@ -166,12 +157,9 @@ const MemeView = props => {
         await fetch("http://localhost:3030/memeIO/remove-dislike-meme", {
             method: "POST",
             mode: "cors",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: AuthService.getTokenHeader(),
             body: JSON.stringify({
-                id: memeInfo._id,
-                user: localStorage.user,
+                id: memeInfo._id
             }),
         }).then((response) => {
             console.log(response);

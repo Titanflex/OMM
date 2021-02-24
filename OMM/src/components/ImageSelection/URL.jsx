@@ -6,6 +6,8 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import TextField from "@material-ui/core/TextField";
 import LinkIcon from '@material-ui/icons/Link';
 
+import AuthService from "../../services/auth.service";
+
 import "./../../css/ImageSelection/imageSelection.css";
 
 
@@ -87,15 +89,13 @@ const URL = params => {
     }
 
     async function saveTemplate() {
+        console.log(AuthService.getTokenHeader());
         fetch("http://localhost:3030/memeIO/save-template", {
             method: "POST",
             mode: "cors",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: AuthService.getTokenHeader(),
             body: JSON.stringify({
                 internetSource: true,
-                author: localStorage.user,
                 title: title,
                 url: url,
             }),
@@ -112,12 +112,9 @@ const URL = params => {
         await fetch("http://localhost:3030/memeIO/webshot", {
             method: "POST",
             mode: "cors",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: AuthService.getTokenHeader(),
             body: JSON.stringify({
                 url: url,
-                author: localStorage.user,
                 title: title
             }),
         }).then((res) => {
@@ -196,7 +193,7 @@ const URL = params => {
                         onClick={handleSave}
                         color="secondary"
                     >
-                        {isLoading ? <CircularProgress color="white"/> : "Load Image"}
+                        {isLoading ? <CircularProgress/> : "Load Image"}
 
                     </Button>
                 </div>

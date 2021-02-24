@@ -16,6 +16,8 @@ import Camera from "../ImageSelection/Camera";
 import Paint from "../ImageSelection/Paint";
 import URL from "../ImageSelection/URL";
 
+import AuthService from "../../services/auth.service";
+
 import "./../../css/ImageSelection/imageSelection.css";
 
 // Register the plugins
@@ -151,17 +153,14 @@ const ImageSelection = params => {
    * @param {boolean} internetSource Is true for images directly downloaded from user provided URL
    */
   async function saveTemplate(title, src, internetSource) {
-
+      console.log(AuthService.getTokenHeader());
 
         fetch("http://localhost:3030/memeIO/save-template", {
           method: "POST",
           mode: "cors",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: AuthService.getTokenHeader(),
           body: JSON.stringify({
             internetSource: internetSource,
-            author: localStorage.user,
             title: title,
             url: src,
           }),
@@ -222,7 +221,7 @@ const ImageSelection = params => {
                       url: '/upload-Template',
                       method: 'POST',
                       headers: {
-                        'author': localStorage.user,
+                        'x-auth-token': localStorage.token,
                         'templateName': "test"
                       },
                       onload: (response) =>{
