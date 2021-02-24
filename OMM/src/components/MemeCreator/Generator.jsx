@@ -61,7 +61,6 @@ const Generator = params => {
     const [generatedMeme, setGeneratedMeme] = useState(null);
     const [generatedMemeUrl, setGeneratedMemeUrl] = useState(null);
     const [isPublic, setIsPublic] = useState(true);
-    const [publicOpt, setpublicOpt] = useState("public");
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [renAnchorEl, setRenAnchorEl] = React.useState(null);
     const [selectedRenIndex, setSelectedRenIndex] = React.useState(1);
@@ -504,7 +503,7 @@ const Generator = params => {
                                     'author': localStorage.user,
                                     'title': title,
                                     'isPublic': isPublic,
-                                    'publicOpt': publicOpt,
+                                    'publicOpt': pubOptions[selectedPubIndex],
                                     'type': 'meme',
                                     'upper': texts,
                                     'lower': "",

@@ -47,13 +47,12 @@ memeIO.use(function(req, res, next) {
 
     // Request headers you wish to allow
 
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,creationDate, author,templateName,description,upper, lower, type, tags, title, caption, isPublic');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type,creationDate, author,templateName,description,upper, lower, type, tags, title, caption, isPublic, publicOpt');
 
     // Set to true if you need the website to include cookies in the requests sent
     // to the API (e.g. in case you use sessions)
     res.setHeader('Access-Control-Allow-Credentials', true);
 
-    // Pass to next layer of middleware
     next();
 });
 
@@ -61,6 +60,16 @@ memeIO.use(function(req, res, next) {
 /* Get all memes from the database */
 memeIO.get('/get-memes', (req, res) => {
     Meme.find({}, function(err, docs) {
+        if (err)
+            return res.status(500).send(err);
+        res.json({ code: 200, docs })
+    })
+});
+
+/* GET memeIO/get-memes */
+/* Get all memes from the database */
+memeIO.get('/get-public-memes', (req, res) => {
+    Meme.find({publicOpt: "public" }, function(err, docs) {
         if (err)
             return res.status(500).send(err);
         res.json({ code: 200, docs })
@@ -340,7 +349,7 @@ memeIO.post('/create-simple-meme', async(req, res) => {
             creationDate: Date.now(),
             url: url,
             isPublic: true,
-            publicOpt: "public",
+            publicOpt: req.body.publicOpt,
             likes: 0,
             tags: analysis.tags,
             description: analysis.description.captions[0].text,
@@ -382,7 +391,7 @@ memeIO.post('/create-meme', async(req, res) => {
             title: req.body.title,
             url: url,
             isPublic: true,
-            publicOpt: req.body.publicOpt,
+            publicOpt: "public",
             tags: analysis.tags,
             description: analysis.description.captions[0].text,
             caption: req.body.textBoxes.map(textBox => textBox.text),
@@ -420,7 +429,7 @@ memeIO.post('/create-memes', async(req, res) => {
                 title: template.name,
                 url: url,
                 isPublic: true,
-                publicOpt: true,
+                publicOpt: "public",
                 tags: analysis.tags,
                 description: analysis.description.captions[0].text,
                 caption: req.body.textBoxes.map(textBox => textBox.text),

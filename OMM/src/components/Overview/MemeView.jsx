@@ -74,7 +74,6 @@ const MemeView = props => {
                         a.download = memeInfo.title + ".jpeg";
                         a.click();
                     });
-
             }
         )
     };
@@ -235,6 +234,9 @@ const MemeView = props => {
                             </Typography>
                             <Typography variant="body2">
                                 Votes: {(likes ? likes.length : 0) - (dislikes ? dislikes.length : 0)}
+                            </Typography>
+                            <Typography variant="body2">
+                                Public: {memeInfo.hasOwnProperty('publicOpt') ? memeInfo.publicOpt : "No pulic state"}
                             </Typography>
                         </div>
                     </Grid>

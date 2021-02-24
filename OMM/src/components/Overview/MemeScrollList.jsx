@@ -281,7 +281,7 @@ function MemeScrollList() {
     };
 
     const loadMemes = async () => {
-        await fetch("http://localhost:3030/memeIO/get-memes").then(res => {
+        await fetch("http://localhost:3030/memeIO/get-public-memes").then(res => {
             res.json().then(json => {
                 setMemes(json.docs);
                 setOriginalMemes(json.docs);

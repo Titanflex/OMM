@@ -13,11 +13,7 @@ const memeSchema = new Schema({
 
     isPublic: Boolean,
 
-    /*likes: {
-        type: Number,
-        default: 0,
-    },
-    */
+    publicOpt : String,
 
     listlikes:[{
         date: Date, 
