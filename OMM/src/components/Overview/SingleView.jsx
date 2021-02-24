@@ -16,6 +16,7 @@ import {
     Checkbox,
     Snackbar,
 } from "@material-ui/core";
+import { Video } from 'react-video-stream'
 
 import {
     ToggleButton,
@@ -69,8 +70,8 @@ const useStyles = makeStyles((theme) => ({
         marginRight: theme.spacing(2),
     },
     formControl: {
-        margin: theme.spacing(1),
-        minWidth: 120,
+        marginTop: theme.spacing(1),
+        marginRight: theme.spacing(2),
     },
     selectEmpty: {
         marginTop: theme.spacing(2),
@@ -82,6 +83,35 @@ const useStyles = makeStyles((theme) => ({
         boxShadow: theme.shadows[5],
         padding: theme.spacing(2, 4, 3),
     },
+    numberField:{
+        width: `${15}%`,
+        marginTop: theme.spacing(1),
+        marginRight: theme.spacing(2),
+    },
+    filterButton:{
+        height: `${70}%`,
+        marginTop: theme.spacing(2),
+        marginRight: theme.spacing(2),
+    },
+    commentField: {
+        minWidth: `${90}%`,
+        marginTop: theme.spacing(2),
+        marginRight: theme.spacing(2),
+    },
+    publishButton: { 
+        marginTop: `${1}%`,
+        marginRight: `${10}%`,
+    },
+    commentBox:{
+        marginTop: theme.spacing(1),
+        marginRight: theme.spacing(2),
+        minWidth: `${80}%`,
+        backgroundColor: theme.palette.background.paper,
+        padding: `${2}%`,
+        borderColor: theme.palette.primary.main,
+    },
+    
+
 
 }));
 
@@ -137,12 +167,22 @@ const SingleView = () => {
     const [modalStyle] = useState(getModalStyle);
     const classes = useStyles();
 
+    const [isVideoLoading, setIsVideoLoading] = useState(true);
+
+    const videoTag = useRef(null);
+    const canvasRef = useRef(null);
+    const requestRef = React.useRef();
+
 
     //randomize index
     const [isAccessible, setIsAccessible] = useState(false);
 
+    const url = 'http://example.com/manifest.mpd'
 
-
+    const options = {
+        requestHeader: 'Authorization',
+        requestToken: 'access_token'
+    }
 
 
     //Modal
@@ -229,7 +269,7 @@ const SingleView = () => {
 
         let filteredList = [];
 
-        if (filterDateFrom && filterDateTill) {
+        if (filterDateFrom && filterDateTill && (Moment(filterDateTill) > Moment(filterDateFrom))) {
             filteredList = memes.filter(meme => Moment(meme.creationDate) >= Moment(filterDateFrom));
             filteredList = filteredList.filter(meme => Moment(meme.creationDate) <= Moment(filterDateTill));
         } else if (filterDateFrom) {
@@ -256,6 +296,9 @@ const SingleView = () => {
 
         } else if (fileFormatOpt === "png") {
             filteredList = memes.filter(meme => meme.url.includes("png"));
+        }
+        else if (fileFormatOpt === "jpeg") {
+            filteredList = memes.filter(meme => meme.url.includes("jpeg"));
         }
         if (filteredList.length === 0) {
             handleOpenSnack();
@@ -407,7 +450,7 @@ const SingleView = () => {
     }
 
     const loadMemes = async () => {
-        await fetch("http://localhost:3030/memeIO/get-memes").then(res => {
+        await fetch("http://localhost:3030/memeIO/get-public-memes").then(res => {
             res.json().then(json => {
                 setMemes(json.docs);
                 setOriginalMemes(json.docs);
@@ -426,13 +469,58 @@ const SingleView = () => {
         })
     };
 
+    let ind = 0;
+    var img = new Image;
+
+    const tick = () => {
+        const memeList = memes;
+        const checkVideoState = setInterval(() => {
+            img.src = memeList[ind].url;
+            if (img.src) {
+                clearInterval(checkVideoState);
+
+                setIsVideoLoading(false);
+               
+                const canvasElement = canvasRef.current;
+                if (canvasElement){
+                const canvasContext = canvasElement.getContext("2d");
+
+                canvasContext.height = img.height;
+                canvasContext.width = img.width;
+                canvasContext.drawImage(
+                    img,
+                    0,
+                    0,
+                    canvasElement.width,
+                    canvasElement.height
+                );
+                
+                }
+                
+                if (memeList.length > 1) {
+                        ind = ind === 0 ? memeList.length - 1 : ind - 1;
+                }
+        }
+        }, 2000);
+    }
+
+
+
+
     useEffect(() => {
+        const video = videoTag.current;
+        video.setAttribute("playsinline", true);
+        video.play();
         loadMemes();
+        requestRef.current = requestAnimationFrame(tick);
+    //return () => cancelAnimationFrame(requestRef.tick);
+
+
     }, []);
 
     const getUpdatedMemes = async () => {
         console.log("update Parent");
-        await fetch("http://localhost:3030/memeIO/get-memes").then(res => {
+        await fetch("http://localhost:3030/memeIO/get-public-memes").then(res => {
             res.json().then(json => {
                 setMemes(json.docs);
                 return json;
@@ -465,31 +553,41 @@ const SingleView = () => {
         return (
             <Grid container spacing={1}>
                 {
-                    (currentMeme.hasOwnProperty("comments") ?
+                     (currentMeme.hasOwnProperty("comments") ?
                         currentMeme.comments.map((comment) => (
 
-                            <div key={comment._id} style={{ width: '100%' }}>
+                            <div  className={classes.spacing} key={comment._id} style={{ width: '90%' }}>
+                                
                                 <Box
-                                    className="classes.spacing"
-                                    bgcolor="background.theme.palette.paper"
-                                    p={{ xs: 2, sm: 3, md: 4 }}
+                                border={1}
+                                    className={classes.commentBox}
+                                    borderRadius="borderRadius"
+                                    
                                 >
-                                    <Typography variant="body1">
-                                        Author: {comment.hasOwnProperty('user') ? comment.user : "Anonymous"}
-                                    </Typography>
+
+<Grid container spacing={2}>
+                                      <Grid item xs={9}>
                                     <Typography variant="body2">
-                                        Created: {comment.hasOwnProperty('date') ? Moment(comment.date).format('MMM Do YY') : "No date"}
+                                       Comment from {comment.hasOwnProperty('user') ? comment.user : "Anonymous"} on the {comment.hasOwnProperty('date') ? Moment(comment.date).format('MMM Do YY') : "No date"}:
                                     </Typography>
-                                    <Typography variant="body2">
+                                    <Typography variant="body1" className={classes.spacing}>
                                         {comment.hasOwnProperty('commenttext') ? comment.commenttext : "No text"}
                                     </Typography>
-                                    {(comment.user == localStorage.user) ? <IconButton
+                                    </Grid>
+
+
+                                    {(comment.user == localStorage.user) ?
+                                      <Grid item xs container justify="flex-end">
+                                      <IconButton
                                         onClick={() => handleDeleteCommentClick(comment)}
                                         variant="contained"
                                         edge="end"
                                     >
                                         < Close />
-                                    </IconButton> : null}
+                                    </IconButton> 
+                                 </Grid>
+                                      : null}
+                                      </Grid>
                                 </Box>
                             </div>
                         )) : null)
@@ -507,7 +605,6 @@ const SingleView = () => {
             <Grid container spacing={3}>
                 <Grid item xs>
                     <ToggleButton
-
                         className={classes.spacing}
                         value="check"
                         selected={isPlaying}
@@ -548,14 +645,18 @@ const SingleView = () => {
                             />
                         </form>
                     </div></Grid>
+
                 <Grid item xs>
-                    <IconButton
+                    <Button
                         onClick={handleOpen}
-                        variant="contained"
+                        className={classes.filterButton}
+                        variant="outlined"
                         edge="end"
+                        size="medium"
+                        startIcon={<Tune />}
                     >
-                        < Tune />
-                    </IconButton>
+                        Filter
+                    </Button>
                     <Modal
                         open={open}
                         onClose={handleClose}
@@ -567,6 +668,7 @@ const SingleView = () => {
                             <Typography variant="h5">
                                 Filter by
                             </Typography>
+                            <div>
                             <FormControlLabel
                                 control={
                                     <Checkbox
@@ -610,7 +712,8 @@ const SingleView = () => {
                                     </MuiPickersUtilsProvider>
                                 </div>
                                 : null}
-
+</div>
+<div>
                             <FormControlLabel
                                 control={
                                     <Checkbox
@@ -625,10 +728,10 @@ const SingleView = () => {
                             {isFilteredByVote ?
                                 <div>
                                     <FormControl variant="outlined" className={classes.formControl}>
-                                        <InputLabel id="label-Vote-Option">Select</InputLabel>
+                                        <InputLabel htmlFor="outlined-age-native-simple">Votes</InputLabel>
                                         <Select
-                                            native
-                                            labelId="label-Vote-Option"
+                                        native
+                                            label="Votes"
                                             id="select-Vote-Option"
                                             value={voteEquals}
                                             onChange={handleFilterVoteChange}
@@ -645,15 +748,16 @@ const SingleView = () => {
                                         id="standard-basic"
                                         type="number"
                                         variant="outlined"
-                                        label="Standard"
-
+                                        label="Number"
+                                        className={classes.numberField}
                                         value={voteNumber}
                                         onChange={(event) => setVoteNumber(event.target.value)}
                                     />
 
                                 </div>
                                 : null}
-
+</div>
+<div>
                             <FormControlLabel
                                 control={
                                     <Checkbox
@@ -668,26 +772,23 @@ const SingleView = () => {
                             {isFilteredByFileFormat ?
                                 <div>
                                     <FormControl variant="outlined" className={classes.formControl}>
-                                        <InputLabel id="label-Sort-Option">Sort by</InputLabel>
+                                        <InputLabel htmlFor="outlined-format-native-simple">FileFormat</InputLabel>
                                         <Select
                                             native
-                                            labelId="label-FileFormat-Option"
+                                            label="FileFormat"
                                             id="select-FileFormat-Option"
                                             value={fileFormatOpt}
                                             onChange={handleFilterFileFormatChange}
-                                            inputProps={{
-                                                id: 'outlined-age-native-simple',
-                                            }}
                                         >
                                             <option value={"png"}>png</option>
                                             <option value={"jpg"}>jpg</option>
+                                            <option value={"jpeg"}>jpeg</option>
 
                                         </Select>
                                     </FormControl>
                                 </div>
                                 : null}
-
-
+</div>
                             <Button
                                 className="classes.buttonStyle selection"
                                 variant="contained"
@@ -708,12 +809,11 @@ const SingleView = () => {
   </Alert>
                     </Snackbar>
 
-                    <FormControl variant="outlined" className={classes.formControl}>
-                        <InputLabel id="label-Sort-Option">Sort by</InputLabel>
+                    <FormControl variant="outlined" className={classes.spacing}>
+                    <InputLabel htmlFor="outlined-format-native-simple">Sort by</InputLabel>
                         <Select
                             native
-                            labelId="label-Sort-Option"
-                            //label="Sort by"
+                            label="Sort by"
                             id="select-Sort-Option"
                             value={sortOpt}
                             onChange={handleSortOptChange}
@@ -724,23 +824,25 @@ const SingleView = () => {
 
                         </Select>
                     </FormControl>
-                    <IconButton
-                        aria-label="toggle sortDown"
-                        onClick={handleClickSortDirection}
-                        edge="end"
-                    >
-                        {sortDown ? <ArrowUpward /> : <ArrowDownward />}
-                    </IconButton>
+                   
+                    <ToggleButton
+                        className={classes.filterButton}
+                        value="check"
+                        onChange={() => {
+                            handleClickSortDirection();
+                        }}
+                    > {sortDown ? <ArrowUpward /> : <ArrowDownward />}
+                    </ToggleButton>
                 </Grid>
             </Grid>
 
-            <Grid container spacing={3}>
+            <Grid container  className={classes.spacing} spacing={3}>
                 <Grid item xs={1} >
                     <IconButton className="arrows" onClick={previousMeme} aria-label="previous">
                         <ChevronLeft fontSize="large" />
                     </IconButton>
                 </Grid>
-                <Grid item xs={8}>
+                <Grid item xs={9}>
                     <SingleMeme listmemes={memes} />
 
                 </Grid>
@@ -751,28 +853,31 @@ const SingleView = () => {
                 </Grid>
             </Grid>
 
-            <Grid container spacing={3}>
+            <Grid container className={classes.spacing}  spacing={3}>
                 <Grid item xs={1} ></Grid>
-                <Grid container item xs={8}>
+                <Grid container direction="column" item xs={8}>
 
                     <Grid item xs>
-                        <ListComments className={classes.spacing} currentMeme={memes[currentMemeIndex]} />
+                <Typography className={classes.spacing} variant="body1">
+                    Comments:
+                </Typography>
+                        
                     </Grid>
 
                     <Grid item xs>
                         <TextField
+                        className={classes.commentField}
                             id="outlined-multiline-static"
                             label="Add comment"
                             multiline
-                            rows={4}
+                            rows={3}
                             variant="outlined"
                             onChange={(event) => setComment(event.target.value)}
                             value={comment}
                         />
-
+<Grid item xs container justify="flex-end">
                         <Button
-                            className="classes.buttonStyle selection"
-                            //startIcon={<CloudDownload />}
+                            className={classes.publishButton}
                             variant="contained"
                             color="secondary"
                             disabled={!memes[currentMemeIndex]}
@@ -780,8 +885,10 @@ const SingleView = () => {
                         >
                             Publish
                         </Button>
+                        </Grid>
 
                     </Grid>
+                    <ListComments className={classes.spacing} currentMeme={memes[currentMemeIndex]} />
                 </Grid>
                 <Grid item xs={1} ></Grid>
             </Grid>
@@ -795,8 +902,8 @@ const SingleView = () => {
                         loader={<div>Loading Chart</div>}
                         data={[
                             ['Likes and Dislikes', 'Number'],
-                            ['Likes', memes[currentMemeIndex].hasOwnProperty("listlikes")? memes[currentMemeIndex].listlikes.length : 0],
-                            ['Dislikes', memes[currentMemeIndex].hasOwnProperty("dislikes")? memes[currentMemeIndex].dislikes.length : 0],
+                            ['Likes', memes[currentMemeIndex].hasOwnProperty("listlikes") ? memes[currentMemeIndex].listlikes.length : 0],
+                            ['Dislikes', memes[currentMemeIndex].hasOwnProperty("dislikes") ? memes[currentMemeIndex].dislikes.length : 0],
                         ]}
                         options={{
                             title: 'Distribution of likes',
@@ -804,7 +911,21 @@ const SingleView = () => {
                         rootProps={{ 'data-testid': '1' }}
                     />
                 </Grid>
-                <Grid item xs={1} ></Grid>
+                <Grid item xs >
+                    <div>
+                        <video
+                            ref={videoTag}
+                            width="400"
+                            height="400"
+                            autoPlay
+                            style={{ display: "none" }}
+                        />
+
+                        {!isVideoLoading && <canvas ref={canvasRef} />}
+
+                        {isVideoLoading && <p>Please wait while we load the video stream.</p>}
+                    </div>
+                </Grid>
             </Grid>
 
         </Container >
