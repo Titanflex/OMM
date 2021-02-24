@@ -522,8 +522,8 @@ const Generator = params => {
                                 headers: {
                                     'author': localStorage.user,
                                     'title': title,
-                                    'isPublic': isPublic,
-                                    'publicOpt': pubOptions[selectedPubIndex],
+                                    'ispublic': isPublic,
+                                    'publicopt': pubOptions[selectedPubIndex],
                                     'type': 'meme',
                                     'upper': texts,
                                     'lower': "",
