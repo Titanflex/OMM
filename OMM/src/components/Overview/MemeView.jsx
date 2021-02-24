@@ -223,16 +223,24 @@ const MemeView = props => {
                             <Typography variant="body2">
                                 Votes: {(likes ? likes.length : 0) - (dislikes ? dislikes.length : 0)}
                             </Typography>
-                            <Typography variant="body2">
-                                Public: {memeInfo.hasOwnProperty('publicOpt') ? memeInfo.publicOpt : "No pulic state"}
-                            </Typography>
                         </div>
                     </Grid>
 
                     <Grid item xs>
-                        <div className={classes.rateMemeButtons}>
+                        {memeInfo.publicOpt=="unlisted" ? 
+                        <div>
+                            <Typography variant="body2">
+                                unlisted link:
+                            </Typography>
+                            <Typography variant="body2">
+                               <Link href={memeInfo.url}>{memeInfo.url}</Link> 
+                            </Typography>
+                            </div>
+                        :null}
+                        
+                  
+                          <div className={classes.rateMemeButtons}>
                             <Button
-
                                 className="classes.buttonStyle selection"
                                 startIcon={<CloudDownload />}
                                 variant="contained"
@@ -243,6 +251,8 @@ const MemeView = props => {
                                 <i className="fa fa-download" />
                                 Download
                             </Button>
+                            {(memeInfo.publicOpt=="public" || memeInfo.publicOpt=="unlisted")  ? 
+                            <div>
                             <Button
 
                                 className="classes.buttonStyle selection"
@@ -268,13 +278,6 @@ const MemeView = props => {
                                     horizontal: 'center',
                                 }}
                             >
-                                <FacebookShareButton
-                                    url={memeInfo.url}
-                                    quote={"YoU cAN't cREatE GoOd mEMes wiTh An oNLiNE MEme cReAToR!!!!11!"}
-                                    hashtag="#OMMeme"
-                                    className={classes.socialMediaButton}>
-                                    <FacebookIcon size={36} round />
-                                </FacebookShareButton>
                                 <TwitterShareButton
                                     title={"OMMemes = Stonks"}
                                     url={memeInfo.url}
@@ -297,6 +300,9 @@ const MemeView = props => {
                                 </WhatsappShareButton>
                             </Popover>
                         </div>
+
+                        :null}
+                        </div>
                     </Grid>
                     <Grid item xs>
                         <div>
@@ -316,7 +322,6 @@ const MemeView = props => {
                                 variant="contained"
                                 color={(!disliked) ? "secondary" : "primary"}
                                 onClick={handleDislikeClick}
-
                             >
                                 <ThumbDown />
                             </IconButton>

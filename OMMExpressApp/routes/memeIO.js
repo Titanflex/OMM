@@ -13,6 +13,7 @@ const auth = require('../middleware/auth')
 const Meme = require('../models/memeSchema');
 const User = require('../models/userSchema')
 const Template = require('../models/templateSchema');
+const Draft = require('../models/draftSchema');
 var Jimp = require('jimp');
 
 
@@ -56,6 +57,48 @@ memeIO.use(function(req, res, next) {
     res.setHeader('Access-Control-Allow-Credentials', true);
 
     next();
+});
+
+
+/* POST /memeIO/save-draft */
+/* Create new Draft */
+memeIO.post("/save-draft", async(req, res) => {
+    console.log(req.body);
+    let newDraft = {
+        author: req.body.author,
+        creationDate: Date.now(),
+        src: req.body.src,
+        bold: req.body.bold,
+        italic: req.body.italic,
+        color: req.body.color,
+        fontSize: req.body.fontSize,
+        isFreestyle: req.body.isFreestyle,
+        imageProperties: req.body.imageProperties,
+        canvasWidth: req.body.canvasWidth,
+        canvasHeight: req.body.canvasHeight,
+        text: req.body.text,
+    }
+
+    Draft.create(newDraft, (err, item) => {
+        if (err) {
+            console.log(err);
+            res.status(500).send(err);
+        } else {
+            item.save(function(err, draft) {
+                res.json(draft);
+            });
+        }
+    })
+});
+
+/* GET memeIO/get-memes */
+/* Get all memes from the database */
+memeIO.post('/get-drafts', (req, res) => {
+    Draft.find({ author: req.body.author }, function(err, docs) {
+        if (err)
+            return res.status(500).send(err);
+        res.json({ code: 200, docs })
+    })
 });
 
 /* GET memeIO/get-memes */
@@ -208,9 +251,9 @@ memeIO.post('/upload-Meme', uploadMeme.single("file"), auth, async(req, res) => 
     const newMeme = {
         title: req.headers.title,
         url: url,
-        author: author,
-        isPublic: req.headers.isPublic,
-        publicOpt: req.headers.publicOpt,
+        author: req.headers.author,
+        isPublic: req.headers.ispublic,
+        publicOpt: req.headers.publicopt,
         creationDate: Date.now(),
         likes: 0,
         tags: analysis.tags,

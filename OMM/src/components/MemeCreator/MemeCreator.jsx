@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import {
     Typography,
     Grid,
@@ -24,7 +24,7 @@ import {
 } from "@material-ui/icons";
 
 
-import { TwitterPicker } from 'react-color';
+import {TwitterPicker} from 'react-color';
 
 
 import ImageSelection from "../ImageSelection/ImageSelection";
@@ -151,12 +151,12 @@ function MemeCreator() {
 
     useEffect(() => {
         getTemplates();
-    },[]);
+    }, []);
 
     async function getTemplates() {
         const res = await fetch("http://localhost:3030/memeIO/get-templates");
         const json = await res.json();
-        if(json.docs.length > 0) {
+        if (json.docs.length > 0) {
             setTemplates(json.docs);
         }
     }
@@ -204,6 +204,7 @@ function MemeCreator() {
     }
 
 
+    const [imageProperties, setImageProperties] = useState([])
     const addImage = () => {
         window.addEventListener("mousedown", function getPosition(e) {
             console.log(e.target.type);
@@ -211,15 +212,16 @@ function MemeCreator() {
                 alert("Place image on Canvas or increase size of Canvas")
                 return addImage();
             }
-            var rect = e.target.getBoundingClientRect();
-            console.log(selectedImage);
-            var x = e.clientX - rect.x;
-            var y = e.clientY - rect.y;
+            let rect = e.target.getBoundingClientRect();
+            let x = e.clientX - rect.x;
+            let y = e.clientY - rect.y;
             let img = <img className={classes.memeImg} src={selectedImage.url} alt={"meme image"}
-                style={{ position: "absolute", left: x, top: y }} />
+                           style={{position: "absolute", left: x, top: y}}/>
             setImages((prev) => [...prev, img]);
+            setImageProperties((prev) => [...prev, [x, y, selectedImage.url]]);
+            console.log(imageProperties);
             setSelectedImage(null);
-        }, { once: true })
+        }, {once: true})
 
 
     }
@@ -236,31 +238,89 @@ function MemeCreator() {
         left: '0px',
     }
 
+    const saveAsDraft = () => {
+        fetch("http://localhost:3030/memeIO/save-draft", {
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                author: localStorage.user,
+                src: templates[currentTemplateIndex].url,
+                bold: bold,
+                italic: italic,
+                color: color,
+                fontSize: fontSize,
+                isFreestyle: isFreestyle,
+                imageProperties: imageProperties,
+                canvasWidth: canvasWidth,
+                canvasHeight: canvasHeight,
+                text: upper,
+            }),
+        })
+    }
+
+    async function getDraft() {
+        console.log("getDraft");
+        await fetch("http://localhost:3030/memeIO/get-drafts", {
+            method: "POST",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                author: localStorage.user,
+            }),
+        }).then(res => {
+            res.json().then(json => {
+                let drafts = json.docs;
+                console.log(drafts);
+                setBold(drafts[0].bold);
+                setItalic(drafts[0].italic);
+                setColor(drafts[0].color);
+                setFontSize(drafts[0].fontSize);
+                setIsFreestyle(drafts[0].isFreestyle);
+                setUpper(drafts[0].text);
+                setImageProperties(drafts[0].imageProperties);
+                setCanvasHeight(drafts[0].canvasHeight);
+                setCanvasWidth(drafts[0].canvasWidth);
+                setImages([]);
+                imageProperties.forEach((imageProperty) => {
+                    const img = <img className={classes.memeImg} src={imageProperty[2]} alt={"meme image"}
+                                     style={{position: "absolute", left: imageProperty[0], top: imageProperty[1]}}/>;
+                     setImages((prev) => [...prev, img]);
+                })
+
+            })
+        })
+    }
+
     return (
         <Container className="memeCreatorContainer">
             <Typography className={classes.heading} variant="h4">
                 Hello {localStorage.user}!
             </Typography>
-            <Grid container alignItems="start" spacing={3} >
-                <Grid item s={1} >
+            <Grid container alignItems="start" spacing={3}>
+                <Grid item s={1}>
                     <IconButton className="arrows" onClick={previousMeme} aria-label="previous" disabled={isFreestyle}>
-                        <ArrowLeft fontSize="large" />
+                        <ArrowLeft fontSize="large"/>
                     </IconButton>
                 </Grid>
-                <Grid item s={8} style={{overflow: "hidden" }}>
+                <Grid item s={8} style={{overflow: "hidden"}}>
                     <IconButton
                         className={"textFormatButton"}
                         onClick={toggleBold}
-                        style={bold ? { background: "grey" } : { background: "white" }}
+                        style={bold ? {background: "grey"} : {background: "white"}}
                     >
-                        <FormatBold />
+                        <FormatBold/>
                     </IconButton>
                     <IconButton
                         className={"textFormatButton"}
                         onClick={toggleItalic}
-                        style={italic ? { background: "grey" } : { background: "white" }}
+                        style={italic ? {background: "grey"} : {background: "white"}}
                     >
-                        <FormatItalic />
+                        <FormatItalic/>
                     </IconButton>
                     <IconButton
                         className={"textFormatButton"}
@@ -271,10 +331,11 @@ function MemeCreator() {
                                 setDisplayColorPicker(true)
                             }
                         }}>
-                        <FormatColorTextIcon />
+                        <FormatColorTextIcon/>
                     </IconButton>
 
-                    {displayColorPicker ? <div style={popover} > <div style={cover} onClick={() => setDisplayColorPicker(false)} />
+                    {displayColorPicker ? <div style={popover}>
+                        <div style={cover} onClick={() => setDisplayColorPicker(false)}/>
                         <TwitterPicker
                             className="colorPicker"
                             triangle={"hide"}
@@ -297,9 +358,10 @@ function MemeCreator() {
                         <div className="memeContainer" id={"memeContainer"}>
                             <div id="memeDiv" className={classes.memeCanvas} id={'memeCanvas'}>
                                 {!isFreestyle && templates.length > 0 &&
-                                    <img className={classes.memeImg} src={templates[currentTemplateIndex].url}
-                                        alt={"meme image"} />}
-                                {isFreestyle && <div id="freestyleCanvas" className={classes.freestyleCanvas}> {images} </div> }
+                                <img className={classes.memeImg} src={templates[currentTemplateIndex].url}
+                                     alt={"meme image"}/>}
+                                {isFreestyle &&
+                                <div id="freestyleCanvas" className={classes.freestyleCanvas}> {images} </div>}
                                 <textarea
                                     type="text"
                                     className={classes.textFormat + " memeText " + classes.upperText}
@@ -315,11 +377,11 @@ function MemeCreator() {
                 <Grid item s={1}>
 
                     <IconButton className="arrows" onClick={nextMeme} aria-label="next" disabled={isFreestyle}>
-                        <ArrowRight fontSize="large" />
+                        <ArrowRight fontSize="large"/>
 
                     </IconButton>
                 </Grid>
-                <Grid item s={2} >
+                <Grid item s={2}>
                     <ImageSelection
                         isFreestyle={isFreestyle}
                         memeTemplates={templates}
@@ -357,7 +419,7 @@ function MemeCreator() {
                                 label="Canvas Height"
                                 placeholder="Canvas Height"
                                 value={canvasHeight}
-                                InputProps={{ inputProps: { max: maxHeight, min: minHeight } }}
+                                InputProps={{inputProps: {max: maxHeight, min: minHeight}}}
                                 onChange={(event) => setCanvasHeight(event.target.value)}
                             />
                             <TextField
@@ -367,7 +429,7 @@ function MemeCreator() {
                                 label="Canvas Width"
                                 placeholder="Canvas Width"
                                 value={canvasWidth}
-                                InputProps={{ inputProps: { max: maxWidth, min: minWidth } }}
+                                InputProps={{inputProps: {max: maxWidth, min: minWidth}}}
                                 onChange={(event) => setCanvasWidth(event.target.value)}
                             />
                         </AccordionDetails>
@@ -403,8 +465,14 @@ function MemeCreator() {
                         template={templates[currentTemplateIndex]}
                         fontSize={fontSize}
                         text={upper}/>
-
-
+                    <Button
+                        onClick={saveAsDraft}>
+                        Save as Draft
+                    </Button>
+                    <Button
+                        onClick={() => getDraft()}>
+                        Continue Draft
+                    </Button>
                 </Grid>
             </Grid>
         </Container>
