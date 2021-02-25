@@ -7,11 +7,12 @@ import {
     Button,
     Popover,
     Link,
+    Box,
 } from "@material-ui/core";
 
 import { FacebookShareButton, TwitterShareButton, RedditShareButton, WhatsappShareButton, FacebookIcon, TwitterIcon, RedditIcon, WhatsappIcon } from "react-share";
 
-
+import AuthService from "../../services/auth.service";
 import { makeStyles } from "@material-ui/core";
 import {
     ThumbUp,
@@ -23,6 +24,10 @@ import Moment from 'moment';
 import "./../../css/Overview/memeView.css";
 
 const useStyles = makeStyles((theme) => ({
+    rateMemeButtons:{
+    
+        
+    },
 }));
 
 const MemeView = props => {
@@ -114,12 +119,9 @@ const MemeView = props => {
         await fetch("http://localhost:3030/memeIO/like-meme", {
             method: "POST",
             mode: "cors",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: AuthService.getTokenHeader(),
             body: JSON.stringify({
                 id: memeInfo._id,
-                user: localStorage.user,
                 date: Date.now(),
             }),
         }).then((response) => {
@@ -132,12 +134,9 @@ const MemeView = props => {
         await fetch("http://localhost:3030/memeIO/remove-like-meme", {
             method: "POST",
             mode: "cors",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: AuthService.getTokenHeader(),
             body: JSON.stringify({
-                id: memeInfo._id,
-                user: localStorage.user,
+                id: memeInfo._id
             }),
         }).then((response) => {
             console.log(response);
@@ -149,12 +148,9 @@ const MemeView = props => {
         await fetch("http://localhost:3030/memeIO/dislike-meme", {
             method: "POST",
             mode: "cors",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: AuthService.getTokenHeader(),
             body: JSON.stringify({
                 id: memeInfo._id,
-                user: localStorage.user,
                 date: Date.now,
             }),
         }).then((response) => {
@@ -166,12 +162,9 @@ const MemeView = props => {
         await fetch("http://localhost:3030/memeIO/remove-dislike-meme", {
             method: "POST",
             mode: "cors",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: AuthService.getTokenHeader(),
             body: JSON.stringify({
-                id: memeInfo._id,
-                user: localStorage.user,
+                id: memeInfo._id
             }),
         }).then((response) => {
             console.log(response);
@@ -251,7 +244,7 @@ const MemeView = props => {
                         :null}
                         
                   
-                          <div className={classes.rateMemeButtons}>
+                          <Box  component="div" display="inline" className={classes.rateMemeButtons}>
                             <Button
                                 className="classes.buttonStyle selection"
                                 startIcon={<CloudDownload />}
@@ -264,7 +257,7 @@ const MemeView = props => {
                                 Download
                             </Button>
                             {(memeInfo.publicOpt=="public" || memeInfo.publicOpt=="unlisted")  ? 
-                            <div>
+                            <Box  component="div" display="inline" className={classes.rateMemeButtons}>
                             <Button
 
                                 className="classes.buttonStyle selection"
@@ -311,10 +304,10 @@ const MemeView = props => {
                                     <WhatsappIcon size={36} round />
                                 </WhatsappShareButton>
                             </Popover>
-                        </div>
+                        </Box>
 
                         :null}
-                        </div>
+                        </Box>
                     </Grid>
                     <Grid item xs>
                         <div>

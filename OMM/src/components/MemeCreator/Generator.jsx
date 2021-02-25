@@ -12,7 +12,7 @@ import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import {FacebookShareButton, TwitterShareButton, RedditShareButton, WhatsappShareButton} from "react-share";
 import {FacebookIcon, TwitterIcon, RedditIcon, WhatsappIcon} from "react-share";
 
-
+import AuthService from "../../services/auth.service";
 
 import "./../../css/ImageSelection/imageSelection.css";
 import domtoimage from "dom-to-image";
@@ -520,7 +520,7 @@ const Generator = params => {
                                 url: '/upload-Meme',
                                 method: 'POST',
                                 headers: {
-                                    'author': localStorage.user,
+                                    'x-auth-token': localStorage.token,
                                     'title': title,
                                     'ispublic': isPublic,
                                     'publicopt': pubOptions[selectedPubIndex],

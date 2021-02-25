@@ -12,5 +12,10 @@
 }
 
 .memeScrollListContainer {
-    margin-top: 30px;
+    margin-top: 32px;
+}
+
+.loading {
+    text-align: center;
+    padding-top: 32px;
 }
