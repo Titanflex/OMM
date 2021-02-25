@@ -183,9 +183,29 @@ const SingleView = () => {
   let ind = 0;
   let img = new Image();
 
+  let likeDate = [];
+  const [chartData, setChartData] = useState(null);
+  const [dataLoading, setDataLoading] = useState(true);
+
   const classes = useStyles();
 
   const [isAccessible, setIsAccessible] = useState(false);
+
+  const getDaysOfMonth = () => {
+    const today = new Date (Date.now());
+    let dateThreeMonths = new Date(today);
+    dateThreeMonths.setMonth(dateThreeMonths.getMonth() - 2);
+    let dateArray = [];
+    let currentDate = dateThreeMonths;
+    while (currentDate <= today) {
+        dateArray.push(new Date (currentDate));
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return dateArray;
+  }
+
+
+ 
 
   /* 
     Modal
@@ -207,6 +227,43 @@ const SingleView = () => {
     When opend it sets the filtered Memelist to the originalMemes from the database.
     */
   const handleMoreModuleOpen = () => {
+    getUpdatedMemes();
+    const datesArray = getDaysOfMonth();
+    let likeList = memes[currentMemeIndex].listlikes;
+    let dislikeList = memes[currentMemeIndex].dislikes;
+  
+    datesArray.forEach(date =>{
+      const dateDate = new Date(date);
+      let likeCount=0;
+      let dislikeCount=0;
+
+      likeList.forEach(like => {
+      const likeDate = new Date(like.date);
+      likeCount = (likeDate.setHours(0,0,0,0) === dateDate.setHours(0,0,0,0))? likeCount+1 : likeCount;
+      })
+
+      dislikeList.forEach(dislike => {
+        const dislikeDate = new Date(dislike.date);
+        dislikeCount = (dislikeDate.setHours(0,0,0,0) === dateDate.setHours(0,0,0,0))? dislikeCount+1 : dislikeCount;
+        })
+      likeDate.push({"date": dateDate, "likeCount": likeCount, "dislikeCount" : dislikeCount});
+    })
+
+    const columns = [
+      { type: 'date', label: 'date' },
+      { type: 'number', label: 'likeCount' },
+      { type: 'number', label: 'dislikeCount' },
+    ]
+    let rows = []
+    const nonNullData = likeDate.filter(row => row.likeCount !== null)
+    for (let row of nonNullData) {
+      const { date, likeCount, dislikeCount } = row
+      rows.push([new Date(Date.parse(date)), likeCount, dislikeCount])
+    }
+    console.log(rows);
+    setDataLoading(true);
+    setChartData([columns, ...rows]);
+    
     setMoreModuleOpen(true);
   };
 
@@ -640,7 +697,7 @@ const SingleView = () => {
   useEffect(() => {
     const video = videoTag.current;
     video.setAttribute("playsinline", true);
-    video.play();
+    //video.play();
     loadMemes();
     requestRef.current = requestAnimationFrame(tick);
     //return () => cancelAnimationFrame(requestRef.tick);
@@ -683,51 +740,51 @@ const SingleView = () => {
       <Grid container spacing={1}>
         {currentMeme.hasOwnProperty("comments")
           ? currentMeme.comments.map((comment) => (
-              <div
-                className={classes.spacing}
-                key={comment._id}
-                style={{ width: "90%" }}
+            <div
+              className={classes.spacing}
+              key={comment._id}
+              style={{ width: "90%" }}
+            >
+              <Box
+                border={1}
+                className={classes.commentBox}
+                borderRadius="borderRadius"
               >
-                <Box
-                  border={1}
-                  className={classes.commentBox}
-                  borderRadius="borderRadius"
-                >
-                  <Grid container spacing={2}>
-                    <Grid item xs={9}>
-                      <Typography variant="body2">
-                        Comment from{" "}
-                        {comment.hasOwnProperty("user")
-                          ? comment.user
-                          : "Anonymous"}{" "}
+                <Grid container spacing={2}>
+                  <Grid item xs={9}>
+                    <Typography variant="body2">
+                      Comment from{" "}
+                      {comment.hasOwnProperty("user")
+                        ? comment.user
+                        : "Anonymous"}{" "}
                         on the{" "}
-                        {comment.hasOwnProperty("date")
-                          ? Moment(comment.date).format("MMM Do YY")
-                          : "No date"}
+                      {comment.hasOwnProperty("date")
+                        ? Moment(comment.date).format("MMM Do YY")
+                        : "No date"}
                         :
                       </Typography>
-                      <Typography variant="body1" className={classes.spacing}>
-                        {comment.hasOwnProperty("commenttext")
-                          ? comment.commenttext
-                          : "No text"}
-                      </Typography>
-                    </Grid>
-
-                    {comment.user == localStorage.user ? (
-                      <Grid item xs container justify="flex-end">
-                        <IconButton
-                          onClick={() => handleDeleteCommentClick(comment)}
-                          variant="contained"
-                          edge="end"
-                        >
-                          <Close />
-                        </IconButton>
-                      </Grid>
-                    ) : null}
+                    <Typography variant="body1" className={classes.spacing}>
+                      {comment.hasOwnProperty("commenttext")
+                        ? comment.commenttext
+                        : "No text"}
+                    </Typography>
                   </Grid>
-                </Box>
-              </div>
-            ))
+
+                  {comment.user == localStorage.user ? (
+                    <Grid item xs container justify="flex-end">
+                      <IconButton
+                        onClick={() => handleDeleteCommentClick(comment)}
+                        variant="contained"
+                        edge="end"
+                      >
+                        <Close />
+                      </IconButton>
+                    </Grid>
+                  ) : null}
+                </Grid>
+              </Box>
+            </div>
+          ))
           : null}
       </Grid>
     );
@@ -999,13 +1056,83 @@ const SingleView = () => {
             <ChevronLeft fontSize="large" />
           </IconButton>
         </Grid>
-        <Grid item xs={9}>
+        <Grid item xs={8}>
           <SingleMeme listmemes={memes} />
         </Grid>
         <Grid item xs={1}>
           <IconButton className="arrows" onClick={nextMeme} aria-label="next">
             <ChevronRight fontSize="large" />
           </IconButton>
+        </Grid>
+        <Grid item xs >
+
+          <Button
+            className="classes.buttonStyle selection"
+            onClick={handleMoreModuleOpen}
+            variant="contained"
+            color="secondary"
+          >
+            More infos
+          </Button>
+          <Modal
+            open={moreModuleOpen}
+            onClose={handleMoreModuleClose}
+            aria-labelledby="simple-modal-title"
+            aria-describedby="simple-modal-description"
+          >
+            <div style={modalStyle} className={classes.paper}>
+              <Typography variant="h5">Graph</Typography>
+              <Grid>
+                <Chart
+                  width={"500px"}
+                  height={"300px"}
+                  chartType="PieChart"
+                  loader={<div>Loading Chart</div>}
+                  data={[
+                    ["Likes and Dislikes", "Number"],
+                    [
+                      "Likes",
+                      memes[currentMemeIndex].hasOwnProperty("listlikes")
+                        ? memes[currentMemeIndex].listlikes.length
+                        : 0,
+                    ],
+                    [
+                      "Dislikes",
+                      memes[currentMemeIndex].hasOwnProperty("dislikes")
+                        ? memes[currentMemeIndex].dislikes.length
+                        : 0,
+                    ],
+                  ]}
+                  options={{
+                    title: "Distribution of likes",
+                  }}
+                  rootProps={{ "data-testid": "1" }}
+                />
+             
+               {dataLoading? (
+                 <Chart
+                 chartType="LineChart"
+                 data={chartData}
+                 options={{
+                   hAxis: {
+                     format: 'mmm',
+                   },
+                   vAxis: {
+                     format: 'short',
+                   },
+                   title: 'Debt incurred over time.',
+                 }}
+                 rootProps={{ 'data-testid': '3' }}
+               />
+               ):(
+               <div>Fetching data from API</div>
+               )}
+                 
+              </Grid>
+            </div>
+          </Modal>
+
+
         </Grid>
       </Grid>
 
@@ -1051,52 +1178,7 @@ const SingleView = () => {
       <Grid container spacing={3}>
         <Grid item xs={1}></Grid>
         <Grid container item xs={8}>
-          <Button
-            onClick={handleMoreModuleOpen}
-            className={classes.filterButton}
-            variant="outlined"
-            edge="end"
-            size="medium"
-          >
-            More infos
-          </Button>
-          <Modal
-            open={moreModuleOpen}
-            onClose={handleMoreModuleClose}
-            aria-labelledby="simple-modal-title"
-            aria-describedby="simple-modal-description"
-          >
-            <div style={modalStyle} className={classes.paper}>
-              <Typography variant="h5">Graph</Typography>
-              <Grid>
-                <Chart
-                  width={"500px"}
-                  height={"300px"}
-                  chartType="PieChart"
-                  loader={<div>Loading Chart</div>}
-                  data={[
-                    ["Likes and Dislikes", "Number"],
-                    [
-                      "Likes",
-                      memes[currentMemeIndex].hasOwnProperty("listlikes")
-                        ? memes[currentMemeIndex].listlikes.length
-                        : 0,
-                    ],
-                    [
-                      "Dislikes",
-                      memes[currentMemeIndex].hasOwnProperty("dislikes")
-                        ? memes[currentMemeIndex].dislikes.length
-                        : 0,
-                    ],
-                  ]}
-                  options={{
-                    title: "Distribution of likes",
-                  }}
-                  rootProps={{ "data-testid": "1" }}
-                />
-              </Grid>
-            </div>
-          </Modal>
+
           <Grid item xs>
             <div>
               <video
