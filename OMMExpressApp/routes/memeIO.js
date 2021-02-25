@@ -60,7 +60,7 @@ memeIO.use(function(req, res, next) {
 
 /* POST /memeIO/save-draft */
 /* Create new Draft */
-memeIO.post("/save-draft", async(req, res) => {
+memeIO.post("/save-draft", (req, res) => {
     console.log(req.body);
     let newDraft = {
         author: req.body.author,
@@ -75,8 +75,8 @@ memeIO.post("/save-draft", async(req, res) => {
         canvasWidth: req.body.canvasWidth,
         canvasHeight: req.body.canvasHeight,
         text: req.body.text,
+        preview: req.body.preview,
     }
-
     Draft.create(newDraft, (err, item) => {
         if (err){
             console.log(err);

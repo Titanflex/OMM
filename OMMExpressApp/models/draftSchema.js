@@ -17,6 +17,7 @@ const draftSchema = new Schema({
     canvasWidth: Number,
     canvasHeight: Number,
     text: String,
+    preview: String,
 });
 
 

@@ -29,6 +29,7 @@ import {TwitterPicker} from 'react-color';
 
 import ImageSelection from "../ImageSelection/ImageSelection";
 import Generator from "../MemeCreator/Generator";
+import DraftPreview from "./DraftPreview";
 
 
 import "./../../css/MemeCreator/memeCreator.css";
@@ -39,6 +40,10 @@ import Accordion from "@material-ui/core/Accordion";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Tooltip from "@material-ui/core/Tooltip";
 import SpeechInput from "./CaptionSpeechInput";
+
+import domtoimage from "dom-to-image";
+import ImageIcon from "@material-ui/icons/Image";
+
 
 function MemeCreator() {
 
@@ -61,9 +66,6 @@ function MemeCreator() {
     const [canvasWidth, setCanvasWidth] = useState(350);
     const [canvasHeight, setCanvasHeight] = useState(250);
 
-
-    const [posUpperTop, setPosUpperTop] = useState(20);
-    const [posUpperLeft, setPosUpperLeft] = useState(10);
 
     const [isFreestyle, setIsFreestyle] = useState(false);
     const [images, setImages] = useState([]);
@@ -238,7 +240,11 @@ function MemeCreator() {
         left: '0px',
     }
 
-    const saveAsDraft = () => {
+    const saveAsDraft = async () => {
+        let meme = document.getElementById("memeContainer");
+        let previewJpeg = await domtoimage.toJpeg(meme, {quality: 20}).then(function (jpeg) {
+            return jpeg
+        });
         fetch("http://localhost:3030/memeIO/save-draft", {
             method: "POST",
             mode: "cors",
@@ -257,13 +263,18 @@ function MemeCreator() {
                 canvasWidth: canvasWidth,
                 canvasHeight: canvasHeight,
                 text: upper,
+                preview: previewJpeg,
             }),
         })
+
     }
+
+    const [drafts, setDrafts] = useState([])
+    const [preview, setPreview] = useState(false);
 
     async function getDraft() {
         console.log("getDraft");
-        await fetch("http://localhost:3030/memeIO/get-drafts", {
+        let res = await fetch("http://localhost:3030/memeIO/get-drafts", {
             method: "POST",
             mode: "cors",
             headers: {
@@ -272,30 +283,53 @@ function MemeCreator() {
             body: JSON.stringify({
                 author: localStorage.user,
             }),
-        }).then(res => {
-            res.json().then(json => {
-                let drafts = json.docs;
-                console.log(drafts);
-                setBold(drafts[0].bold);
-                setItalic(drafts[0].italic);
-                setColor(drafts[0].color);
-                setFontSize(drafts[0].fontSize);
-                setIsFreestyle(drafts[0].isFreestyle);
-                setUpper(drafts[0].text);
-                setImageProperties(drafts[0].imageProperties);
-                setCanvasHeight(drafts[0].canvasHeight);
-                setCanvasWidth(drafts[0].canvasWidth);
-                setImages([]);
-                imageProperties.forEach((imageProperty) => {
-                    const img = <img className={classes.memeImg} src={imageProperty[2]} alt={"meme image"}
-                                     style={{position: "absolute", left: imageProperty[0], top: imageProperty[1]}}/>;
-                     setImages((prev) => [...prev, img]);
-                })
+        })
+        let json = await res.json();
+        setDrafts(json.docs);
+        setPreview(true);
+    }
 
-            })
+    const [draftIndex, setDraftIndex] = useState(0);
+
+    async function setImagess() {
+        await imageProperties.forEach((imageProperty) => {
+            console.log(imageProperty);
+            const img = <img className={classes.memeImg} src={imageProperty[2]} alt={"meme image"}
+                             style={{
+                                 position: "absolute",
+                                 left: imageProperty[0],
+                                 top: imageProperty[1]
+                             }}/>;
+            setImages((prev) => [...prev, img]);
         })
     }
 
+    useEffect(() => {
+            if (drafts.length > 0) {
+                console.log(drafts);
+                setBold(drafts[draftIndex].bold);
+                setItalic(drafts[draftIndex].italic);
+                setColor(drafts[draftIndex].color);
+                setFontSize(drafts[draftIndex].fontSize);
+                setIsFreestyle(drafts[draftIndex].isFreestyle);
+                setUpper(drafts[draftIndex].text);
+                setImageProperties(drafts[draftIndex].imageProperties);
+                setCanvasHeight(drafts[draftIndex].canvasHeight);
+                setCanvasWidth(drafts[draftIndex].canvasWidth);
+                setImages([]);
+                drafts[draftIndex].imageProperties.forEach((imageProperty) => {
+                    const img = <img className={classes.memeImg} src={imageProperty[2]} alt={"meme image"}
+                                     style={{
+                                         position: "absolute",
+                                         left: imageProperty[0],
+                                         top: imageProperty[1],
+                                     }}/>;
+                    setImages((prev) => [...prev, img]);
+                });
+                };
+        },
+        [draftIndex],
+    );
     return (
         <Container className="memeCreatorContainer">
             <Typography className={classes.heading} variant="h4">
@@ -465,11 +499,19 @@ function MemeCreator() {
                         template={templates[currentTemplateIndex]}
                         fontSize={fontSize}
                         text={upper}/>
+                    <DraftPreview drafts={drafts} preview={preview} setPreview={setPreview}
+                                  setDraftIndex={setDraftIndex}/>
                     <Button
+                        className="classes.buttonStyle draft"
+                        variant="contained"
+                        color="secondary"
                         onClick={saveAsDraft}>
                         Save as Draft
                     </Button>
                     <Button
+                        className="classes.buttonStyle draft"
+                        variant="contained"
+                        color="secondary"
                         onClick={() => getDraft()}>
                         Continue Draft
                     </Button>

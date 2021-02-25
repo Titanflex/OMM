@@ -116,3 +116,11 @@ img {
     width: 100%;
     margin: 10px !important;
 }
+
+.draft {
+    margin-top: 16px !important;
+    margin-right: 20px !important;
+    margin-left: 16px !important;
+    width: auto !important;
+
+}
