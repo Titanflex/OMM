@@ -289,13 +289,14 @@ function MemeCreator() {
 
     const accordion = React.useRef(null)
     useEffect(() => {
+
             if (drafts.length > 0) {
                 console.log(drafts);
                 setBold(drafts[draftIndex].bold);
                 setItalic(drafts[draftIndex].italic);
                 setColor(drafts[draftIndex].color);
                 setFontSize(drafts[draftIndex].fontSize);
-                if(drafts[draftIndex].isFreestyle && !isFreestyle){
+                if (drafts[draftIndex].isFreestyle && !isFreestyle) {
                     accordion.current.click();
                 }
                 setIsFreestyle(drafts[draftIndex].isFreestyle);
@@ -316,6 +317,7 @@ function MemeCreator() {
             }
             ;
         },
+
         [draftIndex],
     );
     return (
@@ -460,7 +462,7 @@ function MemeCreator() {
                             <FormControlLabel
                                 aria-label="Acknowledge"
                                 control={
-                                    <Checkbox checked={isFreestyle} onChange={() => handleFreestyle}/>
+                                    <Checkbox checked={isFreestyle} onChange={handleFreestyle}/>
                                 }
                                 label="Advanced Options"
                             />
