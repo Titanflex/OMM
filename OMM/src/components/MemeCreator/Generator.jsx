@@ -12,7 +12,7 @@ import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
 import {FacebookShareButton, TwitterShareButton, RedditShareButton, WhatsappShareButton} from "react-share";
 import {FacebookIcon, TwitterIcon, RedditIcon, WhatsappIcon} from "react-share";
 
-
+import AuthService from "../../services/auth.service";
 
 import "./../../css/ImageSelection/imageSelection.css";
 import domtoimage from "dom-to-image";
@@ -73,12 +73,17 @@ const Generator = params => {
     const [title, setTitle] = useState("");
     const [quality, setQuality] = useState(100);
 
+    const [titleError, setTitleError] = useState({
+        show: false,
+        text: "",
+    });
+
 
     //PublicMenu
     const pubOptions = [
-        'Private',
-        'Public',
-        'Unlisted',
+        'private',
+        'public',
+        'unlisted',
     ];
 
 
@@ -157,6 +162,29 @@ const Generator = params => {
         setGeneratedMeme(null);
     };
 
+    const handleTitleInput = (event) => {
+        setTitle(event.target.value);
+        setTitleError({
+            show: false,
+            text: "",
+        });
+    }
+
+    const handleMissingTitle = () => {
+        setTitleError({
+            show: true,
+            text: "Enter a meme title",
+        });
+    }
+
+    const handleDuplicateTitle = () => {
+        setTitleError({
+            show: true,
+            text: "Meme title already exists",
+        });
+    }
+
+
 
     //Local meme generation
     function createMemeLocally(quality = 1) {
@@ -180,7 +208,8 @@ const Generator = params => {
                 //decrease quality if size is too large and rerender meme
                 createMemeLocally(quality - 0.05);
             } else {
-                setTexts([params.text]);
+                let textArray = params.text.split(/\n/g);  //split text into lines
+                setTexts(textArray);
                 setGeneratedMeme(jpeg);
             }
 
@@ -271,6 +300,7 @@ const Generator = params => {
             body: JSON.stringify({
                 title: title,
                 url: imageUrl,
+                publicOpt: pubOptions[selectedPubIndex],
                 author: localStorage.user,
                 creationDate: Date.now(),
                 upper: textArray,
@@ -289,25 +319,37 @@ const Generator = params => {
         );
     }
 
+
     async function generateMeme() {
-        console.log(title);
         if (!title) {
-            memeTitleRef.current.setError()
+            handleMissingTitle();
             return;
         }
-        if (selectedRenIndex === 0) { //local generation
-            await createMemeLocally();
-        }
-        if (selectedRenIndex === 1) {
-            createMemeOnServer();
-        }
-        if (selectedRenIndex === 2) { //third-party generation with imgFlip API
-            createMemeOnImgFlip()
-        }
+        let isDuplicate;
+        await fetch("http://localhost:3030/memeIO/get-memes").then(res => {
+            res.json().then(json => {
+                json.docs.forEach(meme => {
+                    if(meme.title === title && !isDuplicate) {
+                        handleDuplicateTitle();
+                        isDuplicate = true;
+                    }
+                });
+            }).then(() => {
+                if (isDuplicate) return;
+                if (selectedRenIndex === 0) { //local generation
+                    createMemeLocally();
+                }
+                if (selectedRenIndex === 1) {
+                    createMemeOnServer();
+                }
+                if (selectedRenIndex === 2) { //third-party generation with imgFlip API
+                    createMemeOnImgFlip()
+                }
+            })
+        });
     }
 
     async function handleDownload() {
-        console.log(generatedMemeUrl);
         fetch("http://localhost:3030/memeIO/download-meme", {
             method: "POST",
             mode: "cors",
@@ -334,13 +376,13 @@ const Generator = params => {
 
             }
         )
-    };
+    }
 
 
     return (
         <div>
             <Button
-                className="classes.buttonStyle selection"
+                className="classes.buttonStyle modal"
                 startIcon={<ImageIcon/>}
                 variant="contained"
                 onClick={handleOpen}
@@ -354,11 +396,24 @@ const Generator = params => {
                 onClose={handleClose}
                 aria-labelledby="simple-modal-title"
                 aria-describedby="simple-modal-description">
-                <div style={modalStyle} className={classes.paper}>
+                <div style={modalStyle} className={classes.paper} >
 
-                    <div>
+                    <div style={{maxHeight: window.innerHeight-100, overflow:"auto"}}>
                         {/* Text Field for Meme Title*/}
-                        <SpeechInputField ref={memeTitleRef} value={title} label="Meme Title" setValue={setTitle}/>
+                                                <TextField
+                            error={titleError.show}
+                            helperText={titleError.text}
+                            className={classes.spacing}
+                            id="name"
+                            label="Meme Title (mandatory)"
+                            placeholder=""
+                            fullWidth
+                            margin="normal"
+                            variant="outlined"
+                            value={title}
+                            onChange={(event) => handleTitleInput(event)}
+                        />
+                        {/* <SpeechInputField ref={memeTitleRef} value={title} label="Meme Title" setValue={setTitle}/> */}
                         <List component="nav" aria-label="Render settings">
                             <ListItem
                                 button
@@ -442,7 +497,7 @@ const Generator = params => {
                                 </MenuItem>
                             ))}
                         </Menu>
-                    </div>
+
                     <Button
                         className="classes.buttonStyle selection"
                         variant="contained"
@@ -465,9 +520,10 @@ const Generator = params => {
                                 url: '/upload-Meme',
                                 method: 'POST',
                                 headers: {
-                                    'author': localStorage.user,
+                                    'x-auth-token': localStorage.token,
                                     'title': title,
-                                    'isPublic': isPublic,
+                                    'ispublic': isPublic,
+                                    'publicopt': pubOptions[selectedPubIndex],
                                     'type': 'meme',
                                     'upper': texts,
                                     'lower': "",
@@ -547,6 +603,7 @@ const Generator = params => {
                             </Popover>
                         </div>
                     </div>
+                </div>
                 </div>
             </Modal>
         </div>

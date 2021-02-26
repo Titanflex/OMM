@@ -10,3 +10,12 @@
     width: 600px;
     margin: 0 auto;
 }
+
+.memeScrollListContainer {
+    margin-top: 32px;
+}
+
+.loading {
+    text-align: center;
+    padding-top: 32px;
+}

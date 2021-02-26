@@ -1,36 +1,27 @@
-
 import React, { useState, useEffect } from 'react';
 
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
 import { CloudDownload } from "@material-ui/icons";
 import { FilePond, registerPlugin } from "react-filepond";
 import { Grid, GridList, GridListTile, GridListTileBar } from "@material-ui/core";
 
-
-
 import "filepond/dist/filepond.min.css";
-
-
-
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import FilePondPluginFileEncode from 'filepond-plugin-file-encode';
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
-
 
 import Camera from "../ImageSelection/Camera";
 import Paint from "../ImageSelection/Paint";
 import URL from "../ImageSelection/URL";
 
+import AuthService from "../../services/auth.service";
 
 import "./../../css/ImageSelection/imageSelection.css";
 
 // Register the plugins
 registerPlugin(FilePondPluginImagePreview, FilePondPluginFileEncode);
-
-
 
 function getModalStyle() {
   const top = 50;
@@ -41,7 +32,6 @@ function getModalStyle() {
     transform: `translate(-${top}%, -${left}%)`,
   };
 }
-
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -61,6 +51,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+//component for different image/template selection options
 const ImageSelection = params => {
   const classes = useStyles();
   const [modalStyle] = React.useState(getModalStyle);
@@ -142,31 +133,47 @@ const ImageSelection = params => {
     </GridList >
   );
 
+  const [titleError, setTitleError] = useState({
+    show: false,
+    text: "",
+  });
 
-
-
-  async function saveTemplate(title, src, internetSource) {
-    fetch("http://localhost:3030/memeIO/save-template", {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        internetSource: internetSource,
-        author: localStorage.user,
-        title: title,
-        url: src,
-      }),
-    }).then((res) => {
-      return res.json();
-    }).then((data) => {
-      console.log(data)
-      addNewTemplates(data);
+  const handleDuplicateTitle = () => {
+    setTitleError({
+      show: true,
+      text: "Template title already exists",
     });
   }
 
+  /**
+   * sends new image to server and receives created template
+   *
+   * @param {String} title The title of the template
+   * @param {String} src The url of the template
+   * @param {boolean} internetSource Is true for images directly downloaded from user provided URL
+   */
+  async function saveTemplate(title, src, internetSource) {
+      console.log(AuthService.getTokenHeader());
 
+        fetch("http://localhost:3030/memeIO/save-template", {
+          method: "POST",
+          mode: "cors",
+          headers: AuthService.getTokenHeader(),
+          body: JSON.stringify({
+            internetSource: internetSource,
+            title: title,
+            url: src,
+          }),
+        }).then((res) => {
+          return res.json();
+        }).then((data) => {
+          addNewTemplates(data)
+        });
+  }
+
+  /**
+   * fetches templates with the imageflip API
+   */
   async function getTemplatesFromImgFlip() {
     const res = await fetch("https://api.imgflip.com/get_memes");
     const json = await res.json();
@@ -201,7 +208,7 @@ const ImageSelection = params => {
               <h2 style={{ marginBottom: "32px" }} id="simple-modal-title">Select a template to work on</h2>
               <ShowTemplates showtemplates={templates} />
             </Grid>
-            <Grid item xs={6} style={{ maxWidth: 400, marginLeft: 32 }}>
+            <Grid item xs={6} style={{ maxWidth: 400, marginLeft: 32, overflow: "auto", maxHeight:520}}>
               <div>
                 <h4 style={{ marginBottom: "32px", marginTop: "32px" }}>Get or create more templates</h4>
                 <FilePond
@@ -214,11 +221,17 @@ const ImageSelection = params => {
                       url: '/upload-Template',
                       method: 'POST',
                       headers: {
-                        'author': localStorage.user,
+                        'x-auth-token': localStorage.token,
                         'templateName': "test"
                       },
-                      onload: (response) =>
-                        addNewTemplates(response)
+                      onload: (response) =>{
+                        let json = JSON.parse(response);
+                        if(json.message){
+                          alert(json.message);
+                        }else {
+                          addNewTemplates(json);
+                        }
+                      }
 
                     }
                   }}
@@ -236,6 +249,7 @@ const ImageSelection = params => {
 
        </Button>
                 <Camera
+                    titleError={titleError}
                   handleSave={saveTemplate}
                 />
                 <Paint

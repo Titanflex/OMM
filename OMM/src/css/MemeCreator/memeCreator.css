@@ -63,7 +63,7 @@ img {
 }
 
 .arrows {
-    margin-top: 200% !important;
+    margin-top: 100px !important;
 }
 
 .textFormatButton {
@@ -115,4 +115,12 @@ img {
 .canvasSize {
     width: 100%;
     margin: 10px !important;
+}
+
+.draft {
+    margin-top: 16px !important;
+    margin-right: 20px !important;
+    margin-left: 16px !important;
+    width: auto !important;
+
 }

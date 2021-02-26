@@ -15,21 +15,14 @@ import {
 
 import ArrowRight from "@material-ui/icons/ChevronRight";
 import ArrowLeft from "@material-ui/icons/ChevronLeft";
-import FormatColorTextIcon from '@material-ui/icons/FormatColorText';
+import FormatColorTextIcon from "@material-ui/icons/FormatColorText";
 
+import { FormatBold, FormatItalic } from "@material-ui/icons";
 
-import {
-    FormatBold,
-    FormatItalic,
-} from "@material-ui/icons";
-
-
-import { TwitterPicker } from 'react-color';
-
+import { TwitterPicker } from "react-color";
 
 import ImageSelection from "../ImageSelection/ImageSelection";
 import Generator from "../MemeCreator/Generator";
-
 
 import "./../../css/MemeCreator/memeCreator.css";
 
@@ -38,11 +31,14 @@ import AccordionSummary from "@material-ui/core/AccordionSummary";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Tooltip from "@material-ui/core/Tooltip";
-import SpeechInput from "./SpeechInput";
+import SpeechInput from "./CaptionSpeechInput";
+import AuthService from "../../services/auth.service";
+
+import DraftPreview from "./DraftPreview";
+
+import domtoimage from "dom-to-image";
 
 function MemeCreator() {
-
-
     const [upper, setUpper] = useState("");
     const [templates, setTemplates] = useState([
         {
@@ -60,7 +56,6 @@ function MemeCreator() {
 
     const [canvasWidth, setCanvasWidth] = useState(350);
     const [canvasHeight, setCanvasHeight] = useState(250);
-
 
     const [posUpperTop, setPosUpperTop] = useState(20);
     const [posUpperLeft, setPosUpperLeft] = useState(10);
@@ -98,50 +93,55 @@ function MemeCreator() {
 
     const useStyles = makeStyles((theme) => ({
         textFormat: {
-            fontWeight: bold ? "bold" : "normal",
-            fontStyle: italic ? "italic" : "normal",
+            "fontWeight": bold ? "bold" : "normal",
+            "fontStyle": italic ? "italic" : "normal",
             "-webkit-text-fill-color": color,
-            fontSize: fontSize,
+            "fontSize": fontSize,
         },
         heading: {
-            textAlign: 'left',
+            textAlign: "left",
             margin: "16px",
         },
         upperText: {
-            position: 'absolute',
-            left: "0px",
-            top: "0px",
-            width: '100%',
-            height: '100%',
-            'max-width': maxWidth + 'px',
-            'max-height': maxHeight + 'px',
-            overflow: 'hidden',
-        }, memeCanvas: {
-            width: (isFreestyle) ? canvasWidth + "px" : '350px',
-            'min-width': minWidth + 'px',
-            'min-height': minHeight + 'px',
-            'max-width': maxWidth + 'px',
-            'max-height': maxHeight + 'px',
-            height: (isFreestyle) ? (canvasHeight + "px") : 'auto',
-
-        }, freestyleCanvas: {
+            "position": "absolute",
+            "left": "0px",
+            "top": "0px",
+            "width": "100%",
+            "height": "100%",
+            "max-width": maxWidth + "px",
+            "max-height": maxHeight + "px",
+            "overflow": "hidden",
+        },
+        memeCanvas: {
+            "width": isFreestyle ? canvasWidth + "px" : "350px",
+            "min-width": minWidth + "px",
+            "min-height": minHeight + "px",
+            "max-width": maxWidth + "px",
+            "max-height": maxHeight + "px",
+            "height": isFreestyle ? canvasHeight + "px" : "auto",
+        },
+        freestyleCanvas: {
             width: canvasWidth + "px",
             height: canvasHeight + "px",
             backgroundColor: "white",
-            border: '1px solid grey',
+            border: "1px solid grey",
         },
         memeImg: {
-            width: '350px',
-            height: 'auto',
-            display: 'block',
-        }, canvas: {
-            width: (isFreestyle) ? canvasWidth + "px" : '350px',
-            'min-width': minWidth + 'px',
-            'min-height': minHeight + 'px',
-            'max-width': maxWidth + 'px',
-            'max-height': maxHeight + 'px',
-            overflow: 'hidden',
-        }
+            width: "350px",
+            height: "auto",
+            display: "block",
+        },
+        canvas: {
+            "width": isFreestyle ? canvasWidth + "px" : "350px",
+            "min-width": minWidth + "px",
+            "min-height": minHeight + "px",
+            "max-width": maxWidth + "px",
+            "max-height": maxHeight + "px",
+            "overflow": "hidden",
+        },
+        buttonStyle: {
+            height: "fit-content",
+        },
     }));
 
     const classes = useStyles();
@@ -162,7 +162,9 @@ function MemeCreator() {
         let current = currentTemplateIndex;
         if (templates.length > 1) {
             current =
-                currentTemplateIndex === templates.length - 1 ? 0 : currentTemplateIndex + 1;
+                currentTemplateIndex === templates.length - 1
+                    ? 0
+                    : currentTemplateIndex + 1;
             setCurrentTemplateIndex(current);
         }
     }
@@ -171,11 +173,12 @@ function MemeCreator() {
         let current = currentTemplateIndex;
         if (templates.length > 1) {
             current =
-                currentTemplateIndex === 0 ? templates.length - 1 : currentTemplateIndex - 1;
+                currentTemplateIndex === 0
+                    ? templates.length - 1
+                    : currentTemplateIndex - 1;
             setCurrentTemplateIndex(current);
         }
     }
-
 
     function toggleBold() {
         bold ? setBold(false) : setBold(true);
@@ -191,56 +194,140 @@ function MemeCreator() {
 
     const handleColorChange = (color) => {
         setColor(color.hex);
-    }
+    };
 
     function handleFreestyle(event) {
-        setIsFreestyle(event.target.checked)
+        setIsFreestyle(event.target.checked);
         if (isFreestyle) {
-            event.stopPropagation()
+            event.stopPropagation();
         }
     }
 
-
+    const [imageProperties, setImageProperties] = useState([]);
     const addImage = () => {
-        window.addEventListener("mousedown", function getPosition(e) {
-            console.log(e.target.type);
-            if (e.target.type !== 'textarea') {
-                alert("Place image on Canvas or increase size of Canvas")
-                return addImage();
-            }
-            var rect = e.target.getBoundingClientRect();
-            console.log(selectedImage);
-            var x = e.clientX - rect.x;
-            var y = e.clientY - rect.y;
-            let img = <img className={classes.memeImg} src={selectedImage.url} alt={"meme image"}
-                style={{ position: "absolute", left: x, top: y }} />
-            setImages((prev) => [...prev, img]);
-            setSelectedImage(null);
-        }, { once: true })
-
-
-    }
+        window.addEventListener(
+            "mousedown",
+            function getPosition(e) {
+                console.log(e.target.type);
+                if (e.target.type !== "textarea") {
+                    alert("Place image on Canvas or increase size of Canvas");
+                    return addImage();
+                }
+                let rect = e.target.getBoundingClientRect();
+                let x = e.clientX - rect.x;
+                let y = e.clientY - rect.y;
+                let img = (
+                    <img
+                        className={classes.memeImg}
+                        src={selectedImage.url}
+                        alt={"meme image"}
+                        style={{ position: "absolute", left: x, top: y }}
+                    />
+                );
+                setImages((prev) => [...prev, img]);
+                setImageProperties((prev) => [...prev, [x, y, selectedImage.url]]);
+                console.log(imageProperties);
+                setSelectedImage(null);
+            },
+            { once: true }
+        );
+    };
 
     const popover = {
-        position: 'absolute',
-        zIndex: '2',
-    }
+        position: "absolute",
+        zIndex: "2",
+    };
     const cover = {
-        position: 'fixed',
-        top: '0px',
-        right: '0px',
-        bottom: '0px',
-        left: '0px',
+        position: "fixed",
+        top: "0px",
+        right: "0px",
+        bottom: "0px",
+        left: "0px",
+    };
+
+    const saveAsDraft = async () => {
+        let meme = document.getElementById("memeContainer");
+        let previewJpeg = await domtoimage.toJpeg(meme, { quality: 20 }).then(function (jpeg) {
+            return jpeg
+        });
+        fetch("http://localhost:3030/memeIO/save-draft", {
+            method: "POST",
+            mode: "cors",
+            headers: AuthService.getTokenHeader(),
+            body: JSON.stringify({
+                src: templates[currentTemplateIndex].url,
+                bold: bold,
+                italic: italic,
+                color: color,
+                fontSize: fontSize,
+                isFreestyle: isFreestyle,
+                imageProperties: imageProperties,
+                canvasWidth: canvasWidth,
+                canvasHeight: canvasHeight,
+                text: upper,
+                preview: previewJpeg,
+            }),
+        });
+    };
+
+    const [drafts, setDrafts] = useState([])
+    const [preview, setPreview] = useState(false);
+
+    const [draftIndex, setDraftIndex] = useState(0);
+
+    async function getDraft() {
+        console.log("getDraft");
+        let res = await fetch("http://localhost:3030/memeIO/get-drafts", {
+            method: "POST",
+            mode: "cors",
+            headers: AuthService.getTokenHeader(),
+        });
+        let json = await res.json()
+        console.log(json.docs);
+        setDrafts(json.docs);
+        setPreview(true);
     }
 
+    useEffect(() => {
+        if (drafts.length > 0) {
+            console.log(drafts);
+            setBold(drafts[draftIndex].bold);
+            setItalic(drafts[draftIndex].italic);
+            setColor(drafts[draftIndex].color);
+            setFontSize(drafts[draftIndex].fontSize);
+            setIsFreestyle(drafts[draftIndex].isFreestyle);
+            setUpper(drafts[draftIndex].text);
+            setImageProperties(drafts[draftIndex].imageProperties);
+            setCanvasHeight(drafts[draftIndex].canvasHeight);
+            setCanvasWidth(drafts[draftIndex].canvasWidth);
+            setImages([]);
+            drafts[draftIndex].imageProperties.forEach((imageProperty) => {
+                const img = <img className={classes.memeImg} src={imageProperty[2]} alt={"meme image"}
+                    style={{
+                        position: "absolute",
+                        left: imageProperty[0],
+                        top: imageProperty[1],
+                    }} />;
+                setImages((prev) => [...prev, img]);
+            });
+        }
+        ;
+    },
+        [draftIndex],
+    );
     return (
         <Container className="memeCreatorContainer">
             <Typography className={classes.heading} variant="h4">
                 Hello {localStorage.user}!
             </Typography>
-            <Grid container alignItems="center" spacing={3}>
-                <Grid item s={1} >
-                    <IconButton className="arrows" onClick={previousMeme} aria-label="previous" disabled={isFreestyle}>
+            <Grid container alignItems="start" spacing={3}>
+                <Grid item s={1}>
+                    <IconButton
+                        className="arrows"
+                        onClick={previousMeme}
+                        aria-label="previous"
+                        disabled={isFreestyle}
+                    >
                         <ArrowLeft fontSize="large" />
                     </IconButton>
                 </Grid>
@@ -263,22 +350,37 @@ function MemeCreator() {
                         className={"textFormatButton"}
                         onClick={() => {
                             if (displayColorPicker) {
-                                setDisplayColorPicker(false)
+                                setDisplayColorPicker(false);
                             } else {
-                                setDisplayColorPicker(true)
+                                setDisplayColorPicker(true);
                             }
-                        }}>
+                        }}
+                    >
                         <FormatColorTextIcon />
                     </IconButton>
 
-                    {displayColorPicker ? <div style={popover} > <div style={cover} onClick={() => setDisplayColorPicker(false)} />
-                        <TwitterPicker
-                            className="colorPicker"
-                            triangle={"hide"}
-                            colors={['#D9E3F0', '#FFFFFF', '#000000', '#697689', '#37D67A', '#2CCCE4', '#555555', '#dce775', '#ff8a65', '#ba68c8']}
-                            onChange={handleColorChange}
-                        /></div> : null
-                    }
+                    {displayColorPicker ? (
+                        <div style={popover}>
+                            <div style={cover} onClick={() => setDisplayColorPicker(false)} />
+                            <TwitterPicker
+                                className="colorPicker"
+                                triangle={"hide"}
+                                colors={[
+                                    "#D9E3F0",
+                                    "#FFFFFF",
+                                    "#000000",
+                                    "#697689",
+                                    "#37D67A",
+                                    "#2CCCE4",
+                                    "#555555",
+                                    "#dce775",
+                                    "#ff8a65",
+                                    "#ba68c8",
+                                ]}
+                                onChange={handleColorChange}
+                            />
+                        </div>
+                    ) : null}
 
                     <FormControl className={"textFormatSelect"}>
                         <Select value={fontSize} onChange={changeFontSize}>
@@ -292,31 +394,48 @@ function MemeCreator() {
 
                     <div className={classes.canvas}>
                         <div className="memeContainer" id={"memeContainer"}>
-                            <div id="memeDiv" className={classes.memeCanvas} id={'memeCanvas'}>
-                                {!isFreestyle && templates.length > 0 &&
-                                    <img className={classes.memeImg} src={templates[currentTemplateIndex].url}
-                                        alt={"meme image"} />}
-                                {isFreestyle && <div id="freestyleCanvas" className={classes.freestyleCanvas}> {images} </div>}
+                            <div
+                                id="memeDiv"
+                                className={classes.memeCanvas}
+                                id={"memeCanvas"}
+                            >
+                                {!isFreestyle && templates.length > 0 && (
+                                    <img
+                                        className={classes.memeImg}
+                                        src={templates[currentTemplateIndex].url}
+                                        alt={"meme image"}
+                                    />
+                                )}
+                                {isFreestyle && (
+                                    <div id="freestyleCanvas" className={classes.freestyleCanvas}>
+                                        {" "}
+                                        {images}{" "}
+                                    </div>
+                                )}
                                 <textarea
                                     type="text"
-                                    className={classes.textFormat + " memeText " + classes.upperText}
+                                    className={
+                                        classes.textFormat + " memeText " + classes.upperText
+                                    }
                                     placeholder="Enter your text here"
                                     value={upper}
                                     onChange={(event) => setUpper(event.target.value)}
                                 />
                             </div>
                         </div>
-
                     </div>
                 </Grid>
                 <Grid item s={1}>
-
-                    <IconButton className="arrows" onClick={nextMeme} aria-label="next" disabled={isFreestyle}>
+                    <IconButton
+                        className="arrows"
+                        onClick={nextMeme}
+                        aria-label="next"
+                        disabled={isFreestyle}
+                    >
                         <ArrowRight fontSize="large" />
-
                     </IconButton>
                 </Grid>
-                <Grid item s={2} >
+                <Grid item s={2}>
                     <ImageSelection
                         isFreestyle={isFreestyle}
                         memeTemplates={templates}
@@ -326,9 +445,7 @@ function MemeCreator() {
                         setCurrentTemplateIndex={setCurrentTemplateIndex}
                         isFreestyle={isFreestyle}
                     />
-                    {/*                   <SpeechInput
-                        setValue={setUpper}
-                    /> */}
+                    <SpeechInput setCaption={setUpper} />
                     <Accordion>
                         <AccordionSummary
                             aria-label="Expand"
@@ -339,10 +456,8 @@ function MemeCreator() {
                             <FormControlLabel
                                 aria-label="Acknowledge"
                                 control={
-                                    <Checkbox
-                                        checked={isFreestyle}
-                                        onChange={handleFreestyle}
-                                    />}
+                                    <Checkbox checked={isFreestyle} onChange={handleFreestyle} />
+                                }
                                 label="Advanced Options"
                             />
                         </AccordionSummary>
@@ -369,13 +484,16 @@ function MemeCreator() {
                             />
                         </AccordionDetails>
                         <AccordionDetails>
-                            <Tooltip title="Click on canvas to place your selected template" arrow>
+                            <Tooltip
+                                title="Click on canvas to place your selected template"
+                                arrow
+                            >
                                 <Button
                                     className="classes.buttonStyle selection"
                                     variant="contained"
                                     onClick={addImage}
                                     color="primary"
-                                    disabled={(selectedImage === null)}
+                                    disabled={selectedImage === null}
                                 >
                                     Place Template
                                 </Button>
@@ -386,7 +504,7 @@ function MemeCreator() {
                                 variant="contained"
                                 onClick={() => setImages([])}
                                 color="secondary"
-                                disabled={(images.length === 0)}
+                                disabled={images.length === 0}
                             >
                                 Clear Canvas
                             </Button>
@@ -399,9 +517,24 @@ function MemeCreator() {
                         canvasWidth={canvasWidth}
                         template={templates[currentTemplateIndex]}
                         fontSize={fontSize}
-                        text={upper} />
-
-
+                        text={upper}
+                    />
+                    <DraftPreview drafts={drafts} preview={preview} setPreview={setPreview}
+                        setDraftIndex={setDraftIndex} />
+                    <Button
+                        className="classes.buttonStyle draft"
+                        variant="contained"
+                        color="secondary"
+                        onClick={saveAsDraft}>
+                        Save as Draft
+                    </Button>
+                    <Button
+                        className="classes.buttonStyle draft"
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => getDraft()}>
+                        Continue Draft
+                    </Button>
                 </Grid>
             </Grid>
         </Container>
