@@ -276,7 +276,6 @@ function MemeCreator() {
     const [draftIndex, setDraftIndex] = useState(0);
 
     async function getDraft() {
-        console.log("getDraft");
         let res = await fetch("http://localhost:3030/memeIO/get-drafts", {
             method: "POST",
             mode: "cors",
@@ -288,6 +287,7 @@ function MemeCreator() {
         setPreview(true);
     }
 
+    const accordion = React.useRef(null)
     useEffect(() => {
             if (drafts.length > 0) {
                 console.log(drafts);
@@ -295,6 +295,9 @@ function MemeCreator() {
                 setItalic(drafts[draftIndex].italic);
                 setColor(drafts[draftIndex].color);
                 setFontSize(drafts[draftIndex].fontSize);
+                if(drafts[draftIndex].isFreestyle && !isFreestyle){
+                    accordion.current.click();
+                }
                 setIsFreestyle(drafts[draftIndex].isFreestyle);
                 setUpper(drafts[draftIndex].text);
                 setImageProperties(drafts[draftIndex].imageProperties);
@@ -452,11 +455,12 @@ function MemeCreator() {
                             aria-controls="additional-actions1-content"
                             id="additional-actions1-header"
                             onClick={() => setIsFreestyle(isFreestyle ? false : true)}
+                            ref={accordion}
                         >
                             <FormControlLabel
                                 aria-label="Acknowledge"
                                 control={
-                                    <Checkbox checked={isFreestyle} onChange={handleFreestyle}/>
+                                    <Checkbox checked={isFreestyle} onChange={() => handleFreestyle}/>
                                 }
                                 label="Advanced Options"
                             />
