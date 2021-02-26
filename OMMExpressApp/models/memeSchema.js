@@ -17,7 +17,7 @@ const memeSchema = new Schema({
 
     listlikes:[{
         date: Date, 
-        user: String 
+        user: String
     }],
 
     dislikes: [{

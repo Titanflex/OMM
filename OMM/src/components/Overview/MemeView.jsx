@@ -206,6 +206,7 @@ const MemeView = props => {
                             src={memeInfo.url}
                             alt={"meme image"}
                             isAccessible={props.isAccessible}
+                          
                             onClick={() => window.open(`/singleview/${memeInfo._id}`, "_self")}
                         />
                     </div>

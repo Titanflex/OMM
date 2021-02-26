@@ -11,7 +11,11 @@ import {
     makeStyles,
     IconButton,
     FormControlLabel,
+    Modal,
 } from "@material-ui/core";
+
+
+import { Chart } from "react-google-charts";
 
 import ArrowRight from "@material-ui/icons/ChevronRight";
 import ArrowLeft from "@material-ui/icons/ChevronLeft";
@@ -38,6 +42,17 @@ import DraftPreview from "./DraftPreview";
 
 import domtoimage from "dom-to-image";
 
+///create Styles
+function getModalStyle() {
+    const top = 10;
+    const left = 10;
+    return {
+        "margin-top": `${top}%`,
+      "margin-left": `${left}%`,
+      width: `${70}%`,
+    };
+  }
+
 function MemeCreator() {
     const [upper, setUpper] = useState("");
     const [templates, setTemplates] = useState([
@@ -62,6 +77,17 @@ function MemeCreator() {
 
     const [isFreestyle, setIsFreestyle] = useState(false);
     const [images, setImages] = useState([]);
+    
+  let likeDf= [];
+  const [chartData, setChartData] = useState(null);
+  const [dataLoading, setDataLoading] = useState(true);
+  let usedDf = [];
+  const [chartUsedData, setChartUsedData] = useState(null);
+  const [dataUsedLoading, setDataUsedLoading] = useState(true);
+  const [moreModuleOpen, setMoreModuleOpen] = useState(false);
+
+  const [modalStyle] = useState(getModalStyle);
+  
     const [displayColorPicker, setDisplayColorPicker] = useState(false);
     const fontSizes = [
         10,
@@ -112,6 +138,13 @@ function MemeCreator() {
             "max-height": maxHeight + "px",
             "overflow": "hidden",
         },
+        paper: {
+            position: "absolute",
+            width: `${50}%`,
+            backgroundColor: theme.palette.background.paper,
+            boxShadow: theme.shadows[5],
+            padding: theme.spacing(2, 4, 3),
+          },
         memeCanvas: {
             "width": isFreestyle ? canvasWidth + "px" : "350px",
             "min-width": minWidth + "px",
@@ -270,6 +303,92 @@ function MemeCreator() {
         });
     };
 
+
+    const getDaysOfMonth = () => {
+        const today = new Date (Date.now());
+        let dateThreeMonths = new Date(today);
+        dateThreeMonths.setMonth(dateThreeMonths.getMonth() - 2);
+        let dateArray = [];
+        let currentDate = dateThreeMonths;
+        while (currentDate <= today) {
+            dateArray.push(new Date (currentDate));
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        return dateArray;
+      }
+
+      
+     /* 
+    Modal
+    handels opening and closing of the Chart Modal.
+    */
+  const handleMoreModuleOpen = () => {
+    const datesArray = getDaysOfMonth();
+
+    //likes
+    let likeList = templates[currentTemplateIndex].likes;
+  
+    datesArray.forEach(date =>{
+      const dateDate = new Date(date);
+      let likeCount=0;
+
+      likeList.forEach(like => {
+      const likeDate = new Date(like.date);
+      likeCount = (likeDate.setHours(0,0,0,0) === dateDate.setHours(0,0,0,0))? likeCount+1 : likeCount;
+      })
+
+      likeDf.push({"date": dateDate, "likeCount": likeCount});
+    })
+
+    const columns = [
+      { type: 'date', label: 'date' },
+      { type: 'number', label: 'likeCount' },
+    ]
+    let rows = []
+    const nonNullData = likeDf.filter(row => row.likeCount !== null)
+    for (let row of nonNullData) {
+      const { date, likeCount } = row
+      rows.push([new Date(Date.parse(date)), likeCount])
+    }
+   
+    setChartData([columns, ...rows]);
+
+    //used
+    console.log(templates[currentTemplateIndex]);
+    let usedList = templates[currentTemplateIndex].used;
+  
+    datesArray.forEach(date =>{
+      const dateDate = new Date(date);
+      let usedCount=0;
+
+      usedList.forEach(used => {
+      const usedDate = new Date(used.date);
+      usedCount = (usedDate.setHours(0,0,0,0) === dateDate.setHours(0,0,0,0))? usedCount+1 : usedCount;
+      })
+
+      usedDf.push({"date": dateDate, "usedCount": usedCount});
+    })
+    const usedcolumns = [
+      { type: 'date', label: 'date' },
+      { type: 'number', label: 'usedCount'},
+    ]
+    let usedrows = []
+    const usednonNullData = usedDf.filter(row => row.usedCount !== null)
+    for (let row of usednonNullData) {
+      const { date, usedCount } = row
+      usedrows.push([new Date(Date.parse(date)),  usedCount])
+    }
+    console.log(usedrows);
+    setDataLoading(true);
+    setChartUsedData([usedcolumns, ...usedrows]);
+    
+    setMoreModuleOpen(true);
+  };
+
+  const handleMoreModuleClose = () => {
+    setMoreModuleOpen(false);
+  };
+
     const [drafts, setDrafts] = useState([])
     const [preview, setPreview] = useState(false);
 
@@ -424,6 +543,64 @@ function MemeCreator() {
                             </div>
                         </div>
                     </div>
+                    <Button
+            className="classes.buttonStyle selection"
+            onClick={handleMoreModuleOpen}
+            variant="contained"
+            color="secondary"
+          >
+            More template infos 
+          </Button>
+          <Modal
+            open={moreModuleOpen}
+            onClose={handleMoreModuleClose}
+            aria-labelledby="simple-modal-title"
+            aria-describedby="simple-modal-description"
+            >
+             <div style={modalStyle} className={classes.paper}>
+             <Typography variant="h5">Graph</Typography>
+             <Grid>
+              
+               {dataLoading? (
+                   <div>
+                       
+                 <Chart
+                 chartType="LineChart"
+                 data={chartData}
+                 options={{
+                   hAxis: {
+                    format: 'd MMM',
+                   },
+                   vAxis: {
+                     format: 'short',
+                   },
+                   title: 'Likes over time.',
+                 }}
+                 rootProps={{ 'data-testid': '2' }}
+               />
+               <Chart
+               chartType="LineChart"
+               data={chartUsedData}
+               options={{
+                 hAxis: {
+                    format: 'd MMM',
+                 },
+                 vAxis: {
+                   format: 'short',
+                 },
+                 title: 'Used over time.',
+               }}
+               rootProps={{ 'data-testid': '2' }}
+             />
+            </div>
+               ):(
+               <div>Fetching data from API</div>
+               )}
+                  </Grid>
+            </div>
+            
+          </Modal>
+
                 </Grid>
                 <Grid item s={1}>
                     <IconButton

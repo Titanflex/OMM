@@ -183,7 +183,7 @@ const SingleView = () => {
   let ind = 0;
   let img = new Image();
 
-  let likeDate = [];
+  let likeDf = [];
   const [chartData, setChartData] = useState(null);
   const [dataLoading, setDataLoading] = useState(true);
 
@@ -246,7 +246,7 @@ const SingleView = () => {
         const dislikeDate = new Date(dislike.date);
         dislikeCount = (dislikeDate.setHours(0,0,0,0) === dateDate.setHours(0,0,0,0))? dislikeCount+1 : dislikeCount;
         })
-      likeDate.push({"date": dateDate, "likeCount": likeCount, "dislikeCount" : dislikeCount});
+        likeDf.push({"date": dateDate, "likeCount": likeCount, "dislikeCount" : dislikeCount});
     })
 
     const columns = [
@@ -255,7 +255,7 @@ const SingleView = () => {
       { type: 'number', label: 'dislikeCount' },
     ]
     let rows = []
-    const nonNullData = likeDate.filter(row => row.likeCount !== null)
+    const nonNullData = likeDf.filter(row => row.likeCount !== null)
     for (let row of nonNullData) {
       const { date, likeCount, dislikeCount } = row
       rows.push([new Date(Date.parse(date)), likeCount, dislikeCount])
@@ -726,11 +726,13 @@ const SingleView = () => {
   //Meme Component
   const SingleMeme = () => {
     return (
+      (memes[currentMemeIndex].publicOpt=="public")?
       <MemeView
         memeInfo={memes[currentMemeIndex]}
         isAccessible={isAccessible}
         getUpdatedMemes={getUpdatedMemes}
       />
+      : null
     );
   };
 
@@ -1115,12 +1117,12 @@ const SingleView = () => {
                  data={chartData}
                  options={{
                    hAxis: {
-                     format: 'mmm',
+                    format: 'd MMM',
                    },
                    vAxis: {
                      format: 'short',
                    },
-                   title: 'Debt incurred over time.',
+                   title: 'Likes and dislikes over time.',
                  }}
                  rootProps={{ 'data-testid': '3' }}
                />

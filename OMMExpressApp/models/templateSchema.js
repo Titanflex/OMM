@@ -7,7 +7,16 @@ const templateSchema = new Schema({
     url: {
         type: String,
         unique: true
-    }
+    },
+
+    used: [{
+        date: Date
+    }],
+
+    likes:[{
+        date: Date, 
+        user: String
+    }],
 
 });
 

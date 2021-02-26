@@ -324,6 +324,50 @@ memeIO.post('/remove-comment', auth, async(req, res) => {
     }
 });
 
+/* POST /memeIO/addUsedTemplate */
+/* add a used date to a template */
+memeIO.post('/add-used-template', auth, async(req, res) => {
+    //get the user from the db
+    try {
+        Template.updateOne({ _id: req.body.id }, { $push: { used: { date: req.body.date} } }, function(err) {
+            return res.status(200)
+        })
+    } catch (error) {
+        return res.status(500).send(err)
+    }
+});
+
+
+/* POST /memeIO/like-template */
+/* add a like to a template with account*/
+memeIO.post('/like-template', auth, async(req, res) => {
+    //get the user from the db
+    let user = await User.findById(req.user.id);
+    let name = user.name;
+    try {
+        Template.updateOne({ _id: req.body.id }, { $push: { likes: { date: req.body.date, user: name } } }, function(err) {
+            return res.status(200)
+        })
+    } catch (error) {
+        return res.status(500).send(err)
+    }
+});
+
+/* POST /memeIO/remove-like-template */
+/* remove a like from a template by account*/
+memeIO.post('/remove-like-template', auth, async(req, res) => {
+    //get the user from the db
+    let user = await User.findById(req.user.id);
+    let name = user.name;
+    try {
+        Template.findByIdAndUpdate(req.body.id, { $pull: { likes: { user: name } } }, function(err) {
+            return res.status(200)
+        })
+    } catch (error) {
+        return res.status(500).send(err)
+    }
+});
+
 
 
 /* POST /memeIO/like-meme */

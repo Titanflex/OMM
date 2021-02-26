@@ -573,13 +573,6 @@ const Generator = params => {
                                     horizontal: 'center',
                                 }}
                             >
-                                <FacebookShareButton
-                                    url={generatedMemeUrl}
-                                    quote={"YoU cAN't cREatE GoOd mEMes wiTh An oNLiNE MEme cReAToR!!!!11!"}
-                                    hashtag="#OMMeme"
-                                    className={classes.socialMediaButton}>
-                                    <FacebookIcon size={36} round/>
-                                </FacebookShareButton>
                                 <TwitterShareButton
                                     title={"OMMemes = Stonks"}
                                     url={generatedMemeUrl}

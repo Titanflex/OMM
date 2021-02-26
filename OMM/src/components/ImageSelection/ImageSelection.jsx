@@ -3,9 +3,9 @@ import React, { useState, useEffect } from 'react';
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from "@material-ui/core/Button";
-import { CloudDownload } from "@material-ui/icons";
+import { CloudDownload, StarBorder, Star } from "@material-ui/icons";
 import { FilePond, registerPlugin } from "react-filepond";
-import { Grid, GridList, GridListTile, GridListTileBar } from "@material-ui/core";
+import { Grid, GridList, GridListTile, GridListTileBar,IconButton } from "@material-ui/core";
 
 import "filepond/dist/filepond.min.css";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
@@ -48,6 +48,9 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2, 4, 3),
     width: 1024,
     height: 580,
+  },
+  icon: {
+    color: 'white',
   },
 }));
 
@@ -92,6 +95,7 @@ const ImageSelection = params => {
   }
 
   function changeShownTemplate(image) {
+    addUsedTemplate(image);
     if (params.isFreestyle) {
       params.setSelectedImage({ url: image.url })
     }
@@ -102,6 +106,7 @@ const ImageSelection = params => {
   }
 
   function addTemplates(image) {
+    addUsedTemplate(image);
     params.setSelectedImages(image);
     handleClose();
   }
@@ -112,6 +117,51 @@ const ImageSelection = params => {
     //handleClose();
   }
 
+  async function addUsedTemplate(template) {
+    await fetch("http://localhost:3030/memeIO/add-used-template", {
+      method: "POST",
+      mode: "cors",
+      headers: AuthService.getTokenHeader(),
+      body: JSON.stringify({
+          id: template._id,
+          date: Date.now(),
+      }),
+  }).then((response) => {
+      console.log(response);
+   
+  });
+  }
+
+  async function setLike (template) {
+    await fetch("http://localhost:3030/memeIO/like-template", {
+      method: "POST",
+      mode: "cors",
+      headers: AuthService.getTokenHeader(),
+      body: JSON.stringify({
+          id: template._id,
+          date: Date.now(),
+      }),
+  }).then((response) => {
+      console.log(response);
+   
+  });
+    }
+
+  async function removeLike (template) {
+    await fetch("http://localhost:3030/memeIO/remove-like-template", {
+      method: "POST",
+      mode: "cors",
+      headers: AuthService.getTokenHeader(),
+      body: JSON.stringify({
+          id: template._id
+      }),
+  }).then((response) => {
+      console.log(response);
+  });
+    
+  }
+
+
   const ShowTemplates = ({ showtemplates }) => (
     <GridList cellHeight={180} className={classes.gridList} cols={3} style={{ height: 450 }}>
       {showtemplates.map((template) => (
@@ -121,11 +171,25 @@ const ImageSelection = params => {
               addTemplates(template)
             } else { changeShownTemplate(template) }
           }}
+        
         >
           <img src={template.url} alt={(template.name) ? template.name : template.templateName} />
           <GridListTileBar
             title={(template.name) ? template.name : template.templateName}
             titlePosition="top"
+            actionIcon={
+              <IconButton aria-label={`star ${template.name}`} className={classes.icon}
+              onClick={() => {
+                console.log(template);
+                if (template.hasOwnProperty('likes') && (template.likes.some(like => like.user === localStorage.user))) {
+                  removeLike(template)
+                } else {
+                    setLike(template)
+                }
+            }}>
+              {(template.hasOwnProperty('likes') && (template.likes.some(like => like.user === localStorage.user)))? <Star /> : <StarBorder /> }
+              </IconButton>
+            }
           />
         </GridListTile>
       ))
