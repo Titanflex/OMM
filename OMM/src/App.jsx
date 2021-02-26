@@ -6,6 +6,7 @@ import SingleView from "./components/Overview/SingleView";
 import NavBar from "./components/NavBar/NavBar";
 import AuthService from "./services/auth.service";
 import MyOverview from "./components/MyOverview/MyOverview";
+import VideoGenerator from "./components/MemeCreator/VideoGenerator";
 import { useEffect, useState } from "react";
 
 import "./css/global_style.css";
@@ -14,8 +15,9 @@ const routes = {
   "/login": () => <LoginContainer />,
   "/": () => <MemeCreator />,
   "/overview": () => <MemeScrollList />,
+  "/videoGen": () => <VideoGenerator />,
   "/singleview/:id": () => <SingleView />,
-  "/my-memes": () => <MyOverview /> 
+  "/my-memes": () => <MyOverview />
 };
 
 function App() {
@@ -27,7 +29,7 @@ function App() {
   useEffect(() => {
     setLoggedIn(true);
     // check if there is a token
-   if (localStorage.token) {
+    if (localStorage.token) {
       AuthService.getUser().then((successful) => {
         if (successful) {
           setLoggedIn(true);

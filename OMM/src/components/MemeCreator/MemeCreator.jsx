@@ -148,12 +148,12 @@ function MemeCreator() {
 
     useEffect(() => {
         getTemplates();
-    },[]);
+    }, []);
 
     async function getTemplates() {
         const res = await fetch("http://localhost:3030/memeIO/get-templates");
         const json = await res.json();
-        if(json.docs.length > 0) {
+        if (json.docs.length > 0) {
             setTemplates(json.docs);
         }
     }
@@ -244,7 +244,7 @@ function MemeCreator() {
                         <ArrowLeft fontSize="large" />
                     </IconButton>
                 </Grid>
-                <Grid item s={8} style={{overflow: "hidden" }}>
+                <Grid item s={8} style={{ overflow: "hidden" }}>
                     <IconButton
                         className={"textFormatButton"}
                         onClick={toggleBold}
@@ -296,7 +296,7 @@ function MemeCreator() {
                                 {!isFreestyle && templates.length > 0 &&
                                     <img className={classes.memeImg} src={templates[currentTemplateIndex].url}
                                         alt={"meme image"} />}
-                                {isFreestyle && <div id="freestyleCanvas" className={classes.freestyleCanvas}> {images} </div> }
+                                {isFreestyle && <div id="freestyleCanvas" className={classes.freestyleCanvas}> {images} </div>}
                                 <textarea
                                     type="text"
                                     className={classes.textFormat + " memeText " + classes.upperText}
@@ -326,9 +326,9 @@ function MemeCreator() {
                         setCurrentTemplateIndex={setCurrentTemplateIndex}
                         isFreestyle={isFreestyle}
                     />
-                    <SpeechInput
+                    {/*                   <SpeechInput
                         setValue={setUpper}
-                    />
+                    /> */}
                     <Accordion>
                         <AccordionSummary
                             aria-label="Expand"
@@ -399,7 +399,7 @@ function MemeCreator() {
                         canvasWidth={canvasWidth}
                         template={templates[currentTemplateIndex]}
                         fontSize={fontSize}
-                        text={upper}/>
+                        text={upper} />
 
 
                 </Grid>

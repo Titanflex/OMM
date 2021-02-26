@@ -1,5 +1,5 @@
-import {React, useState} from "react";
-import {makeStyles} from "@material-ui/core";
+import { React, useState } from "react";
+import { makeStyles } from "@material-ui/core";
 import {
   AppBar,
   Toolbar,
@@ -15,9 +15,10 @@ import AuthService from "../../services/auth.service";
 import "./../../css/NavBar/navbar.css";
 
 const navLinks = [
-  { title: "generator", path: "/" },
   { title: "overview", path: "/overview" },
-  { title: "my memes", path: "/my-memes" }, 
+  { title: "good ol' meme generator", path: "/" },
+  { title: "meme in motion generator", path: "/videoGen" },
+  { title: "my memes", path: "/my-memes" },
 ];
 
 const useStyles = makeStyles({
@@ -68,7 +69,7 @@ const NavBar = () => {
         >
           {navLinks.map(({ title, path }) => (
             <ListItem
-              selected={('/'+window.location.pathname.split('/')[1]) === path}
+              selected={('/' + window.location.pathname.split('/')[1]) === path}
               key={title}
               className={classes.linkText}
               button
