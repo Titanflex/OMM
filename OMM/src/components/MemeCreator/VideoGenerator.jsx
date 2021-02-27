@@ -444,15 +444,61 @@ function VideoGenerator() {
     return (
         <Container className="memeCreatorContainer" >
             <Grid container alignItems="flex-start" spacing={6} justify="center">
+                {/* Creates the template options */}
                 <Grid>
                     <p>1. Select a gif...</p>
                     {showGifTemplates()}
                     <p>...or a video or both!</p>
                     {showVideoTemplates()}
                 </Grid>
+                {/* Creates the caption inputs */}
                 <Grid>
                     <div>
                         <p>2. Write your captions</p>
+                        <IconButton
+                            className={"textFormatButton"}
+                            onClick={toggleBold}
+                            style={bold ? { background: "grey" } : { background: "white" }}
+                        >
+                            <FormatBold />
+                        </IconButton>
+                        <IconButton
+                            className={"textFormatButton"}
+                            onClick={toggleItalic}
+                            style={italic ? { background: "grey" } : { background: "white" }}
+                        >
+                            <FormatItalic />
+                        </IconButton>
+                        <IconButton
+                            className={"textFormatButton"}
+                            onClick={() => {
+                                if (displayColorPicker) {
+                                    setDisplayColorPicker(false)
+                                } else {
+                                    setDisplayColorPicker(true)
+                                }
+                            }}>
+                            <FormatColorTextIcon />
+                        </IconButton>
+
+                        {displayColorPicker ? <div style={popover} > <div style={cover} onClick={() => setDisplayColorPicker(false)} />
+                            <TwitterPicker
+                                className="colorPicker"
+                                triangle={"hide"}
+                                colors={['#D9E3F0', '#FFFFFF', '#000000', '#697689', '#37D67A', '#2CCCE4', '#555555', '#dce775', '#ff8a65', '#ba68c8']}
+                                onChange={handleColorChange}
+                            /></div> : null
+                        }
+
+                        <FormControl className={"textFormatSelect"}>
+                            <Select value={fontSize} onChange={changeFontSize}>
+                                {fontSizes.map((size) => (
+                                    <MenuItem key={size} value={size}>
+                                        {size}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                         <TextField
                             variant="outlined"
                             type="text"
@@ -490,8 +536,8 @@ function VideoGenerator() {
                         <Button onClick={() => addText(3)} >add third caption</Button>
                         <Button onClick={() => removeText(3)} >remove third caption</Button>
                     </div>
-
                 </Grid>
+                {/* Creates the recording buttons as well as the main canvas element */}
                 <Grid item s={8} style={{ overflow: "hidden" }}>
                     <p>3. Enter a title and start recording!</p>
 
@@ -517,50 +563,6 @@ function VideoGenerator() {
 
 
                     </div>
-                    <IconButton
-                        className={"textFormatButton"}
-                        onClick={toggleBold}
-                        style={bold ? { background: "grey" } : { background: "white" }}
-                    >
-                        <FormatBold />
-                    </IconButton>
-                    <IconButton
-                        className={"textFormatButton"}
-                        onClick={toggleItalic}
-                        style={italic ? { background: "grey" } : { background: "white" }}
-                    >
-                        <FormatItalic />
-                    </IconButton>
-                    <IconButton
-                        className={"textFormatButton"}
-                        onClick={() => {
-                            if (displayColorPicker) {
-                                setDisplayColorPicker(false)
-                            } else {
-                                setDisplayColorPicker(true)
-                            }
-                        }}>
-                        <FormatColorTextIcon />
-                    </IconButton>
-
-                    {displayColorPicker ? <div style={popover} > <div style={cover} onClick={() => setDisplayColorPicker(false)} />
-                        <TwitterPicker
-                            className="colorPicker"
-                            triangle={"hide"}
-                            colors={['#D9E3F0', '#FFFFFF', '#000000', '#697689', '#37D67A', '#2CCCE4', '#555555', '#dce775', '#ff8a65', '#ba68c8']}
-                            onChange={handleColorChange}
-                        /></div> : null
-                    }
-
-                    <FormControl className={"textFormatSelect"}>
-                        <Select value={fontSize} onChange={changeFontSize}>
-                            {fontSizes.map((size) => (
-                                <MenuItem key={size} value={size}>
-                                    {size}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
 
                     <Stage width={500} height={500} style={{ border: "1px solid black" }}>
                         <Layer ref={onRefChange} >

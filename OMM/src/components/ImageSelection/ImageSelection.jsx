@@ -1,11 +1,11 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 
 import Modal from '@material-ui/core/Modal';
-import {makeStyles} from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Button from "@material-ui/core/Button";
-import {CloudDownload, StarBorder, Star} from "@material-ui/icons";
-import {FilePond, registerPlugin} from "react-filepond";
-import {Grid, GridList, GridListTile, GridListTileBar, IconButton} from "@material-ui/core";
+import { CloudDownload, StarBorder, Star } from "@material-ui/icons";
+import { FilePond, registerPlugin } from "react-filepond";
+import { Grid, GridList, GridListTile, GridListTileBar, IconButton } from "@material-ui/core";
 
 import "filepond/dist/filepond.min.css";
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
@@ -78,10 +78,10 @@ const ImageSelection = params => {
      * update Templates in MemeCreator every time the templates in the ImageSelection is updated
      */
     useEffect(() => {
-            if (templates.length > 0) {
-                params.setTemplates(templates);
-            }
-        },
+        if (templates.length > 0) {
+            params.setTemplates(templates);
+        }
+    },
         [templates],
     );
 
@@ -103,7 +103,7 @@ const ImageSelection = params => {
     function changeShownTemplate(image) {
         addUsedTemplate(image);
         if (params.isFreestyle) {
-            params.setSelectedImage({url: image.url})
+            params.setSelectedImage({ url: image.url })
         }
         params.setCurrentTemplateIndex(params.memeTemplates.findIndex(function (item) {
             return item._id === image._id
@@ -166,36 +166,39 @@ const ImageSelection = params => {
 
     }
 
-
-    const ShowTemplates = ({showtemplates}) => (
-        <GridList cellHeight={180} className={classes.gridList} cols={3} style={{height: 450}}>
+    /**
+     * Creates a gridlist for picture templates. On click adds them to the meme editor.
+     * @param {Template[]} templates The templates that should be displayed. 
+     */
+    const ShowTemplates = ({ showtemplates }) => (
+        <GridList cellHeight={180} className={classes.gridList} cols={3} style={{ height: 450 }}>
             {showtemplates.map((template) => (
-                <GridListTile key={template.id} style={{'cursor': 'pointer'}} cols={template.cols || 1}
-                              onClick={() => {
-                                  if (params.isFreestyle) {
-                                      addTemplates(template)
-                                  } else {
-                                      changeShownTemplate(template)
-                                  }
-                              }}
+                <GridListTile key={template.id} style={{ 'cursor': 'pointer' }} cols={template.cols || 1}
+                    onClick={() => {
+                        if (params.isFreestyle) {
+                            addTemplates(template)
+                        } else {
+                            changeShownTemplate(template)
+                        }
+                    }}
 
                 >
-                    <img src={template.url} alt={(template.name) ? template.name : template.templateName}/>
+                    <img src={template.url} alt={(template.name) ? template.name : template.templateName} />
                     <GridListTileBar
                         title={(template.name) ? template.name : template.templateName}
                         titlePosition="top"
                         actionIcon={
                             <IconButton aria-label={`star ${template.name}`} className={classes.icon}
-                                        onClick={() => {
-                                            console.log(template);
-                                            if (template.hasOwnProperty('likes') && (template.likes.some(like => like.user === localStorage.user))) {
-                                                removeLike(template)
-                                            } else {
-                                                setLike(template)
-                                            }
-                                        }}>
+                                onClick={() => {
+                                    console.log(template);
+                                    if (template.hasOwnProperty('likes') && (template.likes.some(like => like.user === localStorage.user))) {
+                                        removeLike(template)
+                                    } else {
+                                        setLike(template)
+                                    }
+                                }}>
                                 {(template.hasOwnProperty('likes') && (template.likes.some(like => like.user === localStorage.user))) ?
-                                    <Star/> : <StarBorder/>}
+                                    <Star /> : <StarBorder />}
                             </IconButton>
                         }
                     />
@@ -228,7 +231,7 @@ const ImageSelection = params => {
             return res.json();
         }).then((data) => {
             console.log(data);
-            if(data.message){
+            if (data.message) {
                 alert("A template with this URL already exists");
                 return;
             }
@@ -271,13 +274,13 @@ const ImageSelection = params => {
                     <Grid container spacing={1}>
                         {/*Template overview*/}
                         <Grid item xs={6}>
-                            <h2 style={{marginBottom: "32px"}} id="simple-modal-title">Select a template to work on</h2>
-                            <ShowTemplates showtemplates={templates}/>
+                            <h2 style={{ marginBottom: "32px" }} id="simple-modal-title">Select a template to work on</h2>
+                            <ShowTemplates showtemplates={templates} />
                         </Grid>
-                        <Grid item xs={6} style={{maxWidth: 400, marginLeft: 32, overflow: "auto", maxHeight: 520}}>
+                        <Grid item xs={6} style={{ maxWidth: 400, marginLeft: 32, overflow: "auto", maxHeight: 520 }}>
                             <div>
                                 {/*Upload methods*/}
-                                <h4 style={{marginBottom: "32px", marginTop: "32px"}}>Get or create more templates</h4>
+                                <h4 style={{ marginBottom: "32px", marginTop: "32px" }}>Get or create more templates</h4>
                                 <FilePond
                                     files={files}
                                     instantUpload={false}
@@ -307,7 +310,7 @@ const ImageSelection = params => {
                                 />
                                 <Button
                                     className="classes.buttonStyle modal"
-                                    startIcon={<CloudDownload/>}
+                                    startIcon={<CloudDownload />}
                                     variant="contained"
                                     onClick={() => {
                                         getTemplatesFromImgFlip()
@@ -324,7 +327,7 @@ const ImageSelection = params => {
                                     handleSave={saveTemplate}
                                 />
                                 <URL handleSave={saveTemplate}
-                                addTemplate={addNewTemplates}/>
+                                    addTemplate={addNewTemplates} />
 
                             </div>
                         </Grid>
