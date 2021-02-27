@@ -15,6 +15,8 @@ import {
   FormControlLabel,
   Checkbox,
   Snackbar,
+  Card,
+  CardMedia,
 } from "@material-ui/core";
 import { Video } from "react-video-stream";
 
@@ -33,19 +35,15 @@ import {
   ChevronRight,
 } from "@material-ui/icons";
 
-import {
-  KeyboardDatePicker,
-  MuiPickersUtilsProvider,
-} from "@material-ui/pickers";
 
 import { Chart } from "react-google-charts";
 
-import DateFnsUtils from "@date-io/date-fns";
+
 
 import Moment from "moment";
 
 import AuthService from "../../services/auth.service";
-
+import Filter from "./Filter";
 import MemeView from "./MemeView";
 import "./../../css/Overview/singleView.css";
 
@@ -156,18 +154,7 @@ const SingleView = () => {
   const [sortOpt, setSortOpt] = useState(null);
   const [sortDown, setSortDown] = useState(false);
 
-  const [isFilteredByVote, setIsFilteredByVote] = useState(false);
-  const [voteNumber, setVoteNumber] = useState(null);
-  const [voteEquals, setVoteEquals] = useState("equals");
-
-  const [isFilteredByCreationDate, setIsFilteredByCreationDate] = useState(
-    false
-  );
-  const [filterDateFrom, setFilterDateFrom] = useState(new Date());
-  const [filterDateTill, setFilterDateTill] = useState(new Date());
-
-  const [isFilteredByFileFormat, setIsFilteredByFileFormat] = useState(false);
-  const [fileFormatOpt, setfileFormatOpt] = useState("png");
+  
 
   const [open, setOpen] = useState(false);
   const [openSnack, setOpenSnack] = useState(false);
@@ -176,12 +163,16 @@ const SingleView = () => {
   const [modalStyle] = useState(getModalStyle);
 
   const [isVideoLoading, setIsVideoLoading] = useState(true);
+  const [videoUrl, setVideoUrl] = useState(null);
 
   const videoTag = useRef(null);
+  
   const canvasRef = useRef(null);
-  const requestRef = React.useRef();
-  let ind = 0;
-  let img = new Image();
+  const [canvasWidth, setCanvasWidth] = useState(350);
+    const [canvasHeight, setCanvasHeight] = useState(250);
+    let canvasRecorder = null;
+    const [imgPaths, setImgPaths] = [];
+
 
   let likeDf = [];
   const [chartData, setChartData] = useState(null);
@@ -191,6 +182,26 @@ const SingleView = () => {
 
   const [isAccessible, setIsAccessible] = useState(false);
 
+
+ 
+
+  /* 
+    Modal
+    handels opening and closing of the filter Modal.
+    When opend it sets the filtered Memelist to the originalMemes from the database.
+    */
+  const handleOpen = () => {
+    setMemes(originalMemes);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  /*
+  getDaysOffMonths returns a list of dates from the actual to 2 months back.
+  */
   const getDaysOfMonth = () => {
     const today = new Date (Date.now());
     let dateThreeMonths = new Date(today);
@@ -203,23 +214,6 @@ const SingleView = () => {
     }
     return dateArray;
   }
-
-
- 
-
-  /* 
-    Modal
-    handels opening and closing of the filter Modal.
-    When opend it sets the filtered Memelist to the originalMemes from the database.
-    */
-  const handleOpen = () => {
-    setOpen(true);
-    setMemes(originalMemes);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
 
   /* 
     Modal
@@ -271,6 +265,7 @@ const SingleView = () => {
     setMoreModuleOpen(false);
   };
 
+ 
   /*
     SnackBar
     handles opening and closing of the snackbar that informs the user when no memes are available by the filter criteria.
@@ -354,138 +349,7 @@ const SingleView = () => {
     setCurrentMemeIndex(0);
   };
 
-  /*Filter*/
-  /*
-    The method handleFilterVoteChange is called when the user checks the Vote checkbox in the filter modal.
-    It then sets selected vote number to the operand as string.
-    */
-  const handleFilterVoteChange = (event) => {
-    setVoteEquals(event.target.value);
-  };
-
-  /*
-    The method handleFilterFileFormatChange is called when the user checks the File Format checkbox in the filter modal.
-    It then sets selected vote number to the file format as string.
-    */
-  const handleFilterFileFormatChange = (event) => {
-    setfileFormatOpt(event.target.value);
-  };
-
-  /*
-    The method filterMemes is called when the user clicks "Apply" and submits the filter criteria.
-    It closes the modal.
-    Based on the selected filter checkbox it calls the appropiate filter method.
-    */
-  const filterMemes = () => {
-    setOpen(false);
-    if (isFilteredByVote) {
-      filterMemesByVote();
-    }
-    if (isFilteredByCreationDate) {
-      filterMemesByDate();
-    }
-    if (isFilteredByFileFormat) {
-      filterMemesByFileFormat();
-    }
-  };
-
-  /*
-    The method filterMemesByDate takes the two date criteria of the filtermodal.
-    Based on the selected dates it filters the memes.
-    It updates Memes by the filltered list and sets the index to the first image.
-    When no meme fulfills the filter criteria the snackbar with a warning is opened and the memes is not updated.
-    */
-  const filterMemesByDate = () => {
-    let filteredList = [];
-    if (
-      filterDateFrom &&
-      filterDateTill &&
-      Moment(filterDateTill) > Moment(filterDateFrom)
-    ) {
-      filteredList = memes.filter(
-        (meme) => Moment(meme.creationDate) >= Moment(filterDateFrom)
-      );
-      filteredList = filteredList.filter(
-        (meme) => Moment(meme.creationDate) <= Moment(filterDateTill)
-      );
-    } else if (filterDateFrom) {
-      filteredList = memes.filter(
-        (meme) => Moment(meme.creationDate) >= Moment(filterDateFrom)
-      );
-    } else if (filterDateTill) {
-      filteredList = memes.filter(
-        (meme) => Moment(meme.creationDate) <= Moment(filterDateTill)
-      );
-    }
-    if (filteredList.length === 0) {
-      handleOpenSnack();
-      console.log("no memes");
-      return;
-    }
-    setMemes(filteredList);
-    setCurrentMemeIndex(0);
-  };
-
-  /*
-   The method filterMemesByFileFormat takes the selected file format.
-   It checks if the selected file format is included in the url and filters memes by that.
-   It updates Memes by the filltered list and sets the index to the first image.
-   When no meme fulfills the filter criteria the snackbar with a warning is opened and the memes is not updated.
-   */
-  const filterMemesByFileFormat = () => {
-    let filteredList = [];
-    console.log(fileFormatOpt);
-    if (fileFormatOpt === "jpg") {
-      filteredList = memes.filter((meme) => meme.url.includes("jpg"));
-    } else if (fileFormatOpt === "png") {
-      filteredList = memes.filter((meme) => meme.url.includes("png"));
-    } else if (fileFormatOpt === "jpeg") {
-      filteredList = memes.filter((meme) => meme.url.includes("jpeg"));
-    }
-    if (filteredList.length === 0) {
-      handleOpenSnack();
-      console.log("no memes");
-      return;
-    }
-    setMemes(filteredList);
-    setCurrentMemeIndex(0);
-  };
-
-  /*
-    The method filterMemesByVote takes the selected vote operand and the given number of the filter modal.
-    It checks if the selected number is there and filters the memes by that operand and number.
-    It updates Memes by the filltered list and sets the index to the first image.
-    When no meme fulfills the filter criteria the snackbar with a warning is opened and the memes is not updated.
-    */
-  const filterMemesByVote = () => {
-    let filteredList = [];
-
-    if (!voteNumber) {
-      console.log("No number to filter by.");
-      return;
-    }
-    if (voteEquals === "equals") {
-      filteredList = memes.filter(
-        (meme) => meme.listlikes.length - meme.dislikes.length == voteNumber
-      );
-    } else if (voteEquals === "greater") {
-      filteredList = memes.filter(
-        (meme) => meme.listlikes.length - meme.dislikes.length > voteNumber
-      );
-    } else if (voteEquals === "smaller") {
-      filteredList = memes.filter(
-        (meme) => meme.listlikes.length - meme.dislikes.length < voteNumber
-      );
-    }
-    if (filteredList.length === 0) {
-      handleOpenSnack();
-      console.log("no memes");
-      return;
-    }
-    setMemes(filteredList);
-    setCurrentMemeIndex(0);
-  };
-
+  
   /* Search*/
   /*
     The method handleChange is called when the textfield value of the searchbar changes.
@@ -656,36 +520,70 @@ const SingleView = () => {
     });
   };
 
+
+  const requestRef = React.useRef();
+  let ind = 0;
+
+  const getPixelRatio = context => {
+      var backingStore =
+      context.backingStorePixelRatio ||
+      context.webkitBackingStorePixelRatio ||
+      context.mozBackingStorePixelRatio ||
+      context.msBackingStorePixelRatio ||
+      context.oBackingStorePixelRatio ||
+      context.backingStorePixelRatio ||
+        1;
+        
+        return (window.devicePixelRatio || 1) / backingStore;
+    };
   /*
   The tick loadMemes changes the image in the canvas every 2 seconds.
   */
   const tick = () => {
     const memeList = memes;
+    
+    let img = new Image();
+  
     const checkVideoState = setInterval(() => {
+
+
       img.src = memeList[ind].url;
+
       if (img.src) {
         clearInterval(checkVideoState);
+        const canvas = canvasRef.current;
+        if (canvas) {
+          setIsVideoLoading(false);
 
-        setIsVideoLoading(false);
+        let context = canvas.getContext('2d');
+        let ratio = getPixelRatio(canvas);
 
-        const canvasElement = canvasRef.current;
-        if (canvasElement) {
-          const canvasContext = canvasElement.getContext("2d");
+        let width = getComputedStyle(canvas)
+            .getPropertyValue('width')
+            .slice(0, -2);
+        let height = getComputedStyle(canvas)
+            .getPropertyValue('height')
+            .slice(0, -2);
+        canvas.width = width * ratio;
+        canvas.height = height * ratio;
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
 
-          canvasContext.height = img.height;
-          canvasContext.width = img.width;
-          canvasContext.drawImage(
+        context.drawImage(
             img,
             0,
             0,
-            canvasElement.width,
-            canvasElement.height
+            canvas.width,
+            canvas.height
           );
         }
 
         if (memeList.length > 1) {
-          ind = ind === 0 ? memeList.length - 1 : ind - 1;
+          
+          ind = (ind === memeList.length - 1) ? 0 : ind + 1;
+          console.log(ind);
         }
+        requestAnimationFrame(tick);
       }
     }, 2000);
   };
@@ -695,13 +593,14 @@ const SingleView = () => {
       It loads the memes of the server and starts the animation video.
       */
   useEffect(() => {
-    const video = videoTag.current;
-    video.setAttribute("playsinline", true);
-    //video.play();
     loadMemes();
+    
     requestRef.current = requestAnimationFrame(tick);
-    //return () => cancelAnimationFrame(requestRef.tick);
+    
+    return () => cancelAnimationFrame(requestRef);
   }, []);
+
+  
 
   /*
    The method useInterval checks if autoplay is selected.
@@ -710,7 +609,6 @@ const SingleView = () => {
   useInterval(() => {
     if (isPlaying) {
       let current = currentMemeIndex;
-      console.log(currentMemeIndex);
       if (memes.length > 1) {
         if (isRandom) {
           randomize();
@@ -857,157 +755,15 @@ const SingleView = () => {
           >
             Filter
           </Button>
-          <Modal
-            open={open}
-            onClose={handleClose}
-            aria-labelledby="simple-modal-title"
-            aria-describedby="simple-modal-description"
-          >
-            <div style={modalStyle} className={classes.paper}>
-              <Typography variant="h5">Filter by</Typography>
-              <div>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={isFilteredByCreationDate}
-                      onChange={() =>
-                        setIsFilteredByCreationDate(!isFilteredByCreationDate)
-                      }
-                      name="checkedB"
-                      color="primary"
-                    />
-                  }
-                  label="Creation Date"
-                />
-                {isFilteredByCreationDate ? (
-                  <div>
-                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                      <KeyboardDatePicker
-                        className={classes.spacing}
-                        autoOk
-                        clearable
-                        variant="inline"
-                        inputVariant="outlined"
-                        label="from"
-                        format="MM/dd/yyyy"
-                        value={filterDateFrom}
-                        InputAdornmentProps={{ position: "start" }}
-                        onChange={(date) => setFilterDateFrom(date)}
-                      />
-                    </MuiPickersUtilsProvider>
-                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                      <KeyboardDatePicker
-                        className={classes.spacing}
-                        autoOk
-                        clearable
-                        variant="inline"
-                        inputVariant="outlined"
-                        label="till"
-                        format="MM/dd/yyyy"
-                        value={filterDateTill}
-                        InputAdornmentProps={{ position: "start" }}
-                        onChange={(date) => setFilterDateTill(date)}
-                      />
-                    </MuiPickersUtilsProvider>
-                  </div>
-                ) : null}
-              </div>
-              <div>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={isFilteredByVote}
-                      onChange={() => setIsFilteredByVote(!isFilteredByVote)}
-                      name="checkedB"
-                      color="primary"
-                    />
-                  }
-                  label="Votes"
-                />
-                {isFilteredByVote ? (
-                  <div>
-                    <FormControl
-                      variant="outlined"
-                      className={classes.formControl}
-                    >
-                      <InputLabel htmlFor="outlined-age-native-simple">
-                        Votes
-                      </InputLabel>
-                      <Select
-                        native
-                        label="Votes"
-                        id="select-Vote-Option"
-                        value={voteEquals}
-                        onChange={handleFilterVoteChange}
-                      >
-                        <option value={"equals"}>equals</option>
-                        <option value={"greater"}>greater</option>
-                        <option value={"smaller"}>smaller</option>
-                      </Select>
-                    </FormControl>
-
-                    <TextField
-                      id="standard-basic"
-                      type="number"
-                      variant="outlined"
-                      label="Number"
-                      className={classes.numberField}
-                      value={voteNumber}
-                      onChange={(event) => setVoteNumber(event.target.value)}
-                    />
-                  </div>
-                ) : null}
-              </div>
-              <div>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={isFilteredByFileFormat}
-                      onChange={() =>
-                        setIsFilteredByFileFormat(!isFilteredByFileFormat)
-                      }
-                      name="checkedB"
-                      color="primary"
-                    />
-                  }
-                  label="File Format"
-                />
-                {isFilteredByFileFormat ? (
-                  <div>
-                    <FormControl
-                      variant="outlined"
-                      className={classes.formControl}
-                    >
-                      <InputLabel htmlFor="outlined-format-native-simple">
-                        FileFormat
-                      </InputLabel>
-                      <Select
-                        native
-                        label="FileFormat"
-                        id="select-FileFormat-Option"
-                        value={fileFormatOpt}
-                        onChange={handleFilterFileFormatChange}
-                      >
-                        <option value={"png"}>png</option>
-                        <option value={"jpg"}>jpg</option>
-                        <option value={"jpeg"}>jpeg</option>
-                      </Select>
-                    </FormControl>
-                  </div>
-                ) : null}
-              </div>
-              <Button
-                className="classes.buttonStyle selection"
-                variant="contained"
-                color="secondary"
-                disabled={!memes}
-                onClick={filterMemes}
-              >
-                Apply
-              </Button>
-            </div>
-          </Modal>
-
+          <Filter 
+           open={open}
+           handleFilterClose={handleClose}
+           memes= {memes}
+           setMemes={setMemes}
+           handleOpenSnack={handleOpenSnack}
+           setCurrentMemeIndex={setCurrentMemeIndex}
+           />
+        
           <Snackbar
             open={openSnack}
             autoHideDuration={6000}
@@ -1182,16 +938,11 @@ const SingleView = () => {
         <Grid container item xs={8}>
 
           <Grid item xs>
+          
             <div>
-              <video
-                ref={videoTag}
-                width="400"
-                height="400"
-                autoPlay
-                style={{ display: "none" }}
-              />
+           
 
-              {!isVideoLoading && <canvas ref={canvasRef} />}
+              {!isVideoLoading && <canvas ref={canvasRef} style={{ width: '400px', height: '400px' }}/>}
 
               {isVideoLoading && (
                 <p>Please wait while we load the video stream.</p>

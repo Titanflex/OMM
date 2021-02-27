@@ -3,6 +3,8 @@ import { Grid, Container, makeStyles, Button } from "@material-ui/core";
 import { navigate } from "hookrouter";
 
 import MemeView from "../Overview/MemeView";
+
+import Filter from "../Overview/Filter";
 import emptyState from "../../img/emptyState.jpg";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
@@ -10,17 +12,36 @@ import "./../../css/Overview/myoverview.css";
 
 const useStyles = makeStyles((theme) => ({
   spacing: {
-    marginTop: theme.spacing(2),
-    marginRight: theme.spacing(2),
+      marginTop: theme.spacing(2),
+      marginRight: theme.spacing(2),
   },
   selectEmpty: {
-    marginTop: theme.spacing(2),
+      marginTop: theme.spacing(2),
   },
-  progress: {
-    marginLeft: "0 auto",
-    marginRight: "0 auto",
-    marginTop: "32",
-  },
+      
+      formControl: {
+        marginTop: theme.spacing(1),
+        marginRight: theme.spacing(2),
+      },
+      paper: {
+        position: "absolute",
+        width: `${50}%`,
+        backgroundColor: theme.palette.background.paper,
+        boxShadow: theme.shadows[5],
+        padding: theme.spacing(2, 4, 3),
+      },
+      numberField: {
+        width: `${15}%`,
+        marginTop: theme.spacing(1),
+        marginRight: theme.spacing(2),
+      },
+      filterButton: {
+        height: `${70}%`,
+        marginTop: theme.spacing(2),
+        marginRight: theme.spacing(2),
+      },
+    
+
 }));
 
 function MyOverview() {
@@ -38,7 +59,7 @@ function MyOverview() {
     return (
       <Grid container spacing={1}>
         {listmemes.map((meme) => (
-          <MemeView memeInfo={meme} key={meme._id} />
+          <MemeView memeInfo={meme} getUpdatedMemes={loadMemes} key={meme._id} />
         ))}
       </Grid>
     );
