@@ -4,7 +4,6 @@ import userEvent from '@testing-library/user-event';
 import 'regenerator-runtime/runtime';
 import { within } from '@testing-library/dom';
 import { cleanup, render, screen } from '@testing-library/react';
-import NavBar from './components/NavBar/NavBar';
 import ImageSelection from './components/ImageSelection/ImageSelection';
 import MemeCreator from './components/MemeCreator/MemeCreator';
 
@@ -17,38 +16,31 @@ describe('App', () => {
         render(<App />);
     });
 });
+
+describe('Creator', () => {
+    it('Tests some elements in meme creator.', () => {
+        render(<MemeCreator />);
+        expect(screen.getByText('Hello !')).toBeInTheDocument();
+        expect(screen.getByText('Canvas Height')).toBeInTheDocument();
+    });
+});
+
+describe('Templates', () => {
+    it('Tests if all template options are available.', () => {
+        const { getByTestId } = render(<ImageSelection />);
+        userEvent.click(screen.getByText('I want more templates!'));
+        const { getByText } = within(getByTestId('show-temp'));
+        expect(getByText('Get Images form ImageFlip')).toBeInTheDocument();
+        expect(getByText('Photo from camera')).toBeInTheDocument();
+        expect(getByText('Get Image from URL')).toBeInTheDocument();
+        expect(getByText('Draw your own')).toBeInTheDocument();
+    });
+});
+
 /*
-describe('Clear', () => {
-    it('Tests if clear button works', () => {
-        const { getByTestId } = render(<MemeCreator />);
-        userEvent.click(screen.getByText('1'));
-userEvent.click(screen.getByText('+'));
-userEvent.click(screen.getByText('4'));
-const { getByText } = within(getByTestId('term-text'));
-expect(getByText('1+4')).toBeInTheDocument();
-userEvent.click(screen.getByText('C'));
-expect(getByText('')).toBeInTheDocument();
-});
-});
-
-describe('Divide by Zero', () => {
-it('Tests if divide by zero is possible.', () => {
-const { getByTestId } = render(<ImageSelection />);
-/* userEvent.click(screen.getByText('5'));
- userEvent.click(screen.getByText('/'));
- userEvent.click(screen.getByText('0'));
- const { getByText } = within(getByTestId('term-text'));
- expect(getByText('5/0')).toBeInTheDocument();
- userEvent.click(screen.getByText('='));
- expect(getByText('Infinity')).toBeInTheDocument();
- userEvent.click(screen.getByText('='));
- expect(getByText('Infinity')).toBeInTheDocument();
-});
-});
-
 describe('Header', () => {
-it('Tests if Header gets shown', () => {
-render(<NavBar />);
-expect(screen.getByText('Good ol')).toBeInTheDocument();
-});
+    it('Tests if Header gets shown', () => {
+        render(<NavBar />);
+        expect(screen.getByText('Good ol')).toBeInTheDocument();
+    });
 });*/

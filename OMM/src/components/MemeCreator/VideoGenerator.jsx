@@ -29,7 +29,7 @@ import "canvas-context";
 import "./../../css/MemeCreator/memeCreator.css";
 
 import 'isomorphic-fetch'
-import { Stage, Layer, Image, Text } from "react-konva";
+import { Stage, Layer, Image } from "react-konva";
 import Konva from "konva";
 import "gifler";
 import createCanvasRecorder from "canvas-record";
@@ -351,7 +351,7 @@ function VideoGenerator() {
             textCaption = memeCaption3
         }
 
-        let text = new Text({ text: textCaption, fontSize: fontSize, fontFamily: "impact", fill: color, draggable: true, fontStyle: textFormat, id: nbr })
+        let text = new Konva.Text({ text: textCaption, fontSize: fontSize, fontFamily: "impact", fill: color, draggable: true, fontStyle: textFormat, id: nbr })
         let tempChildren = canvasRef.getChildren(function (node) {
             return node.getClassName() === "Text"
         })

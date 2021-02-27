@@ -629,6 +629,7 @@ function MemeCreator() {
                     <SpeechInput setCaption={setUpper} />
                     <Accordion>
                         <AccordionSummary
+                            data-testid="advanced"
                             aria-label="Expand"
                             aria-controls="additional-actions1-content"
                             id="additional-actions1-header"

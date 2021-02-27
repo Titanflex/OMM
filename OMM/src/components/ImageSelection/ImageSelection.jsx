@@ -180,7 +180,7 @@ const ImageSelection = params => {
      * @param {array} showtemplates 
      */
     const ShowTemplates = ({ showtemplates }) => (
-        <GridList cellHeight={180} className={classes.gridList} cols={3} style={{ height: 450 }}>
+        <GridList cellHeight={180} className={classes.gridList} cols={3} style={{ height: 450 }}  >
             {showtemplates.map((template) => (
                 <GridListTile key={template.id} style={{ 'cursor': 'pointer' }} cols={template.cols || 1}
                     onClick={() => {
@@ -194,6 +194,7 @@ const ImageSelection = params => {
                 >
                     <img src={template.url} alt={(template.name) ? template.name : template.templateName} />
                     <GridListTileBar
+                        data-testid="temp-grid"
                         title={(template.name) ? template.name : template.templateName}
                         titlePosition="top"
                         actionIcon={
@@ -280,7 +281,7 @@ const ImageSelection = params => {
                 aria-labelledby="simple-modal-title"
                 aria-describedby="simple-modal-description">
                 <div style={modalStyle} className={classes.paper}>
-                    <Grid container spacing={1}>
+                    <Grid container spacing={1} data-testid="show-temp">
                         {/*Template overview*/}
                         <Grid item xs={6}>
                             <h2 style={{ marginBottom: "32px" }} id="simple-modal-title">Select a template to work on</h2>
