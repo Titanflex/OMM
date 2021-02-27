@@ -21,6 +21,8 @@
         "canvas-record": "^2.1.0",
         "date-fns": "^2.17.0",
         "dom-to-image": "^2.6.0",
+        "enzyme": "^3.11.0",
+        "enzyme-adapter-react-16": "^1.15.6",
         "express-form-data": "^2.0.14",
         "filepond": "^4.25.1",
         "filepond-plugin-file-encode": "^2.1.9",

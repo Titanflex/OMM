@@ -2,9 +2,7 @@ import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import Mic from "@material-ui/icons/Mic";
-import SpeechRecognition, {
-  useSpeechRecognition,
-} from "react-speech-recognition";
+import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 
 import "./../../css/MemeCreator/speechInput.css";
 
@@ -52,7 +50,7 @@ const SpeechInput = (params) => {
       SpeechRecognition.startListening({ language: "en-US" });
       setWaitForResponse(true);
       //if the user does not stop the speech input manually -> end it after 5 seconds
-      setTimeout(function() {
+      setTimeout(function () {
         SpeechRecognition.stopListening();
         setSpeaking(false);
       }, 3000);
