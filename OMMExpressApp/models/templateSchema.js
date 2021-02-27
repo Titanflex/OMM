@@ -4,10 +4,15 @@ const Schema = mongoose.Schema;
 const templateSchema = new Schema({
     uploader: String,
     templateName: String,
-    url: {
-        type: String,
-        unique: true
-    }
+    url: String,
+    used: [{
+        date: Date
+    }],
+
+    likes:[{
+        date: Date, 
+        user: String
+    }],
 
 });
 

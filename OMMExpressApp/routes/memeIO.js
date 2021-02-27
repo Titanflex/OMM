@@ -126,8 +126,8 @@ memeIO.get('/get-memes', (req, res) => {
     })
 });
 
-/* GET memeIO/get-memes */
-/* Get all memes from the database */
+/* GET memeIO/get-public-memes */
+/* Get all memes stated public from the database */
 memeIO.get('/get-public-memes', (req, res) => {
     Meme.find({ publicOpt: "public" }, function (err, docs) {
         if (err)
@@ -157,7 +157,6 @@ memeIO.post("/save-template", auth, async (req, res) => {
 
     if (!req.body.internetSource) { //save base64 string to file
         let base64String = req.body.url;
-        console.log(base64String);
         let base64Image = base64String.split(';base64,').pop();
         url = "http://localhost:3030/images/templates/" + title + ".jpeg";
 
@@ -175,10 +174,10 @@ memeIO.post("/save-template", auth, async (req, res) => {
 
     Template.create(newTemplate, (err, item) => {
         if (err) {
-            console.log(err);
-            res.status(500).send(err);
+            return res.json({ "message": err });
         } else {
             item.save(function (err, template) {
+                if (err) return res.json({ "message": err });
                 res.json(template);
             });
         }
@@ -253,6 +252,7 @@ memeIO.post('/upload-Template', uploadTemplate.single("file"), auth, async (req,
     })
 });
 
+var gm = require("gm");
 
 /* POST /memeIO/upload-Meme */
 /* upload meme to server (via FilePond) */
@@ -334,13 +334,57 @@ memeIO.post('/add-comment', auth, async (req, res) => {
 });
 
 /* POST /memeIO/remove-comment */
-/* remove a like from a meme by account*/
+/* remove a like from a comment by the meme id and comment name and text*/
 memeIO.post('/remove-comment', auth, async (req, res) => {
     //get the user from the db
     let user = await User.findById(req.user.id);
     let name = user.name;
     try {
         Meme.findByIdAndUpdate(req.body.id, { $pull: { comments: { user: name, commenttext: req.body.commenttext } } }, function (err) {
+            return res.status(200)
+        })
+    } catch (error) {
+        return res.status(500).send(err)
+    }
+});
+
+/* POST /memeIO/add-used-template */
+/* add a used property and date to a template */
+memeIO.post('/add-used-template', auth, async (req, res) => {
+    //get the user from the db
+    try {
+        Template.updateOne({ _id: req.body.id }, { $push: { used: { date: req.body.date } } }, function (err) {
+            return res.status(200)
+        })
+    } catch (error) {
+        return res.status(500).send(err)
+    }
+});
+
+
+/* POST /memeIO/like-template */
+/* add a like to a template with account*/
+memeIO.post('/like-template', auth, async (req, res) => {
+    //get the user from the db
+    let user = await User.findById(req.user.id);
+    let name = user.name;
+    try {
+        Template.updateOne({ _id: req.body.id }, { $push: { likes: { date: req.body.date, user: name } } }, function (err) {
+            return res.status(200)
+        })
+    } catch (error) {
+        return res.status(500).send(err)
+    }
+});
+
+/* POST /memeIO/remove-like-template */
+/* remove a like from a template by account*/
+memeIO.post('/remove-like-template', auth, async (req, res) => {
+    //get the user from the db
+    let user = await User.findById(req.user.id);
+    let name = user.name;
+    try {
+        Template.findByIdAndUpdate(req.body.id, { $pull: { likes: { user: name } } }, function (err) {
             return res.status(200)
         })
     } catch (error) {
@@ -585,7 +629,8 @@ memeIO.get('/get-meme', (req, res) => {
     })
 });
 
-
+/* GET /memeIO/download-meme */
+/* returns base64 file to be downloaded */
 memeIO.post('/download-meme', (req, res) => {
     try {
         console.log(req.body.title);

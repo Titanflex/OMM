@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from "react";
 import {
     Typography,
     Grid,
@@ -11,15 +11,19 @@ import {
     makeStyles,
     IconButton,
     FormControlLabel,
+    Modal,
 } from "@material-ui/core";
+
+
+import { Chart } from "react-google-charts";
 
 import ArrowRight from "@material-ui/icons/ChevronRight";
 import ArrowLeft from "@material-ui/icons/ChevronLeft";
 import FormatColorTextIcon from "@material-ui/icons/FormatColorText";
 
-import { FormatBold, FormatItalic } from "@material-ui/icons";
+import {FormatBold, FormatItalic} from "@material-ui/icons";
 
-import { TwitterPicker } from "react-color";
+import {TwitterPicker} from "react-color";
 
 import ImageSelection from "../ImageSelection/ImageSelection";
 import Generator from "../MemeCreator/Generator";
@@ -37,6 +41,17 @@ import AuthService from "../../services/auth.service";
 import DraftPreview from "./DraftPreview";
 
 import domtoimage from "dom-to-image";
+
+///create Styles
+function getModalStyle() {
+    const top = 10;
+    const left = 10;
+    return {
+        "margin-top": `${top}%`,
+      "margin-left": `${left}%`,
+      width: `${70}%`,
+    };
+  }
 
 function MemeCreator() {
     const [upper, setUpper] = useState("");
@@ -62,6 +77,17 @@ function MemeCreator() {
 
     const [isFreestyle, setIsFreestyle] = useState(false);
     const [images, setImages] = useState([]);
+    
+  let likeDf= [];
+  const [chartData, setChartData] = useState(null);
+  const [dataLoading, setDataLoading] = useState(true);
+  let usedDf = [];
+  const [chartUsedData, setChartUsedData] = useState(null);
+  const [dataUsedLoading, setDataUsedLoading] = useState(true);
+  const [moreModuleOpen, setMoreModuleOpen] = useState(false);
+
+  const [modalStyle] = useState(getModalStyle);
+  
     const [displayColorPicker, setDisplayColorPicker] = useState(false);
     const fontSizes = [
         10,
@@ -112,6 +138,13 @@ function MemeCreator() {
             "max-height": maxHeight + "px",
             "overflow": "hidden",
         },
+        paper: {
+            position: "absolute",
+            width: `${50}%`,
+            backgroundColor: theme.palette.background.paper,
+            boxShadow: theme.shadows[5],
+            padding: theme.spacing(2, 4, 3),
+          },
         memeCanvas: {
             "width": isFreestyle ? canvasWidth + "px" : "350px",
             "min-width": minWidth + "px",
@@ -221,7 +254,7 @@ function MemeCreator() {
                         className={classes.memeImg}
                         src={selectedImage.url}
                         alt={"meme image"}
-                        style={{ position: "absolute", left: x, top: y }}
+                        style={{position: "absolute", left: x, top: y}}
                     />
                 );
                 setImages((prev) => [...prev, img]);
@@ -229,7 +262,7 @@ function MemeCreator() {
                 console.log(imageProperties);
                 setSelectedImage(null);
             },
-            { once: true }
+            {once: true}
         );
     };
 
@@ -247,7 +280,7 @@ function MemeCreator() {
 
     const saveAsDraft = async () => {
         let meme = document.getElementById("memeContainer");
-        let previewJpeg = await domtoimage.toJpeg(meme, { quality: 20 }).then(function (jpeg) {
+        let previewJpeg = await domtoimage.toJpeg(meme, {quality: 20}).then(function (jpeg) {
             return jpeg
         });
         fetch("http://localhost:3030/memeIO/save-draft", {
@@ -270,6 +303,92 @@ function MemeCreator() {
         });
     };
 
+
+    const getDaysOfMonth = () => {
+        const today = new Date (Date.now());
+        let dateThreeMonths = new Date(today);
+        dateThreeMonths.setMonth(dateThreeMonths.getMonth() - 2);
+        let dateArray = [];
+        let currentDate = dateThreeMonths;
+        while (currentDate <= today) {
+            dateArray.push(new Date (currentDate));
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        return dateArray;
+      }
+
+      
+     /* 
+    Modal
+    handels opening and closing of the Chart Modal.
+    */
+  const handleMoreModuleOpen = () => {
+    const datesArray = getDaysOfMonth();
+
+    //likes
+    let likeList = templates[currentTemplateIndex].likes;
+  
+    datesArray.forEach(date =>{
+      const dateDate = new Date(date);
+      let likeCount=0;
+
+      likeList.forEach(like => {
+      const likeDate = new Date(like.date);
+      likeCount = (likeDate.setHours(0,0,0,0) === dateDate.setHours(0,0,0,0))? likeCount+1 : likeCount;
+      })
+
+      likeDf.push({"date": dateDate, "likeCount": likeCount});
+    })
+
+    const columns = [
+      { type: 'date', label: 'date' },
+      { type: 'number', label: 'likeCount' },
+    ]
+    let rows = []
+    const nonNullData = likeDf.filter(row => row.likeCount !== null)
+    for (let row of nonNullData) {
+      const { date, likeCount } = row
+      rows.push([new Date(Date.parse(date)), likeCount])
+    }
+   
+    setChartData([columns, ...rows]);
+
+    //used
+    console.log(templates[currentTemplateIndex]);
+    let usedList = templates[currentTemplateIndex].used;
+  
+    datesArray.forEach(date =>{
+      const dateDate = new Date(date);
+      let usedCount=0;
+
+      usedList.forEach(used => {
+      const usedDate = new Date(used.date);
+      usedCount = (usedDate.setHours(0,0,0,0) === dateDate.setHours(0,0,0,0))? usedCount+1 : usedCount;
+      })
+
+      usedDf.push({"date": dateDate, "usedCount": usedCount});
+    })
+    const usedcolumns = [
+      { type: 'date', label: 'date' },
+      { type: 'number', label: 'usedCount'},
+    ]
+    let usedrows = []
+    const usednonNullData = usedDf.filter(row => row.usedCount !== null)
+    for (let row of usednonNullData) {
+      const { date, usedCount } = row
+      usedrows.push([new Date(Date.parse(date)),  usedCount])
+    }
+    console.log(usedrows);
+    setDataLoading(true);
+    setChartUsedData([usedcolumns, ...usedrows]);
+    
+    setMoreModuleOpen(true);
+  };
+
+  const handleMoreModuleClose = () => {
+    setMoreModuleOpen(false);
+  };
+
     const [drafts, setDrafts] = useState([])
     const [preview, setPreview] = useState(false);
 
@@ -288,31 +407,38 @@ function MemeCreator() {
         setPreview(true);
     }
 
+    const accordion = React.useRef(null)
     useEffect(() => {
-        if (drafts.length > 0) {
-            console.log(drafts);
-            setBold(drafts[draftIndex].bold);
-            setItalic(drafts[draftIndex].italic);
-            setColor(drafts[draftIndex].color);
-            setFontSize(drafts[draftIndex].fontSize);
-            setIsFreestyle(drafts[draftIndex].isFreestyle);
-            setUpper(drafts[draftIndex].text);
-            setImageProperties(drafts[draftIndex].imageProperties);
-            setCanvasHeight(drafts[draftIndex].canvasHeight);
-            setCanvasWidth(drafts[draftIndex].canvasWidth);
-            setImages([]);
-            drafts[draftIndex].imageProperties.forEach((imageProperty) => {
-                const img = <img className={classes.memeImg} src={imageProperty[2]} alt={"meme image"}
-                    style={{
-                        position: "absolute",
-                        left: imageProperty[0],
-                        top: imageProperty[1],
-                    }} />;
-                setImages((prev) => [...prev, img]);
-            });
-        }
-        ;
-    },
+            if (drafts.length > 0) {
+                console.log(drafts);
+                setBold(drafts[draftIndex].bold);
+                setItalic(drafts[draftIndex].italic);
+                setColor(drafts[draftIndex].color);
+                setFontSize(drafts[draftIndex].fontSize);
+                console.log(drafts[draftIndex].src)
+                setTemplates([{url: String(drafts[draftIndex].src), name: "draft"}]);
+                if ((drafts[draftIndex].isFreestyle && !isFreestyle) || isFreestyle && !drafts[draftIndex].isFreestyle) {
+                    accordion.current.click();
+                }
+                setIsFreestyle(drafts[draftIndex].isFreestyle);
+                setUpper(drafts[draftIndex].text);
+                setImageProperties(drafts[draftIndex].imageProperties);
+                setCanvasHeight(drafts[draftIndex].canvasHeight);
+                setCanvasWidth(drafts[draftIndex].canvasWidth);
+                setImages([]);
+                drafts[draftIndex].imageProperties.forEach((imageProperty) => {
+                    const img = <img className={classes.memeImg} src={imageProperty[2]} alt={"meme image"}
+                                     style={{
+                                         position: "absolute",
+                                         left: imageProperty[0],
+                                         top: imageProperty[1],
+                                     }}/>;
+                    setImages((prev) => [...prev, img]);
+                });
+            }
+            ;
+        },
+
         [draftIndex],
     );
     return (
@@ -328,23 +454,23 @@ function MemeCreator() {
                         aria-label="previous"
                         disabled={isFreestyle}
                     >
-                        <ArrowLeft fontSize="large" />
+                        <ArrowLeft fontSize="large"/>
                     </IconButton>
                 </Grid>
-                <Grid item s={8} style={{ overflow: "hidden" }}>
+                <Grid item s={8} style={{overflow: "hidden"}}>
                     <IconButton
                         className={"textFormatButton"}
                         onClick={toggleBold}
-                        style={bold ? { background: "grey" } : { background: "white" }}
+                        style={bold ? {background: "grey"} : {background: "white"}}
                     >
-                        <FormatBold />
+                        <FormatBold/>
                     </IconButton>
                     <IconButton
                         className={"textFormatButton"}
                         onClick={toggleItalic}
-                        style={italic ? { background: "grey" } : { background: "white" }}
+                        style={italic ? {background: "grey"} : {background: "white"}}
                     >
-                        <FormatItalic />
+                        <FormatItalic/>
                     </IconButton>
                     <IconButton
                         className={"textFormatButton"}
@@ -356,12 +482,12 @@ function MemeCreator() {
                             }
                         }}
                     >
-                        <FormatColorTextIcon />
+                        <FormatColorTextIcon/>
                     </IconButton>
 
                     {displayColorPicker ? (
                         <div style={popover}>
-                            <div style={cover} onClick={() => setDisplayColorPicker(false)} />
+                            <div style={cover} onClick={() => setDisplayColorPicker(false)}/>
                             <TwitterPicker
                                 className="colorPicker"
                                 triangle={"hide"}
@@ -424,6 +550,64 @@ function MemeCreator() {
                             </div>
                         </div>
                     </div>
+                    <Button
+            className="classes.buttonStyle selection"
+            onClick={handleMoreModuleOpen}
+            variant="contained"
+            color="secondary"
+          >
+            More template infos 
+          </Button>
+          <Modal
+            open={moreModuleOpen}
+            onClose={handleMoreModuleClose}
+            aria-labelledby="simple-modal-title"
+            aria-describedby="simple-modal-description"
+            >
+             <div style={modalStyle} className={classes.paper}>
+             <Typography variant="h5">Graph</Typography>
+             <Grid>
+              
+               {dataLoading? (
+                   <div>
+                       
+                 <Chart
+                 chartType="LineChart"
+                 data={chartData}
+                 options={{
+                   hAxis: {
+                    format: 'd MMM',
+                   },
+                   vAxis: {
+                     format: 'short',
+                   },
+                   title: 'Likes over time.',
+                 }}
+                 rootProps={{ 'data-testid': '2' }}
+               />
+               <Chart
+               chartType="LineChart"
+               data={chartUsedData}
+               options={{
+                 hAxis: {
+                    format: 'd MMM',
+                 },
+                 vAxis: {
+                   format: 'short',
+                 },
+                 title: 'Used over time.',
+               }}
+               rootProps={{ 'data-testid': '2' }}
+             />
+            </div>
+               ):(
+               <div>Fetching data from API</div>
+               )}
+                  </Grid>
+            </div>
+            
+          </Modal>
+
                 </Grid>
                 <Grid item s={1}>
                     <IconButton
@@ -432,7 +616,7 @@ function MemeCreator() {
                         aria-label="next"
                         disabled={isFreestyle}
                     >
-                        <ArrowRight fontSize="large" />
+                        <ArrowRight fontSize="large"/>
                     </IconButton>
                 </Grid>
                 <Grid item s={2}>
@@ -445,18 +629,19 @@ function MemeCreator() {
                         setCurrentTemplateIndex={setCurrentTemplateIndex}
                         isFreestyle={isFreestyle}
                     />
-                    <SpeechInput setCaption={setUpper} />
+                    <SpeechInput setCaption={setUpper}/>
                     <Accordion>
                         <AccordionSummary
                             aria-label="Expand"
                             aria-controls="additional-actions1-content"
                             id="additional-actions1-header"
                             onClick={() => setIsFreestyle(isFreestyle ? false : true)}
+                            ref={accordion}
                         >
                             <FormControlLabel
                                 aria-label="Acknowledge"
                                 control={
-                                    <Checkbox checked={isFreestyle} onChange={handleFreestyle} />
+                                    <Checkbox checked={isFreestyle} onChange={handleFreestyle}/>
                                 }
                                 label="Advanced Options"
                             />
@@ -469,7 +654,7 @@ function MemeCreator() {
                                 label="Canvas Height"
                                 placeholder="Canvas Height"
                                 value={canvasHeight}
-                                InputProps={{ inputProps: { max: maxHeight, min: minHeight } }}
+                                InputProps={{inputProps: {max: maxHeight, min: minHeight}}}
                                 onChange={(event) => setCanvasHeight(event.target.value)}
                             />
                             <TextField
@@ -479,7 +664,7 @@ function MemeCreator() {
                                 label="Canvas Width"
                                 placeholder="Canvas Width"
                                 value={canvasWidth}
-                                InputProps={{ inputProps: { max: maxWidth, min: minWidth } }}
+                                InputProps={{inputProps: {max: maxWidth, min: minWidth}}}
                                 onChange={(event) => setCanvasWidth(event.target.value)}
                             />
                         </AccordionDetails>
@@ -520,7 +705,7 @@ function MemeCreator() {
                         text={upper}
                     />
                     <DraftPreview drafts={drafts} preview={preview} setPreview={setPreview}
-                        setDraftIndex={setDraftIndex} />
+                                  setDraftIndex={setDraftIndex}/>
                     <Button
                         className="classes.buttonStyle draft"
                         variant="contained"

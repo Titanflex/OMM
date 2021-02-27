@@ -50,7 +50,11 @@ export default function SignUp() {
     text: "",
   });
 
-  //handle input change and set error to false according to the texfield
+  /**
+   * handles the change event of the textfield and sets the respective value to the state variable
+   * @param {event}
+   * @prop the label of the textfield where the change happened
+   */
   const handleChange = (prop) => (event) => {
     if (prop === "name") {
       setNameError({ show: false, text: "" });
@@ -76,23 +80,32 @@ export default function SignUp() {
     event.preventDefault();
   };
 
+  /**
+   * starting signing the user up if the ENTER key is pressed
+   * @param {*} event
+   */
   const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       signUp();
     }
-  }
+  };
 
+  /**
+   * tries to signup the user
+   * SUCCESSFUL: navigates to landing page
+   * ERROR: shows error message
+   */
   const signUp = () => {
     if (validate()) {
       AuthService.register(values.name, values.password).then((data) => {
         if (data.token) {
-          //Successful Registration
+          //SUCCESSFUL Registration -> navigate to landing page
           navigate("/");
           window.location.reload();
         } else {
           if (data.msg) {
-            //username is already taken
             setNameError({
+              //username is already taken
               show: true,
               text: data.msg,
             });
@@ -101,7 +114,8 @@ export default function SignUp() {
             setPasswordError({ show: true, text: "" });
             setPasswordError2({
               show: true,
-              text: "The username does already exist. Please chose another one.",
+              text:
+                "Something went wrong with signing you up, please try again!",
             });
           }
         }
@@ -109,19 +123,22 @@ export default function SignUp() {
     }
   };
 
-  //validated the user input
+  /**
+   * validates the user input
+   * @return {boolean} true if the validation was succsessful / false if not
+   */
   const validate = () => {
-    //if name is empty?
+    //is the name empty?
     if (values.name === "") {
       setNameError({ show: true, text: "Please enter a name" });
       return false;
     }
-    //if password is empty?
+    //is the password empty?
     if (values.password === "") {
       setPasswordError({ show: true, text: "Please enter a password" });
       return false;
     }
-    //if password repeat is empty
+    //is the repeat password empty?
     if (values.password2 === "") {
       setPasswordError2({ show: true, text: "Please enter a password" });
       return false;
@@ -132,12 +149,16 @@ export default function SignUp() {
       setPasswordError2({ show: true, text: "The passwords do not match!" });
       return false;
     }
-    //check password length
+    //check password length -> needs at least 8 characters
     if (values.password.length < 8) {
       setPasswordError({ show: true, text: "" });
-      setPasswordError2({ show: true, text: "The password is too short. It must have at least 8 characters" });
+      setPasswordError2({
+        show: true,
+        text: "The password is too short. It must have at least 8 characters",
+      });
       return false;
     }
+    //validation was successful
     return true;
   };
 
@@ -147,6 +168,7 @@ export default function SignUp() {
         Create Account
       </Typography>
       <form>
+        {/* NAME Textfield */}
         <TextField
           error={nameError.show}
           helperText={nameError.text}
@@ -161,6 +183,8 @@ export default function SignUp() {
           onChange={handleChange("name")}
           onKeyPress={handleKeyPress}
         />
+
+        {/* PASSWORD textfield */}
         <FormControl className={classes.spacing} variant="outlined" fullWidth>
           <InputLabel>Password</InputLabel>
           <OutlinedInput
@@ -188,6 +212,8 @@ export default function SignUp() {
             {passwordError.text}
           </FormHelperText>
         </FormControl>
+
+        {/* REPEAT PASSWORD Textfield */}
         <FormControl className={classes.spacing} variant="outlined" fullWidth>
           <InputLabel>Repeat Password</InputLabel>
           <OutlinedInput
@@ -215,6 +241,8 @@ export default function SignUp() {
             {passwordError2.text}
           </FormHelperText>
         </FormControl>
+
+        {/* SIGN UP BUTTON */}
         <Button fullWidth variant="contained" color="primary" onClick={signUp}>
           Sign Up
         </Button>
