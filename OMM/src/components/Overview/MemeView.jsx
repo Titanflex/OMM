@@ -222,7 +222,7 @@ const MemeView = props => {
                         />
                     </div>
                 </Grid>
-                <Grid container xs direction="column" spacing={1}>
+                <Grid container item xs direction="column" spacing={1}>
 
                     <Grid item xs>
                         <div className="memeInfo">

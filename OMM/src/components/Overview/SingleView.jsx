@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Grid,
   Button,
@@ -12,13 +12,11 @@ import {
   FormControl,
   InputLabel,
   Modal,
-  FormControlLabel,
-  Checkbox,
   Snackbar,
-  Card,
-  CardMedia,
 } from "@material-ui/core";
-import { Video } from "react-video-stream";
+
+
+import createCanvasRecorder from "canvas-record";
 
 import { ToggleButton, Alert } from "@material-ui/lab";
 
@@ -154,7 +152,7 @@ const SingleView = () => {
   const [sortOpt, setSortOpt] = useState(null);
   const [sortDown, setSortDown] = useState(false);
 
-  
+
 
   const [open, setOpen] = useState(false);
   const [openSnack, setOpenSnack] = useState(false);
@@ -163,16 +161,15 @@ const SingleView = () => {
   const [modalStyle] = useState(getModalStyle);
 
   const [isVideoLoading, setIsVideoLoading] = useState(true);
-  const [videoUrl, setVideoUrl] = useState(null);
 
-  const videoTag = useRef(null);
-  
+  let vidMemes = [];
+
+  const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const [canvasWidth, setCanvasWidth] = useState(350);
-    const [canvasHeight, setCanvasHeight] = useState(250);
-    let canvasRecorder = null;
-    const [imgPaths, setImgPaths] = [];
+  let canvasRecorder = null;
 
+  const requestRef = React.useRef();
+  let ind = 0;
 
   let likeDf = [];
   const [chartData, setChartData] = useState(null);
@@ -183,7 +180,7 @@ const SingleView = () => {
   const [isAccessible, setIsAccessible] = useState(false);
 
 
- 
+
 
   /* 
     Modal
@@ -203,14 +200,14 @@ const SingleView = () => {
   getDaysOffMonths returns a list of dates from the actual to 2 months back.
   */
   const getDaysOfMonth = () => {
-    const today = new Date (Date.now());
+    const today = new Date(Date.now());
     let dateThreeMonths = new Date(today);
     dateThreeMonths.setMonth(dateThreeMonths.getMonth() - 2);
     let dateArray = [];
     let currentDate = dateThreeMonths;
     while (currentDate <= today) {
-        dateArray.push(new Date (currentDate));
-        currentDate.setDate(currentDate.getDate() + 1);
+      dateArray.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
     }
     return dateArray;
   }
@@ -225,22 +222,22 @@ const SingleView = () => {
     const datesArray = getDaysOfMonth();
     let likeList = memes[currentMemeIndex].listlikes;
     let dislikeList = memes[currentMemeIndex].dislikes;
-  
-    datesArray.forEach(date =>{
+
+    datesArray.forEach(date => {
       const dateDate = new Date(date);
-      let likeCount=0;
-      let dislikeCount=0;
+      let likeCount = 0;
+      let dislikeCount = 0;
 
       likeList.forEach(like => {
-      const likeDate = new Date(like.date);
-      likeCount = (likeDate.setHours(0,0,0,0) === dateDate.setHours(0,0,0,0))? likeCount+1 : likeCount;
+        const likeDate = new Date(like.date);
+        likeCount = (likeDate.setHours(0, 0, 0, 0) === dateDate.setHours(0, 0, 0, 0)) ? likeCount + 1 : likeCount;
       })
 
       dislikeList.forEach(dislike => {
         const dislikeDate = new Date(dislike.date);
-        dislikeCount = (dislikeDate.setHours(0,0,0,0) === dateDate.setHours(0,0,0,0))? dislikeCount+1 : dislikeCount;
-        })
-        likeDf.push({"date": dateDate, "likeCount": likeCount, "dislikeCount" : dislikeCount});
+        dislikeCount = (dislikeDate.setHours(0, 0, 0, 0) === dateDate.setHours(0, 0, 0, 0)) ? dislikeCount + 1 : dislikeCount;
+      })
+      likeDf.push({ "date": dateDate, "likeCount": likeCount, "dislikeCount": dislikeCount });
     })
 
     const columns = [
@@ -257,7 +254,7 @@ const SingleView = () => {
     console.log(rows);
     setDataLoading(true);
     setChartData([columns, ...rows]);
-    
+
     setMoreModuleOpen(true);
   };
 
@@ -265,7 +262,7 @@ const SingleView = () => {
     setMoreModuleOpen(false);
   };
 
- 
+
   /*
     SnackBar
     handles opening and closing of the snackbar that informs the user when no memes are available by the filter criteria.
@@ -349,7 +346,7 @@ const SingleView = () => {
     setCurrentMemeIndex(0);
   };
 
-  
+
   /* Search*/
   /*
     The method handleChange is called when the textfield value of the searchbar changes.
@@ -493,6 +490,7 @@ const SingleView = () => {
       res.json().then((json) => {
         setMemes(json.docs);
         setOriginalMemes(json.docs);
+        json.docs.map((meme) => vidMemes.push(meme.url));
 
         const url = window.location.pathname;
         const memeId = url.substring(url.lastIndexOf("/") + 1);
@@ -501,6 +499,9 @@ const SingleView = () => {
         const ind = json.docs.indexOf(curMeme);
 
         setCurrentMemeIndex(ind);
+
+        requestRef.current = requestAnimationFrame(tick);
+
         return json;
       });
     });
@@ -521,55 +522,51 @@ const SingleView = () => {
   };
 
 
-  const requestRef = React.useRef();
-  let ind = 0;
 
   const getPixelRatio = context => {
-      var backingStore =
+    var backingStore =
       context.backingStorePixelRatio ||
       context.webkitBackingStorePixelRatio ||
       context.mozBackingStorePixelRatio ||
       context.msBackingStorePixelRatio ||
       context.oBackingStorePixelRatio ||
       context.backingStorePixelRatio ||
-        1;
-        
-        return (window.devicePixelRatio || 1) / backingStore;
-    };
+      1;
+
+    return (window.devicePixelRatio || 1) / backingStore;
+  };
+
   /*
   The tick loadMemes changes the image in the canvas every 2 seconds.
   */
   const tick = () => {
-    const memeList = memes;
-    
     let img = new Image();
-  
+
     const checkVideoState = setInterval(() => {
-
-
-      img.src = memeList[ind].url;
-
+      if(vidMemes){
+      img.src = vidMemes[ind];
+      img.crossOrigin="anonymous";
       if (img.src) {
         clearInterval(checkVideoState);
         const canvas = canvasRef.current;
         if (canvas) {
           setIsVideoLoading(false);
 
-        let context = canvas.getContext('2d');
-        let ratio = getPixelRatio(canvas);
+          let context = canvas.getContext('2d');
+          let ratio = getPixelRatio(canvas);
 
-        let width = getComputedStyle(canvas)
+          let width = getComputedStyle(canvas)
             .getPropertyValue('width')
             .slice(0, -2);
-        let height = getComputedStyle(canvas)
+          let height = getComputedStyle(canvas)
             .getPropertyValue('height')
             .slice(0, -2);
-        canvas.width = width * ratio;
-        canvas.height = height * ratio;
-        canvas.style.width = `${width}px`;
-        canvas.style.height = `${height}px`;
+          canvas.width = width * ratio;
+          canvas.height = height * ratio;
+          canvas.style.width = `${width}px`;
+          canvas.style.height = `${height}px`;
 
-        context.drawImage(
+          context.drawImage(
             img,
             0,
             0,
@@ -578,14 +575,14 @@ const SingleView = () => {
           );
         }
 
-        if (memeList.length > 1) {
-          
-          ind = (ind === memeList.length - 1) ? 0 : ind + 1;
-          console.log(ind);
+        if (vidMemes.length > 1) {
+
+          ind = (ind === vidMemes.length - 1) ? 0 : ind + 1;
         }
+
         requestAnimationFrame(tick);
       }
-    }, 2000);
+    }}, 3000);
   };
 
   /*
@@ -593,14 +590,54 @@ const SingleView = () => {
       It loads the memes of the server and starts the animation video.
       */
   useEffect(() => {
+    
     loadMemes();
-    
-    requestRef.current = requestAnimationFrame(tick);
-    
-    return () => cancelAnimationFrame(requestRef);
   }, []);
 
-  
+
+
+  const startRecording = useCallback(() => {
+    if (canvasRef !== null) {
+      const canv = document.querySelector('canvas');
+      //var dataURL = canv.toDataURL();
+
+    
+      const vid = document.querySelector('video');
+      const stream = canv.captureStream();
+      vid.srcObject = stream;
+
+
+}
+})
+
+const stopRecording = useCallback(() => {
+    if (canvasRecorder !== null) {
+        let blob = canvasRecorder.stop();
+        console.log(blob)
+        canvasRecorder = null;
+    }
+    /*
+    let datafile = new File([file], "record.webm")
+    console.log(datafile)
+    const recUrl = window.URL.createObjectURL(
+        datafile,
+    );
+    console.log(recUrl)
+    const link = document.createElement('a');
+    link.href = recUrl;
+    link.setAttribute(
+        'download',
+        `FileName.webm`,
+    );
+    document.body.appendChild(link);
+
+    // Start download
+    link.click();
+
+    // Clean up and remove the link
+    link.parentNode.removeChild(link);
+    */
+})
 
   /*
    The method useInterval checks if autoplay is selected.
@@ -624,13 +661,13 @@ const SingleView = () => {
   //Meme Component
   const SingleMeme = () => {
     return (
-      (memes[currentMemeIndex].publicOpt=="public")?
-      <MemeView
-        memeInfo={memes[currentMemeIndex]}
-        isAccessible={isAccessible}
-        getUpdatedMemes={getUpdatedMemes}
-      />
-      : null
+      (memes[currentMemeIndex].publicOpt == "public") ?
+        <MemeView
+          memeInfo={memes[currentMemeIndex]}
+          isAccessible={isAccessible}
+          getUpdatedMemes={getUpdatedMemes}
+        />
+        : null
     );
   };
 
@@ -670,7 +707,7 @@ const SingleView = () => {
                     </Typography>
                   </Grid>
 
-                  {comment.user == localStorage.user ? (
+                  {comment.user === localStorage.user ? (
                     <Grid item xs container justify="flex-end">
                       <IconButton
                         onClick={() => handleDeleteCommentClick(comment)}
@@ -755,15 +792,15 @@ const SingleView = () => {
           >
             Filter
           </Button>
-          <Filter 
-           open={open}
-           handleFilterClose={handleClose}
-           memes= {memes}
-           setMemes={setMemes}
-           handleOpenSnack={handleOpenSnack}
-           setCurrentMemeIndex={setCurrentMemeIndex}
-           />
-        
+          <Filter
+            open={open}
+            handleFilterClose={handleClose}
+            memes={memes}
+            setMemes={setMemes}
+            handleOpenSnack={handleOpenSnack}
+            setCurrentMemeIndex={setCurrentMemeIndex}
+          />
+
           <Snackbar
             open={openSnack}
             autoHideDuration={6000}
@@ -866,26 +903,26 @@ const SingleView = () => {
                   }}
                   rootProps={{ "data-testid": "1" }}
                 />
-             
-               {dataLoading? (
-                 <Chart
-                 chartType="LineChart"
-                 data={chartData}
-                 options={{
-                   hAxis: {
-                    format: 'd MMM',
-                   },
-                   vAxis: {
-                     format: 'short',
-                   },
-                   title: 'Likes and dislikes over time.',
-                 }}
-                 rootProps={{ 'data-testid': '3' }}
-               />
-               ):(
-               <div>Fetching data from API</div>
-               )}
-                 
+
+                {dataLoading ? (
+                  <Chart
+                    chartType="LineChart"
+                    data={chartData}
+                    options={{
+                      hAxis: {
+                        format: 'd MMM',
+                      },
+                      vAxis: {
+                        format: 'short',
+                      },
+                      title: 'Likes and dislikes over time.',
+                    }}
+                    rootProps={{ 'data-testid': '3' }}
+                  />
+                ) : (
+                    <div>Fetching data from API</div>
+                  )}
+
               </Grid>
             </div>
           </Modal>
@@ -938,15 +975,17 @@ const SingleView = () => {
         <Grid container item xs={8}>
 
           <Grid item xs>
-          
+          <div>
+                        <Button onClick={() => startRecording()} >Stream Video</Button>
+                    </div>
             <div>
-           
-
-              {!isVideoLoading && <canvas ref={canvasRef} style={{ width: '400px', height: '400px' }}/>}
-
+            
+            <video ref={videoRef} crossOrigin="anonymous" id="vid" controls autoplay muted></video>
               {isVideoLoading && (
                 <p>Please wait while we load the video stream.</p>
+
               )}
+              <canvas ref={canvasRef} crossOrigin="anonymous" style={{display: "none", width: '200px', height: '200px' }} />    
             </div>
           </Grid>
         </Grid>
