@@ -177,9 +177,11 @@ const Generator = params => {
     }
 
 
+
+
     /**
-     * component for the different image/template selection options
-     * gets params in MemeCreator component
+     * create meme in client and download to server/db
+     * @param quality sets quality of generated image
      */
     function createMemeLocally(quality = 1) {
         let meme = document.getElementById("memeContainer"); //
@@ -201,9 +203,10 @@ const Generator = params => {
             let stringLength = jpeg.length - 'data:image/jpeg;base64,'.length;
             let sizeInKb = (4 * Math.ceil((stringLength / 3)) * 0.5624896334383812) / 1000;
             if ((selectedSizeIndex === 0 && sizeInKb > 200) || (selectedSizeIndex === 1 && sizeInKb > 600)) {
-                //decrease quality if size is too large and rerender meme
+                //decrease quality if size is too large and recall function
                 createMemeLocally(quality - 0.05);
             } else {
+                //set values for FilePond download
                 let textArray = params.text.split(/\n/g);  //split text into lines
                 setTexts(textArray);
                 setGeneratedMeme(jpeg);
@@ -252,21 +255,12 @@ const Generator = params => {
         const json = await res.json();
         let response = await fetch(json.data.url);
         let data = await response.blob();
-        console.log(data);
-        console.log(data.size);
         //check if created meme is too large and adapt quality
-
-        if (selectedSizeIndex === 0 && (2 * data.size / 1000 > 100)) {
-            let quality = (100 / (data.size / 1000)) * 100;
-            console.log(quality);
-            setQuality((100 / (data.size / 1000)) * 100);
-            console.log(quality);
+        if (selectedSizeIndex === 0 && (data.size / 1000 > 100)) {
+            setQuality((200 / (data.size / 1000)) * 100);
         }
-        if (selectedSizeIndex === 1 && data.size / 1000 > 600) {
-            let quality = (100 / (data.size / 1000)) * 100;
-            console.log(quality);
+        if (selectedSizeIndex === 1 && data.size / 1000 > 300) {
             setQuality((600 / (data.size / 1000)) * 100);
-
         }
 
         //create base64 for download and upload
@@ -393,7 +387,6 @@ const Generator = params => {
         }
         )
     }
-
 
     return (
         <div>
