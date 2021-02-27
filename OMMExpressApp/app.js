@@ -8,7 +8,7 @@ var zip = require('express-easy-zip');
 
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://mongo/memes_db', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb://localhost/memes_db', { useNewUrlParser: true, useUnifiedTopology: true });
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
