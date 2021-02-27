@@ -423,8 +423,6 @@ const SingleView = () => {
 
   /*
     Comments
-    */
-  /*
      The method handleCommentClick will call addComment when the comment is not empty.
      */
   const handleCommentClick = () => {
@@ -495,7 +493,10 @@ const SingleView = () => {
         const url = window.location.pathname;
         const memeId = url.substring(url.lastIndexOf("/") + 1);
         const curMeme = json.docs.find((element) => element._id === memeId);
-
+        if(!curMeme){
+          console.log("it is private");
+          return;
+        }
         const ind = json.docs.indexOf(curMeme);
 
         setCurrentMemeIndex(ind);
@@ -522,7 +523,7 @@ const SingleView = () => {
   };
 
 
-
+//provides the right ratio
   const getPixelRatio = context => {
     var backingStore =
       context.backingStorePixelRatio ||
@@ -595,49 +596,20 @@ const SingleView = () => {
   }, []);
 
 
-
+//starts streaming canvas to video
   const startRecording = useCallback(() => {
     if (canvasRef !== null) {
       const canv = document.querySelector('canvas');
-      //var dataURL = canv.toDataURL();
+   
 
     
       const vid = document.querySelector('video');
       const stream = canv.captureStream();
       vid.srcObject = stream;
-
-
 }
 })
 
-const stopRecording = useCallback(() => {
-    if (canvasRecorder !== null) {
-        let blob = canvasRecorder.stop();
-        console.log(blob)
-        canvasRecorder = null;
-    }
-    /*
-    let datafile = new File([file], "record.webm")
-    console.log(datafile)
-    const recUrl = window.URL.createObjectURL(
-        datafile,
-    );
-    console.log(recUrl)
-    const link = document.createElement('a');
-    link.href = recUrl;
-    link.setAttribute(
-        'download',
-        `FileName.webm`,
-    );
-    document.body.appendChild(link);
 
-    // Start download
-    link.click();
-
-    // Clean up and remove the link
-    link.parentNode.removeChild(link);
-    */
-})
 
   /*
    The method useInterval checks if autoplay is selected.
