@@ -248,17 +248,13 @@ var gm = require("gm");
 
 /* POST /memeIO/upload */
 /* upload meme to server (via FilePond) */
-memeIO.post('/upload-Meme', await uploadMeme.single("file"), auth, async(req, res) => {
+memeIO.post('/upload-Meme', uploadMeme.single("file"), auth, async(req, res) => {
     let url;
     const analysis = await analyze(req.headers.title);
-
     //get the user from the db
     let user = await User.findById(req.user.id);
     let author = user.name
     url = "http://localhost:3030/images/memes/" + req.headers.title + '.jpeg';
-    gm("./public/images/memes/" + req.headers.title + '.jpeg').size(function(error, value){
-        console.log(value);
-    })
     const newMeme = {
         title: req.headers.title,
         url: url,
