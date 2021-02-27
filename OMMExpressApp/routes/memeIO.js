@@ -251,6 +251,9 @@ var gm = require("gm");
 memeIO.post('/upload-Meme', uploadMeme.single("file"), auth, async(req, res) => {
     let url;
     const analysis = await analyze(req.headers.title);
+
+    let stats = fs.statSync("public/images/memes/" + req.body.title + ".jpeg");
+    console.log(stats.size);
     //get the user from the db
     let user = await User.findById(req.user.id);
     let author = user.name
@@ -277,7 +280,6 @@ memeIO.post('/upload-Meme', uploadMeme.single("file"), auth, async(req, res) => 
         }
     })
 });
-
 
 
 /* POST /memeIO/upload-Gif */
