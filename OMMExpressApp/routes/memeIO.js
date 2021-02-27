@@ -118,8 +118,8 @@ memeIO.get('/get-memes', (req, res) => {
     })
 });
 
-/* GET memeIO/get-memes */
-/* Get all memes from the database */
+/* GET memeIO/get-public-memes */
+/* Get all memes stated public from the database */
 memeIO.get('/get-public-memes', (req, res) => {
     Meme.find({ publicOpt: "public" }, function(err, docs) {
         if (err)
@@ -279,6 +279,8 @@ memeIO.post('/upload-Meme', uploadMeme.single("file"), auth, async(req, res) => 
 
 var gm = require("gm");
 
+/* POST /memeIO/upload-Gif */
+/* upload Guf to server */
 memeIO.get('/upload-Gif', (req, res) => {
     gm('./public/images/templates/Maus.gif').stroke("#000000")
         .fill('#ffffff')
@@ -294,7 +296,7 @@ memeIO.get('/upload-Gif', (req, res) => {
 
 
 /* POST /memeIO/add-comment */
-/* add a comment to a meme with account*/
+/* add a comment by a user to a meme by its id */
 memeIO.post('/add-comment', auth, async(req, res) => {
     //get the user from the db
     let user = await User.findById(req.user.id);
@@ -309,7 +311,7 @@ memeIO.post('/add-comment', auth, async(req, res) => {
 });
 
 /* POST /memeIO/remove-comment */
-/* remove a like from a meme by account*/
+/* remove a like from a comment by the meme id and comment name and text*/
 memeIO.post('/remove-comment', auth, async(req, res) => {
     //get the user from the db
     let user = await User.findById(req.user.id);
@@ -323,8 +325,8 @@ memeIO.post('/remove-comment', auth, async(req, res) => {
     }
 });
 
-/* POST /memeIO/addUsedTemplate */
-/* add a used date to a template */
+/* POST /memeIO/add-used-template */
+/* add a used property and date to a template */
 memeIO.post('/add-used-template', auth, async(req, res) => {
     //get the user from the db
     try {
@@ -604,7 +606,8 @@ memeIO.get('/get-meme', (req, res) => {
     })
 });
 
-
+/* GET /memeIO/download-meme */
+/* returns base64 file to be downloaded */
 memeIO.post('/download-meme', (req, res) => {
     try {
         console.log(req.body.title);

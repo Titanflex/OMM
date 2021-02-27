@@ -17,9 +17,7 @@ import {
 
 } from "@material-ui/core";
 
-import {
-    Alert,
-} from '@material-ui/lab';
+import { ToggleButton, Alert } from "@material-ui/lab";
 
 import {
     Tune,
@@ -39,6 +37,7 @@ import {
 import DateFnsUtils from '@date-io/date-fns';
 
 import MemeView from "./MemeView";
+import Filter from "./Filter";
 
 function getModalStyle() {
     const top = 50;
@@ -55,20 +54,32 @@ const useStyles = makeStyles((theme) => ({
         marginTop: theme.spacing(2),
         marginRight: theme.spacing(2),
     },
-    formControl: {
-        margin: theme.spacing(1),
-        minWidth: 120,
-    },
     selectEmpty: {
         marginTop: theme.spacing(2),
     },
-    paper: {
-        position: 'absolute',
-        width: `${50}%`,
-        backgroundColor: theme.palette.background.paper,
-        boxShadow: theme.shadows[5],
-        padding: theme.spacing(2, 4, 3),
-    },
+        
+        formControl: {
+          marginTop: theme.spacing(1),
+          marginRight: theme.spacing(2),
+        },
+        paper: {
+          position: "absolute",
+          width: `${50}%`,
+          backgroundColor: theme.palette.background.paper,
+          boxShadow: theme.shadows[5],
+          padding: theme.spacing(2, 4, 3),
+        },
+        numberField: {
+          width: `${15}%`,
+          marginTop: theme.spacing(1),
+          marginRight: theme.spacing(2),
+        },
+        filterButton: {
+          height: `${70}%`,
+          marginTop: theme.spacing(2),
+          marginRight: theme.spacing(2),
+        },
+      
 
 }));
 
@@ -82,17 +93,6 @@ function MemeScrollList() {
     const [sortOpt, setSortOpt] = useState(null);
     const [sortDown, setSortDown] = useState(false);
 
-    const [isFilteredByVote, setIsFilteredByVote] = useState(false);
-    const [voteNumber, setVoteNumber] = useState(null);
-    const [voteEquals, setVoteEquals] = useState("equals");
-
-    const [isFilteredByCreationDate, setIsFilteredByCreationDate] = useState(false);
-    const [filterDateFrom, setFilterDateFrom] = useState(new Date());
-    const [filterDateTill, setFilterDateTill] = useState(new Date());
-
-    const [isFilteredByFileFormat, setIsFilteredByFileFormat] = useState(false);
-    const [fileFormatOpt, setfileFormatOpt] = useState("png");
-
     const [open, setOpen] = useState(false);
     const [openSnack, setOpenSnack] = useState(false);
 
@@ -102,7 +102,7 @@ function MemeScrollList() {
 
 
 
-    //Modal
+    //handels open and close of Modal
     const handleOpen = () => {
         setOpen(true);
         setMemes(originalMemes);
@@ -112,7 +112,7 @@ function MemeScrollList() {
         setOpen(false);
     };
 
-    //SnackBar
+    //handels open and close of SnackBar
     const handleOpenSnack = () => {
         setOpenSnack(true);
     };
@@ -122,10 +122,11 @@ function MemeScrollList() {
     };
 
 
-
-
-
     /*Sort*/
+      /*
+   The method handleSortOptChange is called when the user changes the value.
+   It then calls the method which sorts the memes based on the selected value.
+   */
     const handleSortOptChange = (event) => {
         setSortOpt(event.target.value);
         if (event.target.value === "votes") {
@@ -135,6 +136,10 @@ function MemeScrollList() {
         }
     }
 
+    /*
+    The method handleClickSortDirection is called when the user clicks the arrow button in order to change the direction of the sorted memes (e.g. many to few).
+    It then calls the method which sorts the memes based on the value in the select menu.
+    */
     const handleClickSortDirection = () => {
         setSortDown(!sortDown);
         if (sortOpt === "votes") {
@@ -143,7 +148,11 @@ function MemeScrollList() {
             sortMemesByDate();
         }
     }
-
+/*
+    The method sortMemesByVote is called when the user changes the Sort by value or the direction.
+    It take the direction and by that arranges the memelist by that direction and vote.
+    It sets the currentMemeIndex to the first meme of the new arranged list.
+    */
     const sortMemesByVote = () => {
         if (!sortDown) {
             memes.sort((memeA, memeB) => ((memeA.listlikes.length - memeA.dislikes.length ) - (memeB.listlikes.length - memeB.dislikes.length )));
@@ -152,6 +161,11 @@ function MemeScrollList() {
         }
     }
 
+    /*
+    The method sortMemesByDate is called when the user changes the Sort by value or the direction.
+    It take the direction and by that arranges the memelist by that direction and date.
+    It sets the currentMemeIndex to the first meme of the new arranged list.
+    */
     const sortMemesByDate = () => {
         if (!sortDown) {
             memes.sort((memeA, memeB) => (Moment(memeA.creationDate) - Moment(memeB.creationDate)));
@@ -160,99 +174,15 @@ function MemeScrollList() {
         }
     }
 
-    /*Filter*/
-    const handleFilterVoteChange = (event) => {
-        setVoteEquals(event.target.value);
-    }
-
-    const handleFilterFileFormatChange = (event) => {
-        setfileFormatOpt(event.target.value);
-    }
-
-    const filterMemes = () => {
-        setOpen(false);
-        if (isFilteredByVote) {
-            filterMemesByVote();
-        }
-        if (isFilteredByCreationDate) {
-            filterMemesByDate();
-        }
-        if (isFilteredByFileFormat) {
-            filterMemesByFileFormat();
-        }
-    }
-
-
-    const filterMemesByDate = () => {
-
-        let filteredList = [];
-
-        if (filterDateFrom && filterDateTill) {
-            filteredList = memes.filter(meme => Moment(meme.creationDate) >= Moment(filterDateFrom));
-            filteredList = filteredList.filter(meme => Moment(meme.creationDate) <= Moment(filterDateTill));
-
-            setMemes(filteredList);
-            return;
-        }
-        if (filterDateFrom) {
-            filteredList = memes.filter(meme => Moment(meme.creationDate) >= Moment(filterDateFrom));
-            setMemes(filteredList);
-        }
-        if (filterDateTill) {
-            filteredList = memes.filter(meme => Moment(meme.creationDate) <= Moment(filterDateTill));
-            setMemes(filteredList);
-        }
-
-        if (filteredList.length === 0) {
-            handleOpenSnack();
-            console.log("no memes");
-        }
-    }
-
-    const filterMemesByFileFormat = () => {
-        let filteredList = [];
-
-        console.log(fileFormatOpt);
-
-        if (fileFormatOpt === "jpg") {
-            filteredList = memes.filter(meme => meme.url.includes("jpg"));
-
-        } else if (fileFormatOpt === "png") {
-            filteredList = memes.filter(meme => meme.url.includes("png"));
-        } else if (fileFormatOpt === "jpeg") {
-            filteredList = memes.filter(meme => meme.url.includes("jpeg"));
-        }
-        if (filteredList.length === 0) {
-            handleOpenSnack();
-            console.log("no memes");
-        }
-        setMemes(filteredList);
-
-    }
-
-    const filterMemesByVote = () => {
-        let filteredList = [];
-
-        if (!voteNumber) {
-            console.log("No number to filter by.");
-            return;
-        }
-        if (voteEquals === "equals") {
-            filteredList = memes.filter(meme => (meme.listlikes.length - meme.dislikes.length) == voteNumber);
-        } else if (voteEquals === "greater") {
-            filteredList = memes.filter(meme => (meme.listlikes.length - meme.dislikes.length)  > voteNumber);
-        } else if (voteEquals === "smaller") {
-            filteredList = memes.filter(meme => (meme.listlikes.length - meme.dislikes.length)  < voteNumber);
-        }
-        if (filteredList.length === 0) {
-            handleOpenSnack();
-            console.log("no memes");
-        }
-        setMemes(filteredList);
-    }
 
 
     /* Search*/
+     /*
+    The method handleChange is called when the textfield value of the searchbar changes.
+    It takes the writtem text and checks if it is included in the title of the memes.
+    It updates Memes by the filltered list and sets the index to the first image.
+    When no meme fulfills the filter criteria the snackbar with a warning is opened and the memes is not updated.
+    */
     const handleChange = () => (event) => {
         let filteredList = originalMemes;
 
@@ -268,7 +198,7 @@ function MemeScrollList() {
         setMemes(filteredList);
     };
 
-
+    //Lists all memes
     const ListMemes = ({ listmemes }) => {
         return (
             <Grid container spacing={1}>
@@ -280,6 +210,10 @@ function MemeScrollList() {
         )
     };
 
+      /*
+   The method loadMemes gets all public memes from the server.
+   It takes the index of the selected meme and therefore changes the currentMemeIndex to show at the beginning the right meme.
+   */
     const loadMemes = async () => {
         await fetch("http://localhost:3030/memeIO/get-public-memes").then(res => {
             res.json().then(json => {
@@ -300,166 +234,7 @@ function MemeScrollList() {
         <Container className="memeScrollListContainer" >
             <Grid container spacing={3}>
                 <Grid item xs>
-                    <IconButton
-                        onClick={handleOpen}
-                        variant="contained"
-                        edge="end"
-                    >
-                        < Tune />
-                    </IconButton>
-                    <Modal
-                        open={open}
-                        onClose={handleClose}
-                        aria-labelledby="simple-modal-title"
-                        aria-describedby="simple-modal-description">
-                        <div style={modalStyle} className={classes.paper}>
-
-
-                            <Typography variant="h5">
-                                Filter by
-                            </Typography>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={isFilteredByCreationDate}
-                                        onChange={() => setIsFilteredByCreationDate(!isFilteredByCreationDate)}
-                                        name="checkedB"
-                                        color="primary"
-                                    />
-                                }
-                                label="Creation Date"
-                            />
-                            {isFilteredByCreationDate ?
-                                <div>
-                                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                        <KeyboardDatePicker
-                                            className={classes.spacing}
-                                            autoOk
-                                            clearable
-                                            variant="inline"
-                                            inputVariant="outlined"
-                                            label="from"
-                                            format="MM/dd/yyyy"
-                                            value={filterDateFrom}
-                                            InputAdornmentProps={{ position: "start" }}
-                                            onChange={date => setFilterDateFrom(date)}
-                                        />
-                                    </MuiPickersUtilsProvider>
-                                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                                        <KeyboardDatePicker
-                                            className={classes.spacing}
-                                            autoOk
-                                            clearable
-                                            variant="inline"
-                                            inputVariant="outlined"
-                                            label="till"
-                                            format="MM/dd/yyyy"
-                                            value={filterDateTill}
-                                            InputAdornmentProps={{ position: "start" }}
-                                            onChange={date => setFilterDateTill(date)}
-                                        />
-                                    </MuiPickersUtilsProvider>
-                                </div>
-                                : null}
-
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={isFilteredByVote}
-                                        onChange={() => setIsFilteredByVote(!isFilteredByVote)}
-                                        name="checkedB"
-                                        color="primary"
-                                    />
-                                }
-                                label="Votes"
-                            />
-                            {isFilteredByVote ?
-                                <div>
-                                    <FormControl variant="outlined" className={classes.formControl}>
-                                        <InputLabel id="label-Vote-Option">Select</InputLabel>
-                                        <Select
-                                            native
-                                            labelId="label-Vote-Option"
-                                            id="select-Vote-Option"
-                                            value={voteEquals}
-                                            onChange={handleFilterVoteChange}
-
-                                        >
-                                            <option value={"equals"}>equals</option>
-                                            <option value={"greater"}>greater</option>
-                                            <option value={"smaller"}>smaller</option>
-
-                                        </Select>
-                                    </FormControl>
-
-                                    <TextField
-                                        id="standard-basic"
-                                        type="number"
-                                        variant="outlined"
-                                        label="Standard"
-
-                                        value={voteNumber}
-                                        onChange={(event) => setVoteNumber(event.target.value)}
-                                    />
-
-                                </div>
-                                : null}
-
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={isFilteredByFileFormat}
-                                        onChange={() => setIsFilteredByFileFormat(!isFilteredByFileFormat)}
-                                        name="checkedB"
-                                        color="primary"
-                                    />
-                                }
-                                label="File Format"
-                            />
-                            {isFilteredByFileFormat ?
-                                <div>
-                                    <FormControl variant="outlined" className={classes.formControl}>
-                                        <InputLabel id="label-Sort-Option">Sort by</InputLabel>
-                                        <Select
-                                            native
-                                            labelId="label-FileFormat-Option"
-                                            id="select-FileFormat-Option"
-                                            value={fileFormatOpt}
-                                            onChange={handleFilterFileFormatChange}
-                                            inputProps={{
-                                                id: 'outlined-age-native-simple',
-                                            }}
-                                        >
-                                            <option value={"png"}>png</option>
-                                            <option value={"jpg"}>jpg</option>
-                                            <option value={"jpeg"}>jpeg</option>
-
-                                        </Select>
-                                    </FormControl>
-                                </div>
-                                : null}
-
-
-                            <Button
-                                className="classes.buttonStyle selection"
-                                variant="contained"
-                                color="secondary"
-                                disabled={!memes}
-                                onClick={filterMemes}
-                            >
-                                Apply
-                            </Button>
-
-
-                        </div>
-                    </Modal>
-
-                    <Snackbar open={openSnack} autoHideDuration={6000} onClose={handleCloseSnack}>
-                                <Alert onClose={handleCloseSnack} severity="error">
-                                    No memes
-  </Alert>
-                            </Snackbar>
-
+                   
                 </Grid>
                 <Grid item xs={4}>
                     <div className="search-container">
@@ -478,30 +253,60 @@ function MemeScrollList() {
                     </div>
                 </Grid>
                 <Grid item xs>
-                    <FormControl variant="outlined" className={classes.formControl}>
-                        <InputLabel id="label-Sort-Option">Sort by</InputLabel>
-                        <Select
-                            native
-                            labelId="label-Sort-Option"
-                            //label="Sort by"
-                            id="select-Sort-Option"
-                            value={sortOpt}
-                            onChange={handleSortOptChange}
-                        >
-                            <option value={"none"}>None</option>
-                            <option value={"votes"}>Votes</option>
-                            <option value={"creationDate"}>Creation Date</option>
+                <Button
+            onClick={handleOpen}
+            className={classes.filterButton}
+            variant="outlined"
+            edge="end"
+            size="medium"
+            startIcon={<Tune />}
+          >
+            Filter
+          </Button>
+          <Filter 
+           open={open}
+           handleFilterClose={handleClose}
+           memes= {memes}
+           setMemes={setMemes}
+           handleOpenSnack={handleOpenSnack}
+           />
+        
+          <Snackbar
+            open={openSnack}
+            autoHideDuration={6000}
+            onClose={handleCloseSnack}
+          >
+            <Alert onClose={handleCloseSnack} severity="error">
+              No memes
+            </Alert>
+          </Snackbar>
+          <FormControl variant="outlined" className={classes.spacing}>
+            <InputLabel htmlFor="outlined-format-native-simple">
+              Sort by
+            </InputLabel>
+            <Select
+              native
+              label="Sort by"
+              id="select-Sort-Option"
+              value={sortOpt}
+              onChange={handleSortOptChange}
+            >
+              <option value={"none"}>None</option>
+              <option value={"votes"}>Votes</option>
+              <option value={"creationDate"}>Creation Date</option>
+            </Select>
+          </FormControl>
 
-                        </Select>
-                    </FormControl>
-                    <IconButton
-                        aria-label="toggle sortDown"
-                        onClick={handleClickSortDirection}
-                        edge="end"
-                    >
-                        {sortDown ? <ArrowUpward /> : <ArrowDownward />}
-                    </IconButton>
-
+          <ToggleButton
+            className={classes.filterButton}
+            value="check"
+            onChange={() => {
+              handleClickSortDirection();
+            }}
+          >
+            {" "}
+            {sortDown ? <ArrowUpward /> : <ArrowDownward />}
+          </ToggleButton>
                 </Grid>
 
             </Grid>

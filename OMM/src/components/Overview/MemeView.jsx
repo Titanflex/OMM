@@ -40,9 +40,14 @@ const MemeView = props => {
     const [disliked, setDisliked] = useState(dislikes ? dislikes.some(dislike => dislike.user === localStorage.user) : null);
     const [anchorEl, setAnchorEl] = useState(null);
 
+
+    const popOpen = Boolean(anchorEl);
+    const id = popOpen ? 'share-popover' : undefined;
+
+
     const classes = useStyles();
 
-    //Popover
+    // handle Share Popover
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
@@ -51,10 +56,11 @@ const MemeView = props => {
         setAnchorEl(null);
     }
 
-    const popOpen = Boolean(anchorEl);
-    const id = popOpen ? 'share-popover' : undefined;
 
-
+    /*
+    the download method posts a download request and gets a base64 date back
+    which can be downloaded by the browser
+    */
     async function download() {
         fetch("http://localhost:3030/memeIO/download-meme", {
             method: "POST",
@@ -83,6 +89,7 @@ const MemeView = props => {
         )
     };
 
+    //handles click on like
     const handleLikeClick = (event) => {
         if (liked) {
             removelikeMeme();
@@ -97,7 +104,7 @@ const MemeView = props => {
         props.getUpdatedMemes();
     }
 
-
+//handles click on dislike
     const handleDislikeClick = (event) => {
         if (disliked) {
             removedislikeMeme();
@@ -113,8 +120,7 @@ const MemeView = props => {
     }
 
 
-
-
+//post like by user to a meme
     async function likeMeme() {
         await fetch("http://localhost:3030/memeIO/like-meme", {
             method: "POST",
@@ -130,6 +136,7 @@ const MemeView = props => {
         });
     }
 
+    //removes like by user of a meme
     async function removelikeMeme() {
         await fetch("http://localhost:3030/memeIO/remove-like-meme", {
             method: "POST",
@@ -143,7 +150,7 @@ const MemeView = props => {
         });
     }
 
-
+   //post dislike by user to a meme
     async function dislikeMeme() {
         await fetch("http://localhost:3030/memeIO/dislike-meme", {
             method: "POST",
@@ -158,6 +165,7 @@ const MemeView = props => {
         });
     }
 
+    //removes dislike by user of a meme
     async function removedislikeMeme() {
         await fetch("http://localhost:3030/memeIO/remove-dislike-meme", {
             method: "POST",
@@ -173,6 +181,9 @@ const MemeView = props => {
 
     const synth = window.speechSynthesis;
 
+    /*
+    Before mounting the component the accessible voice outout is set for the specific meme.
+    */
     useEffect(() => {
         if (props.isAccessible) {
             console.log(memeInfo.description);
