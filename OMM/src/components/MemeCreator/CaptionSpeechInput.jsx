@@ -15,7 +15,6 @@ const SpeechInput = (params) => {
   //using the react-speech-recognition React hook
   //for more information, see https://www.npmjs.com/package/react-speech-recognition
   const { transcript, finalTranscript } = useSpeechRecognition();
-
   /**
    * gets called if the transcript of the SpeechRecognition changes -> understands something the user is saying
    */
@@ -36,6 +35,12 @@ const SpeechInput = (params) => {
       setWaitForResponse(false);
     }
   }, [finalTranscript]);
+
+
+  if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
+    return null;
+  }
+
 
   /**
    * toggles if the SpeechRecognition listening / the speech input
