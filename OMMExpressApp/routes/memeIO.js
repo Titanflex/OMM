@@ -21,7 +21,7 @@ var Jimp = require('jimp');
 // Storage for saving tamplates on the server.
 var storageTemplate = multer.diskStorage({
     destination: './public/images/templates',
-    filename: function(req, file, cb) {
+    filename: function (req, file, cb) {
         cb(null, file.originalname);
     }
 });
@@ -29,17 +29,25 @@ var storageTemplate = multer.diskStorage({
 // Storage for saving memes on the server.
 var storageMeme = multer.diskStorage({
     destination: './public/images/memes',
-    filename: function(req, file, cb) {
+    filename: function (req, file, cb) {
         cb(null, req.headers.title + ".jpeg");
     }
 });
 
+// Storage for saving mims on the server.
+var storageMim = multer.diskStorage({
+    destination: './public/images/mims',
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    }
+});
 
 var uploadTemplate = multer({ storage: storageTemplate });
 var uploadMeme = multer({ storage: storageMeme });
+var uploadMim = multer({ storage: storageMim });
 
 
-memeIO.use(function(req, res, next) {
+memeIO.use(function (req, res, next) {
     // Website you wish to allow to connect
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
 
@@ -63,7 +71,7 @@ memeIO.use(function(req, res, next) {
 /* POST /memeIO/save-draft */
 /* Create new Draft */
 
-memeIO.post("/save-draft", auth, async(req, res) => {
+memeIO.post("/save-draft", auth, async (req, res) => {
     //get the user from the db
     let user = await User.findById(req.user.id);
     let author = user.name;
@@ -88,7 +96,7 @@ memeIO.post("/save-draft", auth, async(req, res) => {
             console.log(err);
             res.status(500).send(err);
         } else {
-            item.save(function(err, draft) {
+            item.save(function (err, draft) {
                 res.json(draft);
             });
         }
@@ -97,11 +105,11 @@ memeIO.post("/save-draft", auth, async(req, res) => {
 
 /* GET memeIO/get-memes */
 /* Get all memes from the database */
-memeIO.post('/get-drafts', auth, async(req, res) => {
+memeIO.post('/get-drafts', auth, async (req, res) => {
     //get the user from the db
     let user = await User.findById(req.user.id);
     let author = user.name;
-    Draft.find({ author: author }, function(err, docs) {
+    Draft.find({ author: author }, function (err, docs) {
         if (err)
             return res.status(500).send(err);
         res.json({ code: 200, docs })
@@ -111,7 +119,7 @@ memeIO.post('/get-drafts', auth, async(req, res) => {
 /* GET memeIO/get-memes */
 /* Get all memes from the database */
 memeIO.get('/get-memes', (req, res) => {
-    Meme.find({}, function(err, docs) {
+    Meme.find({}, function (err, docs) {
         if (err)
             return res.status(500).send(err);
         res.json({ code: 200, docs })
@@ -121,7 +129,7 @@ memeIO.get('/get-memes', (req, res) => {
 /* GET memeIO/get-memes */
 /* Get all memes from the database */
 memeIO.get('/get-public-memes', (req, res) => {
-    Meme.find({ publicOpt: "public" }, function(err, docs) {
+    Meme.find({ publicOpt: "public" }, function (err, docs) {
         if (err)
             return res.status(500).send(err);
         res.json({ code: 200, docs })
@@ -131,7 +139,7 @@ memeIO.get('/get-public-memes', (req, res) => {
 /* GET /memeIO/get-templates */
 /* Get all templates from the database */
 memeIO.get('/get-templates', (req, res) => {
-    Template.find({}, function(err, docs) {
+    Template.find({}, function (err, docs) {
         if (err)
             return res.status(500).send(err);
         res.json({ code: 200, docs })
@@ -140,7 +148,7 @@ memeIO.get('/get-templates', (req, res) => {
 
 /* POST /memeIO/save-template */
 /* Create new Template from URL */
-memeIO.post("/save-template", auth, async(req, res) => {
+memeIO.post("/save-template", auth, async (req, res) => {
     let title = req.body.title;
     let url;
     //get the user from the db
@@ -153,7 +161,7 @@ memeIO.post("/save-template", auth, async(req, res) => {
         let base64Image = base64String.split(';base64,').pop();
         url = "http://localhost:3030/images/templates/" + title + ".jpeg";
 
-        fs.writeFile('public/images/templates/' + title + ".jpeg", base64Image, { encoding: 'base64' }, function(err) {
+        fs.writeFile('public/images/templates/' + title + ".jpeg", base64Image, { encoding: 'base64' }, function (err) {
             if (err) console.log(err);
         })
     } else { //keep internet address as url
@@ -170,7 +178,7 @@ memeIO.post("/save-template", auth, async(req, res) => {
             console.log(err);
             res.status(500).send(err);
         } else {
-            item.save(function(err, template) {
+            item.save(function (err, template) {
                 res.json(template);
             });
         }
@@ -179,7 +187,7 @@ memeIO.post("/save-template", auth, async(req, res) => {
 
 /* POST /memeIO/webshot*/
 /* Make Screenshot of provided website and save as template */
-memeIO.post("/webshot", auth, async(req, res) => {
+memeIO.post("/webshot", auth, async (req, res) => {
 
     //get the user from the db
     //get the user from the db
@@ -196,15 +204,15 @@ memeIO.post("/webshot", auth, async(req, res) => {
     }
     let template;
     Template.create(screenshotTemplate, (err, item) => {
-            if (err)
-                console.log(err)
-            else {
-                item.save(function(err, item) {
-                    template = item;
-                });
-            }
-        })
-        //Make Screenshot and save image to URL
+        if (err)
+            console.log(err)
+        else {
+            item.save(function (err, item) {
+                template = item;
+            });
+        }
+    })
+    //Make Screenshot and save image to URL
     await captureWebsite.file(url, 'public/images/templates/' + req.body.title + ".jpeg").then(() => {
         console.log("savedFile")
     }).catch((err) => console.log(err));
@@ -214,17 +222,17 @@ memeIO.post("/webshot", auth, async(req, res) => {
 });
 
 
-/* POST /memeIO/upload */
+/* POST /memeIO/upload-Template */
 /* upload template to server (via FilePond) */
-memeIO.post('/upload-Template', uploadTemplate.single("file"), auth, async(req, res) => {
-    Template.find({ templateName: req.file.originalname }, function(err, docs) {
-            console.log(docs);
-            if (err)
-                return res.status(500).send(err);
-            if (docs.length > 0)
-                return res.json({ "message": "File name already exists" })
-        })
-        //get the user from the db
+memeIO.post('/upload-Template', uploadTemplate.single("file"), auth, async (req, res) => {
+    Template.find({ templateName: req.file.originalname }, function (err, docs) {
+        console.log(docs);
+        if (err)
+            return res.status(500).send(err);
+        if (docs.length > 0)
+            return res.json({ "message": "File name already exists" })
+    })
+    //get the user from the db
     let user = await User.findById(req.user.id);
     let author = user.name
     let url = "http://localhost:3030/images/templates/" + req.file.originalname;
@@ -238,7 +246,7 @@ memeIO.post('/upload-Template', uploadTemplate.single("file"), auth, async(req, 
         if (err)
             console.log(err);
         else {
-            item.save(function(err, item) {
+            item.save(function (err, item) {
                 res.json(item);
             });
         }
@@ -246,9 +254,9 @@ memeIO.post('/upload-Template', uploadTemplate.single("file"), auth, async(req, 
 });
 
 
-/* POST /memeIO/upload */
+/* POST /memeIO/upload-Meme */
 /* upload meme to server (via FilePond) */
-memeIO.post('/upload-Meme', uploadMeme.single("file"), auth, async(req, res) => {
+memeIO.post('/upload-Meme', uploadMeme.single("file"), auth, async (req, res) => {
     let url;
     const analysis = await analyze(req.headers.title);
     //get the user from the db
@@ -278,30 +286,46 @@ memeIO.post('/upload-Meme', uploadMeme.single("file"), auth, async(req, res) => 
     })
 });
 
-var gm = require("gm");
-
-memeIO.get('/upload-Gif', (req, res) => {
-    gm('./public/images/templates/Maus.gif').stroke("#000000")
-        .fill('#ffffff')
-        .font("./public/assets/impact.ttf", 42)
-        .dither(false)
-        .drawText(0, 0, "text", 'South')
-        .write('result.gif', function(err) {
-            if (!err) {
-                console.log('Image processing done.');
-            } else console.log(err);
-        });
-})
-
+/* POST /memeIO/upload-mim */
+/* Uploads an webm to the server and saves it in the memeDB */
+memeIO.post('/upload-mim', uploadMim.single("file"), auth, async (req, res) => {
+    let url;
+    //get the user from the db
+    let user = await User.findById(req.user.id);
+    let author = user.name
+    url = "http://localhost:3030/images/memes/" + req.file.originalname;
+    const newMeme = {
+        title: req.headers.title,
+        url: url,
+        author: author,
+        isPublic: true,
+        publicOpt: "public",
+        creationDate: Date.now(),
+        likes: 0,
+        tags: "",
+        description: "",
+        caption: "",
+    }
+    Meme.create(newMeme, (err, item) => {
+        if (err) {
+            console.log(err)
+            res.status(500)
+        } else {
+            console.log(item.description);
+            item.save();
+            res.send(url);
+        }
+    })
+});
 
 /* POST /memeIO/add-comment */
 /* add a comment to a meme with account*/
-memeIO.post('/add-comment', auth, async(req, res) => {
+memeIO.post('/add-comment', auth, async (req, res) => {
     //get the user from the db
     let user = await User.findById(req.user.id);
     let name = user.name;
     try {
-        Meme.updateOne({ _id: req.body.id }, { $push: { comments: { date: req.body.date, user: name, commenttext: req.body.commenttext } } }, function(err) {
+        Meme.updateOne({ _id: req.body.id }, { $push: { comments: { date: req.body.date, user: name, commenttext: req.body.commenttext } } }, function (err) {
             return res.status(200)
         })
     } catch (error) {
@@ -311,12 +335,12 @@ memeIO.post('/add-comment', auth, async(req, res) => {
 
 /* POST /memeIO/remove-comment */
 /* remove a like from a meme by account*/
-memeIO.post('/remove-comment', auth, async(req, res) => {
+memeIO.post('/remove-comment', auth, async (req, res) => {
     //get the user from the db
     let user = await User.findById(req.user.id);
     let name = user.name;
     try {
-        Meme.findByIdAndUpdate(req.body.id, { $pull: { comments: { user: name, commenttext: req.body.commenttext } } }, function(err) {
+        Meme.findByIdAndUpdate(req.body.id, { $pull: { comments: { user: name, commenttext: req.body.commenttext } } }, function (err) {
             return res.status(200)
         })
     } catch (error) {
@@ -328,12 +352,12 @@ memeIO.post('/remove-comment', auth, async(req, res) => {
 
 /* POST /memeIO/like-meme */
 /* add a like to a meme with account*/
-memeIO.post('/like-meme', auth, async(req, res) => {
+memeIO.post('/like-meme', auth, async (req, res) => {
     //get the user from the db
     let user = await User.findById(req.user.id);
     let name = user.name;
     try {
-        Meme.updateOne({ _id: req.body.id }, { $push: { listlikes: { date: req.body.date, user: name } } }, function(err) {
+        Meme.updateOne({ _id: req.body.id }, { $push: { listlikes: { date: req.body.date, user: name } } }, function (err) {
             return res.status(200)
         })
     } catch (error) {
@@ -343,12 +367,12 @@ memeIO.post('/like-meme', auth, async(req, res) => {
 
 /* POST /memeIO/remove-like-meme */
 /* remove a like from a meme by account*/
-memeIO.post('/remove-like-meme', auth, async(req, res) => {
+memeIO.post('/remove-like-meme', auth, async (req, res) => {
     //get the user from the db
     let user = await User.findById(req.user.id);
     let name = user.name;
     try {
-        Meme.findByIdAndUpdate(req.body.id, { $pull: { listlikes: { user: name } } }, function(err) {
+        Meme.findByIdAndUpdate(req.body.id, { $pull: { listlikes: { user: name } } }, function (err) {
             return res.status(200)
         })
     } catch (error) {
@@ -359,12 +383,12 @@ memeIO.post('/remove-like-meme', auth, async(req, res) => {
 
 /* POST /memeIO/dislike-meme */
 /* add a dislike to a meme with account*/
-memeIO.post('/dislike-meme', auth, async(req, res) => {
+memeIO.post('/dislike-meme', auth, async (req, res) => {
     //get the user from the db
     let user = await User.findById(req.user.id);
     let name = user.name;
     try {
-        Meme.updateOne({ _id: req.body.id }, { $push: { dislikes: { date: req.body.date, user: name } } }, function(err) {
+        Meme.updateOne({ _id: req.body.id }, { $push: { dislikes: { date: req.body.date, user: name } } }, function (err) {
             return res.status(200)
         })
     } catch (error) {
@@ -374,12 +398,12 @@ memeIO.post('/dislike-meme', auth, async(req, res) => {
 
 /* POST /memeIO/remove-dislike-meme */
 /* remove a dislike from a meme by account*/
-memeIO.post('/remove-dislike-meme', auth, async(req, res) => {
+memeIO.post('/remove-dislike-meme', auth, async (req, res) => {
     //get the user from the db
     let user = await User.findById(req.user.id);
     let name = user.name;
     try {
-        Meme.findByIdAndUpdate(req.body.id, { $pull: { dislikes: { user: name } } }, function(err) {
+        Meme.findByIdAndUpdate(req.body.id, { $pull: { dislikes: { user: name } } }, function (err) {
             return res.status(200)
         })
     } catch (error) {
@@ -389,7 +413,7 @@ memeIO.post('/remove-dislike-meme', auth, async(req, res) => {
 
 /* POST /memeIO/create-simple-meme */
 /* create simple meme with lower and upper text */
-memeIO.post('/create-simple-meme', async(req, res) => {
+memeIO.post('/create-simple-meme', async (req, res) => {
     try {
         const url = "http://localhost:3030/images/memes/" + req.body.title + ".jpeg";
         let image;
@@ -458,7 +482,7 @@ memeIO.post('/create-simple-meme', async(req, res) => {
 
 /* POST /memeIO/create-meme */
 /* create meme with defined textboxes */
-memeIO.post('/create-meme', async(req, res) => {
+memeIO.post('/create-meme', async (req, res) => {
     try {
         const url = "http://localhost:3030/images/memes/" + req.body.title + ".jpeg";
         let image = await Jimp.read(req.body.url);
@@ -466,8 +490,8 @@ memeIO.post('/create-meme', async(req, res) => {
         for (const textBox of req.body.textBoxes) {
             let font = await Jimp.loadFont(textBox.font ? textBox.font : 'public/assets/impact.ttf/impact.fnt')
             image.print(font, textBox.x, textBox.y, {
-                    text: textBox.text
-                }, textBox.maxWidth,
+                text: textBox.text
+            }, textBox.maxWidth,
                 textBox.maxHeight)
         }
         image = await image.writeAsync("public/images/memes/" +
@@ -493,7 +517,7 @@ memeIO.post('/create-meme', async(req, res) => {
 
 /* POST /memeIO/create-memes */
 /* create memes with defined url and several textboxes */
-memeIO.post('/create-memes', async(req, res) => {
+memeIO.post('/create-memes', async (req, res) => {
     try {
         //console.log(req.body.templates, req.body.textBoxes)
         let memes = []
@@ -504,8 +528,8 @@ memeIO.post('/create-memes', async(req, res) => {
             for (const textBox of req.body.textBoxes) {
                 let font = await Jimp.loadFont(textBox.font ? textBox.font : 'public/assets/impact.ttf/impact.fnt')
                 image.print(font, textBox.x, textBox.y, {
-                        text: textBox.text
-                    }, textBox.maxWidth,
+                    text: textBox.text
+                }, textBox.maxWidth,
                     textBox.maxHeight)
             }
             await image.writeAsync("public/images/memes/" +
@@ -545,7 +569,7 @@ memeIO.post('/create-memes', async(req, res) => {
 /* GET /memeIO/get-meme */
 /* get meme by title as a jpeg file */
 memeIO.get('/get-meme', (req, res) => {
-    Meme.find({ title: req.body.title }, function(err, docs) {
+    Meme.find({ title: req.body.title }, function (err, docs) {
         if (err) {
             return res.status(500).send(err);
         }
@@ -592,12 +616,12 @@ memeIO.get('/get-memes-by', (req, res) => {
 
     //get the memes from the data base using the defined search params
     Meme.find({
-            $and: [{
-                likes: { $gt: likes_min - 1, $lt: likes_max + 1 },
-                title: { $regex: searchTerm },
-                creationDate: { $gt: Date.parse(creationDate_earliest), $lt: Date.parse(creationDate_latest) },
-            }]
-        },
+        $and: [{
+            likes: { $gt: likes_min - 1, $lt: likes_max + 1 },
+            title: { $regex: searchTerm },
+            creationDate: { $gt: Date.parse(creationDate_earliest), $lt: Date.parse(creationDate_latest) },
+        }]
+    },
         (err, docs) => {
             if (err) {
                 return res.status(500).send(err);
