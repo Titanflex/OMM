@@ -179,6 +179,15 @@ const MemeView = props => {
         });
     }
 
+    const handleClickPic = () => {
+        if (memeInfo.publicOpt == "public"){
+            window.open(`/singleview/${memeInfo._id}`, "_self");
+
+        }
+        
+        
+    }
+
     const synth = window.speechSynthesis;
 
     /*
@@ -218,16 +227,16 @@ const MemeView = props => {
                             alt={"meme image"}
                             isAccessible={props.isAccessible}
                           
-                            onClick={() => window.open(`/singleview/${memeInfo._id}`, "_self")}
+                            onClick={handleClickPic}
                         />
                     </div>
                 </Grid>
-                <Grid container xs direction="column" spacing={1}>
+                <Grid container item xs direction="column" spacing={1}>
 
                     <Grid item xs>
                         <div className="memeInfo">
                             <Typography gutterBottom variant="h6" id="meme-title">
-                                <Link href="#" onClick={() => window.open(`/singleview/${memeInfo._id}`, "_self")} color="inherit">
+                                <Link href="#" onClick={handleClickPic} color="inherit">
                                     {memeInfo.hasOwnProperty('title') ? memeInfo.title : "No Title"}
                                 </Link>
                             </Typography>

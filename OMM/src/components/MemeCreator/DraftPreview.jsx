@@ -4,8 +4,6 @@ import Modal from '@material-ui/core/Modal';
 import {GridList, GridListTile, GridListTileBar} from "@material-ui/core";
 
 
-
-
 function getModalStyle() {
     const top = 50;
     const left = 50;
@@ -26,25 +24,28 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-
+/**
+ * component for selecting a draft to continue
+ * gets params in MemeCreator component
+ */
 const DraftPreview = params => {
     const classes = useStyles();
     const [modalStyle] = useState(getModalStyle);
     const [open, setOpen] = useState(false);
 
 
+    //closeModal
     const handleClose = () => {
-        setOpen(false);
         params.setPreview(false);
     };
 
+    //open/close modal every time preview is loaded/draft is selected
     useEffect(()=> {
         setOpen(params.preview);
-        console.log(params.docs);
     }, [params.preview]);
 
+    //update index of selected draft in memeCreator
     const selectDraft = (index) => {
-        console.log(index);
         params.setDraftIndex(index);
         handleClose();
     }
