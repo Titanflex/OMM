@@ -42,10 +42,17 @@ export default function SignIn() {
     text: "",
   });
 
+  /**
+   * handles the change event of the textfield and sets the respective value to the state variable
+   * @param {event}
+   * @prop the label of the textfield where the change happened
+   */
   const handleChange = (prop) => (event) => {
+    //name textfield changed
     if (prop === "name") {
       setNameError({ show: false, text: "" });
     }
+    //password textfield changed
     if (prop === "password") {
       setPasswordError({ show: false, text: "" });
     }
@@ -60,25 +67,35 @@ export default function SignIn() {
     event.preventDefault();
   };
 
+  /**
+   * starting signing the user in if the ENTER key is pressed
+   * @param {*} event
+   */
   const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       signIn();
     }
-  }
+  };
 
+  /**
+   * tries to sign in the user with name and password
+   * SUCCESSFUL: navigate to landing page
+   * ERROR: show error message
+   */
   const signIn = () => {
     console.log("Signing in...");
     if (validate()) {
       AuthService.login(values.name, values.password).then((data) => {
         if (data.token) {
-          //Successful Login
+          //SUCCESSFUL LOGIN -> navigate to landing page
           window.location.reload();
-          navigate("/");   
+          navigate("/");
         } else {
           if (data.msg) {
             setNameError({ show: true, text: "" });
             setPasswordError({ show: true, text: data.msg });
           } else {
+            //something else went wrong the backend
             setNameError({ show: true, text: "" });
             setPasswordError({
               show: true,
@@ -90,15 +107,22 @@ export default function SignIn() {
     }
   };
 
+  /**
+   * validates the user input
+   * @return {boolean} true if the validation was successful / false if not
+   */
   const validate = () => {
+    //is the name emmpty?
     if (values.name === "") {
       setNameError({ show: true, text: "Please enter a name" });
       return false;
     }
+    //is the password empty?
     if (values.password === "") {
       setPasswordError({ show: true, text: "Please enter a password" });
       return false;
     }
+    //everything is fine ->
     return true;
   };
 

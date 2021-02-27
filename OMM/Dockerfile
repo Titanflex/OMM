@@ -1,20 +1,9 @@
-# Dockerfile for React client
-
-# Build react client
-FROM node:10.16-alpine
-
-# Working directory be app
-WORKDIR /OMM
-
-COPY package*.json ./
-
-###  Installing dependencies
-
-RUN npm install --silent
-
-# copy local files to app folder
+FROM node:12.18-alpine
+ENTRYPOINT ["sh", "/docker-entrypoint.sh"]
+ENV NODE_ENV=production
+WORKDIR #!/usr/src/app
+COPY ["package.json", "package-lock.json*", "npm-shrinkwrap.json*", "./"]
+RUN npm install --production --silent && mv node_modules ../
 COPY . .
-
 EXPOSE 3000
-
-CMD ["npm","start"]
+CMD ["npm", "start"]

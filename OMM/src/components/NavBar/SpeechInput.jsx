@@ -20,75 +20,82 @@ const SpeechInput = (params) => {
   const [speaking, setSpeaking] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  //using the react-speech-recognition React hook
+  //for more information, see https://www.npmjs.com/package/react-speech-recognition
   const { transcript, finalTranscript } = useSpeechRecognition();
 
-
+  /**
+   * gets called if the finalTranscript of the speech hook was changed
+   */
   useEffect(() => {
-    console.log("final transcript  " + finalTranscript)
-    stopListening();
+    handleSpeech();
   }, [finalTranscript]);
 
-  if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
-    return null;
-  }
-
-  const speech = SpeechRecognition;
-
+  /**
+   * toggles if the SpeechRecognition listening / the speech input
+   */
   const toggleSpeech = () => {
     console.log("Start Listening....");
     if (speaking) {
-      speech.stopListening();
-      //setLoading(true);
+      SpeechRecognition.stopListening();
     } else {
-      speech.startListening({ language: "en-US" });
-      //stop listening after five seconds
+      SpeechRecognition.startListening({ language: "en-US" });
+      //if the user does not stop the speech input manually -> end it after 5 seconds
       setTimeout(function() {
-        speech.stopListening();
-        //setLoading(true);
+        SpeechRecognition.stopListening();
         setSpeaking(false);
       }, 3000);
     }
     setSpeaking(!speaking);
   };
 
-  const stopListening = () => {
-      console.log(transcript);
-      setLoading(false);
-      switch (transcript) {
-        case "navigate to overview":
-          navigate("/overview");
-          return;
-          case "navigate to over fuel":
-            navigate("/overview");
-            return;
-        case "navigate to generator":
-          navigate("/");
-          return;
-        case "navigate to my memes":
-          navigate("/my-memes");
-          return;
-        case "logout":
-          AuthService.logout();
-          window.location.reload();
-          return;
-          case "look out":
-            AuthService.logout();
-            window.location.reload();
-            return;
-      }
+  /**
+   * triggers the actions based on the speech transcript
+   */
+  const handleSpeech = () => {
+    console.log(transcript);
+    setLoading(false);
+    switch (transcript) {
+      case "navigate to overview":
+        navigate("/overview");
+        return;
+      //the SpeechRecognition misunderstands over fuel instead of overview
+      case "navigate to over fuel":
+        navigate("/overview");
+        return;
+      case "navigate to generator":
+        navigate("/");
+        return;
+      case "navigate to my memes":
+        navigate("/my-memes");
+        return;
+      case "logout":
+        AuthService.logout();
+        window.location.reload();
+        return;
+      //the SpeechRecognition misunderstands look out instead of logout
+      case "look out":
+        AuthService.logout();
+        window.location.reload();
+        return;
+    }
   };
 
   return (
     <div>
-    {!loading ? <IconButton
-      aria-label="mic for speech input"
-      onClick={toggleSpeech}
-      edge="end"
-      className={classes.iconButton}
-      color={speaking ? "secondary" : "inherit"}
-    >
-      <Mic />
-    </IconButton> : <CircularProgress color="secondary" /> }
+      {!loading ? (
+        <IconButton
+          aria-label="mic for speech input"
+          onClick={toggleSpeech}
+          edge="end"
+          className={classes.iconButton}
+          color={speaking ? "secondary" : "inherit"}
+        >
+          <Mic />
+        </IconButton>
+      ) : (
+        <CircularProgress color="secondary" />
+      )}
     </div>
   );
 };

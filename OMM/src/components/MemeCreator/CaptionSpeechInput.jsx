@@ -12,14 +12,23 @@ const SpeechInput = (params) => {
   const [speaking, setSpeaking] = useState(false);
   const [waitForResponse, setWaitForResponse] = useState(false);
 
+  //using the react-speech-recognition React hook
+  //for more information, see https://www.npmjs.com/package/react-speech-recognition
   const { transcript, finalTranscript } = useSpeechRecognition();
 
+  /**
+   * gets called if the transcript of the SpeechRecognition changes -> understands something the user is saying
+   */
   useEffect(() => {
+    //only when this component is actively waiting for a response set the caption
     if (waitForResponse) {
       params.setCaption(transcript);
     }
   }, [transcript]);
 
+  /**
+   * gets called if the finalTranscript of the speech hook was changed -> sets the caption to the final transcript
+   */
   useEffect(() => {
     if (waitForResponse) {
       console.log("final caption: " + finalTranscript);
@@ -28,30 +37,18 @@ const SpeechInput = (params) => {
     }
   }, [finalTranscript]);
 
-
-  const useStyles = makeStyles((theme) => ({
-    buttonStyle: {
-        height: 'fit-content',
-    }
-}));
-
-
-  if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
-    return null;
-  }
-
-  const speech = SpeechRecognition;
-
+  /**
+   * toggles if the SpeechRecognition listening / the speech input
+   */
   const toggleSpeech = () => {
     if (speaking) {
-      speech.stopListening();
+      SpeechRecognition.stopListening();
     } else {
-      speech.startListening({ language: "en-US" });
-      console.log("Start Listening the Caption")
+      SpeechRecognition.startListening({ language: "en-US" });
       setWaitForResponse(true);
-      //stop listening after five seconds
+      //if the user does not stop the speech input manually -> end it after 5 seconds
       setTimeout(function() {
-        speech.stopListening();
+        SpeechRecognition.stopListening();
         setSpeaking(false);
       }, 3000);
     }

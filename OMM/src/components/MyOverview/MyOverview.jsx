@@ -29,11 +29,19 @@ function MyOverview() {
 
   const classes = useStyles();
 
+  /**
+   * is called on mount -> load memes and set loading to true
+   */
   useEffect(() => {
     setLoading(true);
     loadMemes();
   }, []);
 
+  /**
+   *
+   * @param {array} listmemes array of the filtered memes to be shown
+   * @return {<Grid>} returns the listesmemes as MemeView inside Grid
+   */
   const ListMemes = ({ listmemes }) => {
     return (
       <Grid container spacing={1}>
@@ -44,6 +52,9 @@ function MyOverview() {
     );
   };
 
+  /**
+   * loads the memes and filters them by the currently logged in user
+   */
   const loadMemes = async () => {
     await fetch("http://localhost:3030/memeIO/get-memes").then((res) => {
       res.json().then((json) => {
@@ -52,6 +63,7 @@ function MyOverview() {
           return meme.author && meme.author == localStorage.user;
         });
         setMemes(myMemes);
+        //set loading false if the memes were loaded
         setLoading(false);
         return myMemes;
       });
@@ -60,8 +72,10 @@ function MyOverview() {
 
   return (
     <div>
+      {/* if loading only show loading circle, otherwise show the Meme Scroll List */}
       {!loading ? (
         <Container className="memeScrollListContainer">
+          {/* if the the user has not created any memes yet -> show the empty state, otherwise show the Meme Scroll List */}
           {memes.length > 0 ? (
             <Grid container spacing={1}>
               <ListMemes className={classes.spacing} listmemes={memes} />
@@ -82,7 +96,8 @@ function MyOverview() {
           )}
         </Container>
       ) : (
-        <div className="loading">
+        // Loading Circle
+        <div classNa me="loading">
           <CircularProgress />
         </div>
       )}
