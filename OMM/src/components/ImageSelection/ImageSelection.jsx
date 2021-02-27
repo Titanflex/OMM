@@ -100,6 +100,10 @@ const ImageSelection = params => {
         }
     }
 
+    /**
+     * 
+     * @param {*} image 
+     */
     function changeShownTemplate(image) {
         addUsedTemplate(image);
         if (params.isFreestyle) {
@@ -111,12 +115,17 @@ const ImageSelection = params => {
         handleClose();
     }
 
+
     function addTemplates(image) {
         addUsedTemplate(image);
         params.setSelectedImages(image);
         handleClose();
     }
 
+    /**
+     * adds the given template to the template state
+     * @param {object} newTemplate 
+     */
     function addNewTemplates(newTemplate) {
         setTemplates(templates => [newTemplate, ...templates])
         setFiles([]);
@@ -166,7 +175,10 @@ const ImageSelection = params => {
 
     }
 
-
+    /**
+     * returns the templates in a grid list
+     * @param {array} showtemplates 
+     */
     const ShowTemplates = ({showtemplates}) => (
         <GridList cellHeight={180} className={classes.gridList} cols={3} style={{height: 450}}>
             {showtemplates.map((template) => (

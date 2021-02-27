@@ -31,6 +31,10 @@ const SpeechInput = (params) => {
     handleSpeech();
   }, [finalTranscript]);
 
+  if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
+    return null;
+  }
+
   /**
    * toggles if the SpeechRecognition listening / the speech input
    */
