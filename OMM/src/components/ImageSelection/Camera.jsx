@@ -8,7 +8,7 @@ import "./../../css/ImageSelection/imageSelection.css";
 import Webcam from "react-webcam";
 import {TextField} from "@material-ui/core";
 
-
+// aligns modal in center of screen
 function getModalStyle() {
     const top = 50;
     const left = 50;
@@ -32,6 +32,10 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+/**
+ * component for uploading photo from connected camera
+ * gets params in ImageSelection component
+ */
 const Camera = params => {
     const classes = useStyles();
     const [modalStyle] = React.useState(getModalStyle);
@@ -46,26 +50,35 @@ const Camera = params => {
         text: "",
     });
 
-    const handleChange = (event) => {
-        setError({show:false, text:""});
-        setTemplateTitle(event.target.value);
-    }
 
+
+    //open and close modal
     const handleOpen = () => {
         setOpen(true);
     };
-
     const handleClose = () => {
         setOpen(false);
         setError({show:false, text:""});
     };
 
-    const capture = React.useCallback(() => {
+    //remove error message when new title is entered
+    const handleChange = (event) => {
+        setError({show:false, text:""});
+        setTemplateTitle(event.target.value);
+    }
+
+
+    //capture photo with webcam (when cheese is pressed)
+    const capture = (() => {
         const imageSrc = webcamRef.current.getScreenshot();
         setImgSrc(imageSrc);
         setSave(false);
-    }, [webcamRef, setImgSrc]);
+    });
 
+    /**
+     * call handleSave in ImageSelection to save photo as template
+     * check for missing or duplicate template title
+     */
     async function saveCapturedPicture() {
         if (templateTitle === '') {
             setError({show: true, text: "Please enter a title"});
@@ -131,7 +144,7 @@ const Camera = params => {
                         >
                             Cheese!
                         </Button>
-
+                        {/*show preview of photo after capture*/}
                         {imgSrc && (
                             <img
                                 className="camera"

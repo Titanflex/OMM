@@ -149,7 +149,6 @@ memeIO.post("/save-template", auth, async(req, res) => {
 
     if (!req.body.internetSource) { //save base64 string to file
         let base64String = req.body.url;
-        console.log(base64String);
         let base64Image = base64String.split(';base64,').pop();
         url = "http://localhost:3030/images/templates/" + title + ".jpeg";
 
@@ -167,10 +166,10 @@ memeIO.post("/save-template", auth, async(req, res) => {
 
     Template.create(newTemplate, (err, item) => {
         if (err) {
-            console.log(err);
-            res.status(500).send(err);
+            return res.json({"message" : err});
         } else {
             item.save(function(err, template) {
+                if (err) return res.json({"message" : err});
                 res.json(template);
             });
         }

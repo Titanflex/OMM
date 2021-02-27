@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Button from "@material-ui/core/Button";
@@ -8,7 +8,7 @@ import PaintCanvas from "./PaintCanvas";
 import "./../../css/ImageSelection/imageSelection.css";
 import {Gesture} from "@material-ui/icons";
 
-
+//aligns modal in center of screen
 function getModalStyle() {
     const top = 50;
     const left = 50;
@@ -30,21 +30,25 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-
+/**
+ * component renders modal for paint canvas
+ * gets params from ImageSelection component
+ */
 const Paint = params => {
     const classes = useStyles();
     const [modalStyle] = useState(getModalStyle);
     const [open, setOpen] = useState(false);
  
 
+    //open and close modal
     const handleOpen = () => {
         setOpen(true);
     };
-
     const handleClose = () => {
         setOpen(false);
     };
 
+    //call handle save in image selection
     function handleSave(title, url){
         params.handleSave(title, url, false);
         handleClose();      

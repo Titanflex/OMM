@@ -5,8 +5,6 @@ const templateSchema = new Schema({
     uploader: String,
     templateName: String,
     url: String,
-        
-
     used: [{
         date: Date
     }],

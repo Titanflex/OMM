@@ -10,7 +10,7 @@ import AuthService from "../../services/auth.service";
 
 import "./../../css/ImageSelection/imageSelection.css";
 
-
+//aligns modal in center of screen
 function getModalStyle() {
     const top = 50;
     const left = 50;
@@ -31,7 +31,10 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-
+/**
+ * component for uploading image from URL/screenshot from URL
+ * gets params from ImageSelection component
+ */
 const URL = params => {
     const classes = useStyles();
     const [modalStyle] = useState(getModalStyle);
@@ -46,6 +49,7 @@ const URL = params => {
         text: "",
     });
 
+    //open close modal
     const handleOpen = () => {
         setTitle('');
         setUrl('');
@@ -53,11 +57,15 @@ const URL = params => {
         setScreenShotDisabled(false);
         setOpen(true);
     };
-
     const handleClose = () => {
+        setIsLoading(false);
         setOpen(false);
     };
 
+    /**
+     * save image URL as template or make screenshot of website
+     * check for missing or duplicate template title
+     */
     async function handleSave() {
         if (title === '') {
             setError({show: true, text: "Please enter a title"});
@@ -75,39 +83,25 @@ const URL = params => {
             }).then(() => {
                     if (!isDuplicate) {
                         setIsLoading(true);
-                        if (URLDisabled) {
-                            handleScreenshot()
+                        if (URLDisabled) { //make screenshot from user provided URL
+                            handleScreenshot();
                         } else {
-                            saveTemplate();
+                            params.handleSave(title, url, true); //download image from user provided URL
+                            handleClose();
                         }
                     }
                 }
             )
         })
-
-
     }
 
-    async function saveTemplate() {
-        console.log(AuthService.getTokenHeader());
-        fetch("http://localhost:3030/memeIO/save-template", {
-            method: "POST",
-            mode: "cors",
-            headers: AuthService.getTokenHeader(),
-            body: JSON.stringify({
-                internetSource: true,
-                title: title,
-                url: url,
-            }),
-        }).then((res) => {
-            return res.json();
-        }).then((data) => {
-            params.handleSave(data);
-            setIsLoading(false);
-            handleClose();
-        });
-    }
 
+    /**
+     * send url to server to make screenshot
+     * receives image data
+     * gives data to imageSelection component to create template
+     * @returns {Promise<void>}
+     */
     async function handleScreenshot() {
         await fetch("http://localhost:3030/memeIO/webshot", {
             method: "POST",
@@ -120,28 +114,22 @@ const URL = params => {
         }).then((res) => {
             return res.json();
         }).then((data) => {
-            params.handleSave(data);
-            setIsLoading(false);
+            params.addTemplate(data);
             handleClose();
         });
     }
 
+   //handle URL input
     const handleChange = ({target}) => {
-        setScreenShotDisabled(target.name == 'url' && (target.value !== ""));
-        setURLDisabled(target.name == 'screenshot' && (target.value !== ""));
+        setScreenShotDisabled(target.name === 'url' && (target.value !== ""));
+        setURLDisabled(target.name === 'screenshot' && (target.value !== ""));
         setUrl((prev) => target.value);
     }
 
+    //remove error message when new title is entered
     const handleChangeTitle = ({target}) => {
         setError({show: false, text: ""});
         setTitle(target.value);
-    }
-
-
-    const getTemplateFromURL = (event) => {
-        if (event.key === 'Enter') {
-            params.handleSave("title", url, true);
-        }
     }
 
 
@@ -169,16 +157,14 @@ const URL = params => {
                         name="url"
                         className="modal"
                         label="Load Image from URL"
-                        onChange={handleChange}
-                        onKeyPress={getTemplateFromURL}/>
+                        onChange={handleChange}/>
 
                     <TextField
                         disabled={screenShotDisabled}
                         name="screenshot"
                         className="modal"
                         label="Screenshot Image from URL"
-                        onChange={handleChange}
-                        onKeyPress={handleSave}/>
+                        onChange={handleChange}/>
                     <TextField
                         error={error.show}
                         helperText={error.text}
