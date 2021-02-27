@@ -1,5 +1,5 @@
-import React, {useState, useRef} from 'react';
-import {makeStyles} from '@material-ui/core/styles';
+import React, { useState, useRef } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Button from "@material-ui/core/Button";
 import Popover from "@material-ui/core/Popover";
@@ -9,15 +9,15 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
-import {TwitterShareButton, RedditShareButton, WhatsappShareButton} from "react-share";
-import {TwitterIcon, RedditIcon, WhatsappIcon} from "react-share";
+import { TwitterShareButton, RedditShareButton, WhatsappShareButton } from "react-share";
+import { TwitterIcon, RedditIcon, WhatsappIcon } from "react-share";
 
 import "./../../css/ImageSelection/imageSelection.css";
 import domtoimage from "dom-to-image";
 
-import {Menu, MenuItem, TextField} from "@material-ui/core";
+import { Menu, MenuItem, TextField } from "@material-ui/core";
 
-import {FilePond, registerPlugin} from "react-filepond";
+import { FilePond, registerPlugin } from "react-filepond";
 import "filepond/dist/filepond.min.css";
 import FilePondPluginFileEncode from 'filepond-plugin-file-encode';
 import FilePondPluginImageTransform from 'filepond-plugin-image-transform';
@@ -256,7 +256,7 @@ const Generator = params => {
         console.log(data.size);
         //check if created meme is too large and adapt quality
 
-        if (selectedSizeIndex === 0 && (2*data.size / 1000 > 100)) {
+        if (selectedSizeIndex === 0 && (2 * data.size / 1000 > 100)) {
             let quality = (100 / (data.size / 1000)) * 100;
             console.log(quality);
             setQuality((100 / (data.size / 1000)) * 100);
@@ -321,10 +321,10 @@ const Generator = params => {
         }).then((res) => {
             return (res.json())
         }).then((data) => {
-                setGeneratedMemeUrl(data.url);
-                setShowPreview(true);
-                setIsLoading(false);
-            }
+            setGeneratedMemeUrl(data.url);
+            setShowPreview(true);
+            setIsLoading(false);
+        }
         );
     }
 
@@ -341,7 +341,7 @@ const Generator = params => {
         await fetch("http://localhost:3030/memeIO/get-memes").then(res => {
             res.json().then(json => {
                 json.docs.forEach(meme => {
-                    if(meme.title === title && !isDuplicate) {
+                    if (meme.title === title && !isDuplicate) {
                         handleDuplicateTitle();
                         setIsLoading(false);
                         isDuplicate = true;
@@ -362,6 +362,9 @@ const Generator = params => {
         });
     }
 
+    /**
+     * Downloads a meme as base64 string from the server and saves it as jpeg
+     */
     async function handleDownload() {
         fetch("http://localhost:3030/memeIO/download-meme", {
             method: "POST",
@@ -376,18 +379,18 @@ const Generator = params => {
         }).then((res) => {
             return (res.json())
         }).then(json => {
-                fetch("data:image/jpeg;base64," + json.data)
-                    .then(res => res.blob())
-                    .then(data => {
-                        let a = document.createElement("a");
-                        let url = window.URL.createObjectURL(data);
-                        a.style = "display: none";
-                        a.href = url;
-                        a.download = title + ".jpeg";
-                        a.click();
-                    });
+            fetch("data:image/jpeg;base64," + json.data)
+                .then(res => res.blob())
+                .then(data => {
+                    let a = document.createElement("a");
+                    let url = window.URL.createObjectURL(data);
+                    a.style = "display: none";
+                    a.href = url;
+                    a.download = title + ".jpeg";
+                    a.click();
+                });
 
-            }
+        }
         )
     }
 
@@ -396,7 +399,7 @@ const Generator = params => {
         <div>
             <Button
                 className="classes.buttonStyle modal"
-                startIcon={<ImageIcon/>}
+                startIcon={<ImageIcon />}
                 variant="contained"
                 onClick={handleOpen}
                 color="secondary"
@@ -411,9 +414,9 @@ const Generator = params => {
                 aria-describedby="simple-modal-description">
                 <div style={modalStyle} className={classes.paper} >
 
-                    <div style={{maxHeight: window.innerHeight-100, overflow:"auto"}}>
+                    <div style={{ maxHeight: window.innerHeight - 100, overflow: "auto" }}>
                         {/* Text Field for Meme Title*/}
-                                                <TextField
+                        <TextField
                             error={titleError.show}
                             helperText={titleError.text}
                             className={classes.spacing}
@@ -435,7 +438,7 @@ const Generator = params => {
                                 aria-label="render options"
                                 onClick={handleRenListItem}
                             >
-                                <ListItemText primary="Where to render?" secondary={renOptions[selectedRenIndex]}/>
+                                <ListItemText primary="Where to render?" secondary={renOptions[selectedRenIndex]} />
                             </ListItem>
                         </List>
                         <Menu
@@ -464,7 +467,7 @@ const Generator = params => {
                                 onClick={handlePubListItem}
                             >
                                 <ListItemText primary="Who can see your Meme?"
-                                              secondary={pubOptions[selectedPubIndex]}/>
+                                    secondary={pubOptions[selectedPubIndex]} />
                             </ListItem>
                         </List>
                         <Menu
@@ -491,7 +494,7 @@ const Generator = params => {
                                 aria-label="public options"
                                 onClick={handleSizeListItem}
                             >
-                                <ListItemText primary="Size of the file?" secondary={sizeOptions[selectedSizeIndex]}/>
+                                <ListItemText primary="Size of the file?" secondary={sizeOptions[selectedSizeIndex]} />
                             </ListItem>
                         </List>
                         <Menu
@@ -511,105 +514,106 @@ const Generator = params => {
                             ))}
                         </Menu>
 
-                    <Button
-                        className="classes.buttonStyle selection"
-                        variant="contained"
-                        onClick={generateMeme}
-                        color="secondary"
-                    >
-                        Generate Meme &nbsp; &nbsp;  {isLoading ? <CircularProgress size={20}/> : null }
-                    </Button>
-                    {generatedMeme && quality && showPreview && <FilePond
-                        files={[generatedMeme]}
-                        allowImageResize={true}
-                        allowFileEncode={true}
-                        imageResizeTargetWidth={params.canvasWidth}
-                        imageTransformOutputQuality={quality}
-                        imageResizeTargetHeight={params.canvasHeight}
-                        imageResizeMode={"cover"}
-                        server={{
-                            url: "http://localhost:3030/memeIO",
-                            process: {
-                                url: '/upload-Meme',
-                                method: 'POST',
-                                headers: {
-                                    'x-auth-token': localStorage.token,
-                                    'title': title,
-                                    'ispublic': isPublic,
-                                    'publicopt': pubOptions[selectedPubIndex],
-                                    'type': 'meme',
-                                    'upper': texts,
-                                    'lower': "",
-                                },
-                                onload: (response) => {
-                                    setGeneratedMemeUrl(response);
+                        <Button
+                            className="classes.buttonStyle selection"
+                            variant="contained"
+                            onClick={generateMeme}
+                            color="secondary"
+                        >
+                            Generate Meme &nbsp; &nbsp;  {isLoading ? <CircularProgress size={20} /> : null}
+                        </Button>
+                        {generatedMeme && quality && showPreview && <FilePond
+                            files={[generatedMeme]}
+                            allowImageResize={true}
+                            allowFileEncode={true}
+                            imageResizeTargetWidth={params.canvasWidth}
+                            imageTransformOutputQuality={quality}
+                            imageResizeTargetHeight={params.canvasHeight}
+                            imageResizeMode={"cover"}
+                            server={{
+                                url: "http://localhost:3030/memeIO",
+                                process: {
+                                    url: '/upload-Meme',
+                                    method: 'POST',
+                                    headers: {
+                                        'x-auth-token': localStorage.token,
+                                        'title': title,
+                                        'ispublic': isPublic,
+                                        'publicopt': pubOptions[selectedPubIndex],
+                                        'type': 'meme',
+                                        'upper': texts,
+                                        'lower': "",
+                                    },
+                                    onload: (response) => {
+                                        setGeneratedMemeUrl(response);
+                                    }
                                 }
-                            }
-                        }}
-                        name="file"
-                    />}
-                    {generatedMemeUrl && !generatedMeme && showPreview &&<img id={"preview"}
-                                                                src={generatedMemeUrl}/>}
-                    <div>
+                            }}
+                            name="file"
+                        />}
+                        {generatedMemeUrl && !generatedMeme && showPreview && <img id={"preview"}
+                            src={generatedMemeUrl} />}
                         <div>
-                            <Button
-                                className="classes.buttonStyle selection"
-                                startIcon={<CloudDownloadIcon/>}
-                                variant="contained"
-                                onClick={() => handleDownload()}
-                                color="secondary"
-                                disabled={!generatedMemeUrl}
-                            >
-                                Download
+                            <div>
+                                <Button
+                                    className="classes.buttonStyle selection"
+                                    startIcon={<CloudDownloadIcon />}
+                                    variant="contained"
+                                    onClick={() => handleDownload()}
+                                    color="secondary"
+                                    disabled={!generatedMemeUrl}
+                                >
+                                    Download
                             </Button>
-                            <Button
-                                className="classes.buttonStyle selection"
-                                startIcon={<MailIcon/>}
-                                variant="contained"
-                                color="secondary"
-                                onClick={handleClick}
-                                disabled={!generatedMemeUrl}
-                            >
-                                Share
+                                {/* Opens up the share popup with according share menus */}
+                                <Button
+                                    className="classes.buttonStyle selection"
+                                    startIcon={<MailIcon />}
+                                    variant="contained"
+                                    color="secondary"
+                                    onClick={handleClick}
+                                    disabled={!generatedMemeUrl}
+                                >
+                                    Share
                             </Button>
-                            <Popover
-                                id={id}
-                                open={popOpen}
-                                anchorEl={anchorEl}
-                                onClose={handlePopClose}
-                                anchorOrigin={{
-                                    vertical: 'top',
-                                    horizontal: 'center',
-                                }}
-                                transformOrigin={{
-                                    vertical: 'bottom',
-                                    horizontal: 'center',
-                                }}
-                            >
-                                <TwitterShareButton
-                                    title={"OMMemes = Stonks"}
-                                    url={generatedMemeUrl}
-                                    hashtags={["OMMeme"]}
-                                    className={classes.socialMediaButton}>
-                                    <TwitterIcon size={36} round/>
-                                </TwitterShareButton>
-                                <RedditShareButton
-                                    title={"OMMemes = Stonks"}
-                                    url={generatedMemeUrl}
-                                    className={classes.socialMediaButton}>
-                                    <RedditIcon size={36} round/>
-                                </RedditShareButton>
-                                <WhatsappShareButton
-                                    title={"OMMemes = Stonks"}
-                                    url={generatedMemeUrl}
-                                    separator={"\r\n"}
-                                    className={classes.socialMediaButton}>
-                                    <WhatsappIcon size={36} round/>
-                                </WhatsappShareButton>
-                            </Popover>
+                                <Popover
+                                    id={id}
+                                    open={popOpen}
+                                    anchorEl={anchorEl}
+                                    onClose={handlePopClose}
+                                    anchorOrigin={{
+                                        vertical: 'top',
+                                        horizontal: 'center',
+                                    }}
+                                    transformOrigin={{
+                                        vertical: 'bottom',
+                                        horizontal: 'center',
+                                    }}
+                                >
+                                    <TwitterShareButton
+                                        title={"OMMemes = Stonks"}
+                                        url={generatedMemeUrl}
+                                        hashtags={["OMMeme"]}
+                                        className={classes.socialMediaButton}>
+                                        <TwitterIcon size={36} round />
+                                    </TwitterShareButton>
+                                    <RedditShareButton
+                                        title={"OMMemes = Stonks"}
+                                        url={generatedMemeUrl}
+                                        className={classes.socialMediaButton}>
+                                        <RedditIcon size={36} round />
+                                    </RedditShareButton>
+                                    <WhatsappShareButton
+                                        title={"OMMemes = Stonks"}
+                                        url={generatedMemeUrl}
+                                        separator={"\r\n"}
+                                        className={classes.socialMediaButton}>
+                                        <WhatsappIcon size={36} round />
+                                    </WhatsappShareButton>
+                                </Popover>
+                            </div>
                         </div>
                     </div>
-                </div>
                 </div>
             </Modal>
         </div>

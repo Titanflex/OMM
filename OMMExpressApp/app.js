@@ -3,29 +3,33 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var bodyParser = require('body-parser')
 var zip = require('express-easy-zip');
 
 const mongoose = require('mongoose');
-
-mongoose.connect('mongodb://localhost/memes_db', { useNewUrlParser: true, useUnifiedTopology: true });
-
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
-    // we're connected!
-});
-
-
 
 var indexRouter = require('./routes/index');
 var authRouter = require('./routes/auth');
 var memeRouter = require('./routes/memeIO');
 
+//for docker
+//mongoose.connect('mongodb://mongo:27017/memes_db', { useNewUrlParser: true, useUnifiedTopology: true });
+
+mongoose.connect('mongodb://localhost/memes_db', { useNewUrlParser: true, useUnifiedTopology: true });
+
+
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function () {
+    // we're connected!
+});
+
+
+
+
 var app = express();
 
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     // Website you wish to allow to connect
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
 
@@ -55,17 +59,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname + "/public"))
 console.log(__dirname + "/public")
 
+/**
+ * Setup the correct routes
+ */
 app.use('/', indexRouter);
 app.use('/memeIO', memeRouter);
 app.use('/auth', authRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
