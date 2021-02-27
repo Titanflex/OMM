@@ -55,10 +55,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-/**
- * component for the different image/template selection options
- * gets params in MemeCreator component
- */
+
 const ImageSelection = params => {
     const classes = useStyles();
     const [modalStyle] = React.useState(getModalStyle);

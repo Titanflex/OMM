@@ -9,10 +9,8 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
-import {FacebookShareButton, TwitterShareButton, RedditShareButton, WhatsappShareButton} from "react-share";
-import {FacebookIcon, TwitterIcon, RedditIcon, WhatsappIcon} from "react-share";
-
-import AuthService from "../../services/auth.service";
+import {TwitterShareButton, RedditShareButton, WhatsappShareButton} from "react-share";
+import {TwitterIcon, RedditIcon, WhatsappIcon} from "react-share";
 
 import "./../../css/ImageSelection/imageSelection.css";
 import domtoimage from "dom-to-image";
@@ -27,12 +25,11 @@ import FilePondPluginImageResize from 'filepond-plugin-image-resize';
 
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
 import "./../../css/MemeCreator/Generator.css";
-import SpeechInputField from '../shared/SpeechInputField';
-
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 registerPlugin(FilePondPluginFileEncode, FilePondPluginImageResize, FilePondPluginImageTransform);
 
-
+//align modal in center of screen
 function getModalStyle() {
     const top = 50;
     const left = 50;
@@ -53,7 +50,10 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-
+/**
+ * component for generation of memes
+ * gets params in MemeCreator component
+ */
 const Generator = params => {
     const classes = useStyles();
     const [modalStyle] = useState(getModalStyle);
@@ -61,22 +61,22 @@ const Generator = params => {
     const [generatedMeme, setGeneratedMeme] = useState(null);
     const [generatedMemeUrl, setGeneratedMemeUrl] = useState(null);
     const [isPublic, setIsPublic] = useState(true);
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const [renAnchorEl, setRenAnchorEl] = React.useState(null);
-    const [selectedRenIndex, setSelectedRenIndex] = React.useState(1);
-    const [pubAnchorEl, setPubAnchorEl] = React.useState(null);
-    const [selectedPubIndex, setSelectedPubIndex] = React.useState(1);
-    const [sizeAnchorEl, setSizeAnchorEl] = React.useState(null);
-    const [selectedSizeIndex, setSelectedSizeIndex] = React.useState(1);
-    const memeTitleRef = useRef();
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [renAnchorEl, setRenAnchorEl] = useState(null);
+    const [selectedRenIndex, setSelectedRenIndex] = useState(1);
+    const [pubAnchorEl, setPubAnchorEl] = useState(null);
+    const [selectedPubIndex, setSelectedPubIndex] = useState(1);
+    const [sizeAnchorEl, setSizeAnchorEl] = useState(null);
+    const [selectedSizeIndex, setSelectedSizeIndex] = useState(1);
     const [texts, setTexts] = useState([""]);
     const [title, setTitle] = useState("");
     const [quality, setQuality] = useState(100);
-
     const [titleError, setTitleError] = useState({
         show: false,
         text: "",
     });
+    const [showPreview, setShowPreview] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
 
     //PublicMenu
@@ -85,20 +85,17 @@ const Generator = params => {
         'public',
         'unlisted',
     ];
-
-
     const handlePubClose = () => {
         setPubAnchorEl(null);
     };
-
     const handlePubItemClick = (event, index) => {
         setSelectedPubIndex(index);
         setPubAnchorEl(null);
     };
-
     const handlePubListItem = (event) => {
         setPubAnchorEl(event.currentTarget);
     };
+
 
     //RenderMenu
     const renOptions = [
@@ -106,62 +103,59 @@ const Generator = params => {
         'Server-side (slightly different result) ',
         'Third-party (only for image flip templates)',
     ];
-
     const handleRenClose = () => {
         setRenAnchorEl(null);
     };
-
     const handleRenItemClick = (event, index) => {
         setSelectedRenIndex(index);
         setRenAnchorEl(null);
     };
-
     const handleRenListItem = (event) => {
         setRenAnchorEl(event.currentTarget);
     };
 
-    //SizeMenu
+
+    //FileSizeMenu
     const sizeOptions = [
         'small (max. 200KB)',
         'large (max. 600KB)',
     ];
-
     const handleSizeClose = () => {
         setSizeAnchorEl(null);
     };
-
     const handleSizeItemClick = (event, index) => {
         setSelectedSizeIndex(index);
         setSizeAnchorEl(null);
     };
-
     const handleSizeListItem = (event) => {
         setSizeAnchorEl(event.currentTarget);
     };
 
-    //Popover
+
+    //Popover for sharing options
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
-
     const handlePopClose = () => {
         setAnchorEl(null);
     };
-
     const popOpen = Boolean(anchorEl);
     const id = popOpen ? 'share-popover' : undefined;
 
-    //Modal
+
+    //close and open modal
     const handleOpen = () => {
         setOpen(true);
     };
-
     const handleClose = () => {
         setOpen(false);
         setGeneratedMemeUrl(null);
         setGeneratedMeme(null);
+        setIsLoading(false);
     };
 
+
+    //Title
     const handleTitleInput = (event) => {
         setTitle(event.target.value);
         setTitleError({
@@ -169,14 +163,12 @@ const Generator = params => {
             text: "",
         });
     }
-
     const handleMissingTitle = () => {
         setTitleError({
             show: true,
             text: "Enter a meme title",
         });
     }
-
     const handleDuplicateTitle = () => {
         setTitleError({
             show: true,
@@ -185,10 +177,13 @@ const Generator = params => {
     }
 
 
-
-    //Local meme generation
+    /**
+     * component for the different image/template selection options
+     * gets params in MemeCreator component
+     */
     function createMemeLocally(quality = 1) {
-        let meme = document.getElementById("memeContainer");
+        let meme = document.getElementById("memeContainer"); //
+
         //improve quality of meme by scaling an d set quality depending on selected file size
         let options = {
             width: meme.clientWidth * 4,
@@ -200,7 +195,8 @@ const Generator = params => {
             quality: quality,
         }
 
-        domtoimage.toBlob(meme, options).then(function (jpeg) {
+        //Create Jpeg (base64) out of DOM element
+        domtoimage.toJpeg(meme, options).then(function (jpeg) {
             //check if size is within limits
             let stringLength = jpeg.length - 'data:image/jpeg;base64,'.length;
             let sizeInKb = (4 * Math.ceil((stringLength / 3)) * 0.5624896334383812) / 1000;
@@ -211,6 +207,8 @@ const Generator = params => {
                 let textArray = params.text.split(/\n/g);  //split text into lines
                 setTexts(textArray);
                 setGeneratedMeme(jpeg);
+                setShowPreview(true);
+                setIsLoading(false);
             }
 
         });
@@ -254,12 +252,21 @@ const Generator = params => {
         const json = await res.json();
         let response = await fetch(json.data.url);
         let data = await response.blob();
+        console.log(data);
+        console.log(data.size);
         //check if created meme is too large and adapt quality
-        if (selectedSizeIndex === 0 && data.size / 1000 > 200) {
-            setQuality((200 / (data.size / 1000)) * 100);
+
+        if (selectedSizeIndex === 0 && (2*data.size / 1000 > 100)) {
+            let quality = (100 / (data.size / 1000)) * 100;
+            console.log(quality);
+            setQuality((100 / (data.size / 1000)) * 100);
+            console.log(quality);
         }
         if (selectedSizeIndex === 1 && data.size / 1000 > 600) {
-            setQuality((200 / (data.size / 1000)) * 100);
+            let quality = (100 / (data.size / 1000)) * 100;
+            console.log(quality);
+            setQuality((600 / (data.size / 1000)) * 100);
+
         }
 
         //create base64 for download and upload
@@ -267,10 +274,10 @@ const Generator = params => {
         reader.readAsDataURL(data);
         reader.onloadend = function () {
             let base64data = reader.result;
-            console.log(base64data);
             setGeneratedMeme(base64data);
-            console.log(generatedMeme);
             setGeneratedMemeUrl(response);
+            setShowPreview(true);
+            setIsLoading(false);
         }
     }
 
@@ -315,14 +322,19 @@ const Generator = params => {
             return (res.json())
         }).then((data) => {
                 setGeneratedMemeUrl(data.url);
+                setShowPreview(true);
+                setIsLoading(false);
             }
         );
     }
 
 
     async function generateMeme() {
+        setShowPreview(false);
+        setIsLoading(true);
         if (!title) {
             handleMissingTitle();
+            setIsLoading(false);
             return;
         }
         let isDuplicate;
@@ -331,6 +343,7 @@ const Generator = params => {
                 json.docs.forEach(meme => {
                     if(meme.title === title && !isDuplicate) {
                         handleDuplicateTitle();
+                        setIsLoading(false);
                         isDuplicate = true;
                     }
                 });
@@ -504,9 +517,9 @@ const Generator = params => {
                         onClick={generateMeme}
                         color="secondary"
                     >
-                        Generate meme
+                        Generate Meme &nbsp; &nbsp;  {isLoading ? <CircularProgress size={20}/> : null }
                     </Button>
-                    {generatedMeme && quality && <FilePond
+                    {generatedMeme && quality && showPreview && <FilePond
                         files={[generatedMeme]}
                         allowImageResize={true}
                         allowFileEncode={true}
@@ -535,7 +548,7 @@ const Generator = params => {
                         }}
                         name="file"
                     />}
-                    {generatedMemeUrl && !generatedMeme && <img id={"preview"}
+                    {generatedMemeUrl && !generatedMeme && showPreview &&<img id={"preview"}
                                                                 src={generatedMemeUrl}/>}
                     <div>
                         <div>

@@ -395,6 +395,7 @@ function MemeCreator() {
     const [draftIndex, setDraftIndex] = useState(0);
 
     async function getDraft() {
+        console.log("getDraft");
         let res = await fetch("http://localhost:3030/memeIO/get-drafts", {
             method: "POST",
             mode: "cors",
@@ -408,14 +409,15 @@ function MemeCreator() {
 
     const accordion = React.useRef(null)
     useEffect(() => {
-
             if (drafts.length > 0) {
                 console.log(drafts);
                 setBold(drafts[draftIndex].bold);
                 setItalic(drafts[draftIndex].italic);
                 setColor(drafts[draftIndex].color);
                 setFontSize(drafts[draftIndex].fontSize);
-                if (drafts[draftIndex].isFreestyle && !isFreestyle) {
+                console.log(drafts[draftIndex].src)
+                setTemplates([{url: String(drafts[draftIndex].src), name: "draft"}]);
+                if ((drafts[draftIndex].isFreestyle && !isFreestyle) || isFreestyle && !drafts[draftIndex].isFreestyle) {
                     accordion.current.click();
                 }
                 setIsFreestyle(drafts[draftIndex].isFreestyle);
