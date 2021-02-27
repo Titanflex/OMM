@@ -42,35 +42,41 @@ const useStyles = makeStyles({
 });
 
 const NavBar = () => {
-
   const classes = useStyles();
-  const [currentRoute, setCurrentRoute] = useState('/');
+  const [currentRoute, setCurrentRoute] = useState("/");
 
+  /**
+   * navigates to the given path
+   * @param {string} path to the sub page
+   */
   const handleClick = (path) => {
-    setCurrentRoute(path)
+    setCurrentRoute(path);
     navigate(path);
   };
 
+  /**
+   * logs the user out
+   */
   const logout = () => {
     AuthService.logout();
     window.location.reload();
   };
 
-
   return (
     <AppBar position="static">
       <Toolbar>
-        <Typography variant="h6" onClick={(event) => handleClick("/")}>MemeGenerator</Typography>
+        <Typography variant="h6" onClick={(event) => handleClick("/")}>
+          MemeGenerator
+        </Typography>
 
         <List
           className={classes.navbarDisplayFlex}
           component="nav"
           aria-labelledby="main navigation"
-
         >
           {navLinks.map(({ title, path }) => (
             <ListItem
-              selected={('/' + window.location.pathname.split('/')[1]) === path}
+              selected={"/" + window.location.pathname.split("/")[1] === path}
               key={title}
               className={classes.linkText}
               button
@@ -81,14 +87,10 @@ const NavBar = () => {
           ))}
         </List>
         <div className="spacing"></div>
-        <Button
-          className={classes.button}
-          color="inherit"
-          onClick={logout}
-        >
+        <Button className={classes.button} color="inherit" onClick={logout}>
           Logout
         </Button>
-        <SpeechInput/> 
+        <SpeechInput />
       </Toolbar>
     </AppBar>
   );

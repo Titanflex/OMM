@@ -568,7 +568,7 @@ const Generator = params => {
                                 variant="contained"
                                 color="secondary"
                                 onClick={handleClick}
-                                disabled={!generatedMeme}
+                                disabled={!generatedMemeUrl}
                             >
                                 Share
                             </Button>

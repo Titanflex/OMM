@@ -1,19 +1,10 @@
 const config = require('config');
 const jwt = require('jsonwebtoken');
 
-// middleware that can be added to any request to authenticate the user
-// EXAMPLE:
-// memeIO.get('/get-memes', auth, (req, res) => {
-
-//   Meme.find({}, function(err, docs) {
-//         if (err)
-//             return res.status(500).send(err);
-
-//         res.json({ code: 200, docs })
-//     })
-
-// });
-
+/**
+ * middleware that can be added to any request to authenticate the user
+ * returns the id of the user in the body request
+ */
 function auth(req, res, next) {
     const token = req.header('x-auth-token');
 

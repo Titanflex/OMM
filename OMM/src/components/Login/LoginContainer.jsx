@@ -26,9 +26,10 @@ const LoginContainer = () => {
     setSignIn(!signIn);
   };
 
-
+  /**
+   * checks if there is a user loged in -> if yes -> redirect to landing page
+   */
   useEffect(() => {
-    //if there is a user already loged in, navigate back to home
     if (localStorage.user) {
       navigate("/");
     }
@@ -36,7 +37,8 @@ const LoginContainer = () => {
 
   return (
     <Grid container spacing={0}>
-      <Grid className={classes.leftSide} item s={1} >
+      {/* LEFT SIDE */}
+      <Grid className={classes.leftSide} item s={1}>
         {signIn ? (
           <LeftSideComponent
             handleClick={handleChangeSigning}
@@ -51,7 +53,8 @@ const LoginContainer = () => {
           />
         )}
       </Grid>
-      <Grid className={classes.gridItem} item s={1} >
+      {/* RIGHT SIDE LOGININ/REGISTRATION */}
+      <Grid className={classes.gridItem} item s={1}>
         {signIn ? <SignIn /> : <SignUp />}
       </Grid>
     </Grid>
