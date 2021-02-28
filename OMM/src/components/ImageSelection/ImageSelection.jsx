@@ -131,7 +131,10 @@ const ImageSelection = params => {
         setFiles([]);
     }
 
-
+    /**
+     * ingrements the use by one of the given template 
+     * @param {object} template 
+     */
     async function addUsedTemplate(template) {
         await fetch("http://localhost:3030/memeIO/add-used-template", {
             method: "POST",
@@ -147,6 +150,10 @@ const ImageSelection = params => {
         });
     }
 
+    /**
+     * likes the given the template template and saves it in the databse
+     * @param {object} template 
+     */
     async function setLike(template) {
         await fetch("http://localhost:3030/memeIO/like-template", {
             method: "POST",
@@ -162,6 +169,10 @@ const ImageSelection = params => {
         });
     }
 
+    /**
+     * removed like from given the template template and saves it in the databse
+     * @param {object} template 
+     */
     async function removeLike(template) {
         await fetch("http://localhost:3030/memeIO/remove-like-template", {
             method: "POST",
