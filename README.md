@@ -10,6 +10,11 @@
 
 ## Installation and SetUp Instructions
 
+### Prerequisites
+Docker
+Browser: Google Chrome (Version 88.0.4324.190)
+
+
 ### DataBase
 Old:
 - start mongod
@@ -61,4 +66,6 @@ The API Documentation for this application can be found here:
 https://documenter.getpostman.com/view/14051059/TW76E5FW
 
 ## Implemented Features
+
 See excel chart
+

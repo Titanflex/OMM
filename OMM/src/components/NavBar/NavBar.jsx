@@ -66,7 +66,7 @@ const NavBar = () => {
     <AppBar position="static">
       <Toolbar>
         <Typography variant="h6" onClick={(event) => handleClick("/")}>
-          MemeGenerator
+          Best Meme Generator
         </Typography>
 
         <List

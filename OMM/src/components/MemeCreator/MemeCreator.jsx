@@ -401,7 +401,6 @@ function MemeCreator() {
    */
     const handleMoreModuleOpen = () => {
         const datesArray = getDaysOfMonth();
-
         //likes
         if (templates[currentTemplateIndex].hasOwnProperty("likes")) {
             let likeList = templates[currentTemplateIndex].likes;

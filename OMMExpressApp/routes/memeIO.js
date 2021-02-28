@@ -702,4 +702,3 @@ memeIO.get('/get-memes-by', (req, res) => {
 });
 
 module.exports = memeIO;
-module.exports = memeIO;
