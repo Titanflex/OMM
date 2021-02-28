@@ -496,7 +496,7 @@ const handleMoreModuleOpen = () => {
   };
 
   /*
-  The tick loadMemes changes the image in the canvas every 3 seconds.
+  The tick loadMemes changes the image in the canvas every 4 seconds.
   */
   const tick = () => {
     let img = new Image();
@@ -508,6 +508,7 @@ const handleMoreModuleOpen = () => {
           vid.src = vidMemes[ind];
           vid.width="100";
           vid.height="100";
+          vid.play();
           vid.crossOrigin = "anonymous";
         } else {
           img.src = vidMemes[ind];
@@ -534,7 +535,6 @@ const handleMoreModuleOpen = () => {
             canvas.style.height = `${height}px`;
 
             if(vidMemes[ind].includes("webm")){
-              vid.play();
               vid.addEventListener('canplaythrough', function () {
                 context.drawImage(vid, 0, 0,canvas.width,
                   canvas.height);
@@ -555,7 +555,7 @@ const handleMoreModuleOpen = () => {
           requestAnimationFrame(tick);
         }
       }
-    }, 3000);
+    }, 4000);
   };
 
   /*
@@ -769,7 +769,7 @@ const handleMoreModuleOpen = () => {
             </div>
             <div>
 
-              <video ref={videoRef} crossOrigin="anonymous" id="vid" controls autoplay muted></video>
+              <video ref={videoRef} crossOrigin="anonymous" id="vid" controls autoPlay muted></video>
               {isVideoLoading && (
                 <p>Please wait while we load the video stream.</p>
 

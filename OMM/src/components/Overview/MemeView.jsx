@@ -274,7 +274,8 @@ const MemeView = props => {
 
 
                         <Box component="div" display="inline" className={classes.rateMemeButtons}>
-                            <Button
+                        {memeInfo.hasOwnProperty("url") ? (!memeInfo.url.includes("webm") ?
+                        <Button
                                 className="classes.buttonStyle selection"
                                 startIcon={<CloudDownload />}
                                 variant="contained"
@@ -285,6 +286,8 @@ const MemeView = props => {
                                 <i className="fa fa-download" />
                                 Download
                             </Button>
+: null) :null }
+                            
                             {(memeInfo.publicOpt == "public" || memeInfo.publicOpt == "unlisted") ?
                                 <Box component="div" display="inline" className={classes.rateMemeButtons}>
                                     <Button
