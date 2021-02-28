@@ -26,7 +26,8 @@ const useStyles = makeStyles((theme) => ({
 
 /**
  * component for selecting a draft to continue
- * gets params in MemeCreator component
+ * @param params, set MemeCreator component
+ * @returns {JSX.Element}
  */
 const DraftPreview = params => {
     const classes = useStyles();
