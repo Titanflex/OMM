@@ -4,39 +4,30 @@ import {
     TextField,
     Container,
     makeStyles,
+    Button,
+    Snackbar,
     Select,
     FormControl,
     InputLabel,
-    Button,
-    Snackbar,
-
 } from "@material-ui/core";
 
 import { ToggleButton, Alert } from "@material-ui/lab";
 
+import Moment from "moment";
+
 import {
     Tune,
-    ArrowDownward,
-    ArrowUpward,
+
+  ArrowDownward,
+  ArrowUpward,
 } from '@material-ui/icons';
 
-import Moment from 'moment';
 
 import "./../../css/Overview/scrolllist.css";
 
 
 import MemeView from "./MemeView";
 import Filter from "./Filter";
-
-function getModalStyle() {
-    const top = 50;
-    const left = 50;
-    return {
-        top: `${top}%`,
-        left: `${left}%`,
-        transform: `translate(-${top}%, -${left}%)`,
-    };
-}
 
 const useStyles = makeStyles((theme) => ({
     spacing: {
@@ -79,13 +70,12 @@ function MemeScrollList() {
     const [memes, setMemes] = useState([{ caption: Array(0), tags: Array(0), _id: "5fdf7a7a65f604350c20b629", upper: "Uploading the group task before deadline", lower: "Uni2work NOT working" }]);
     const [originalMemes, setOriginalMemes] = useState([{ caption: Array(0), tags: Array(0), _id: "5fdf7a7a65f604350c20b629", upper: "Uploading the group task before deadline", lower: "Uni2work NOT working" }]);
 
-    const [sortOpt, setSortOpt] = useState(null);
+    const [sortOpt, setSortOpt] = useState("none");
     const [sortDown, setSortDown] = useState(false);
 
     const [open, setOpen] = useState(false);
     const [openSnack, setOpenSnack] = useState(false);
 
-    const [modalStyle] = useState(getModalStyle);
     const classes = useStyles();
 
 
@@ -111,59 +101,77 @@ function MemeScrollList() {
     };
 
 
-    /*Sort*/
-      /*
+ // Sort
+  /*
    The method handleSortOptChange is called when the user changes the value.
    It then calls the method which sorts the memes based on the selected value.
    */
-    const handleSortOptChange = (event) => {
-        setSortOpt(event.target.value);
-        if (event.target.value === "votes") {
-            sortMemesByVote();
-        } else if (event.target.value === "creationDate") {
-            sortMemesByDate();
-        }
+  const handleSortOptChange = (event) => {
+    setSortOpt(event.target.value);
+    if (event.target.value === "votes") {
+      sortMemesByVote();
+    } else if (event.target.value === "creationDate") {
+      sortMemesByDate();
     }
+  };
 
-    /*
+  /*
     The method handleClickSortDirection is called when the user clicks the arrow button in order to change the direction of the sorted memes (e.g. many to few).
     It then calls the method which sorts the memes based on the value in the select menu.
     */
-    const handleClickSortDirection = () => {
-        setSortDown(!sortDown);
-        if (sortOpt === "votes") {
-            sortMemesByVote();
-        } else if (sortOpt === "creationDate") {
-            sortMemesByDate();
-        }
+  const handleClickSortDirection = () => {
+    setSortDown(!sortDown);
+    if (sortOpt === "votes") {
+      sortMemesByVote();
+    } else if (sortOpt === "creationDate") {
+      sortMemesByDate();
     }
-/*
+  };
+
+  /*
     The method sortMemesByVote is called when the user changes the Sort by value or the direction.
     It take the direction and by that arranges the memelist by that direction and vote.
     It sets the currentMemeIndex to the first meme of the new arranged list.
     */
-    const sortMemesByVote = () => {
-        if (!sortDown) {
-            memes.sort((memeA, memeB) => ((memeA.listlikes.length - memeA.dislikes.length ) - (memeB.listlikes.length - memeB.dislikes.length )));
-        } else {
-            memes.sort((memeA, memeB) => ((memeB.listlikes.length  - memeB.dislikes.length ) - (memeA.listlikes.length  - memeA.dislikes.length )));
-        }
-    }
+  const sortMemesByVote = () => {
 
-    /*
+    if (!sortDown) {
+     memes.sort(
+        (memeA, memeB) =>
+          memeA.listlikes.length -
+          memeA.dislikes.length -
+          (memeB.listlikes.length - memeB.dislikes.length)
+      );
+      
+    } else {
+      memes.sort(
+        (memeA, memeB) =>
+          memeB.listlikes.length -
+          memeB.dislikes.length -
+          (memeA.listlikes.length - memeA.dislikes.length)
+      );
+    }
+    
+   };
+
+  /*
     The method sortMemesByDate is called when the user changes the Sort by value or the direction.
     It take the direction and by that arranges the memelist by that direction and date.
     It sets the currentMemeIndex to the first meme of the new arranged list.
     */
-    const sortMemesByDate = () => {
-        if (!sortDown) {
-            memes.sort((memeA, memeB) => (Moment(memeA.creationDate) - Moment(memeB.creationDate)));
-        } else {
-            memes.sort((memeA, memeB) => (Moment(memeB.creationDate) - Moment(memeA.creationDate)));
-        }
+  const sortMemesByDate = () => {
+    if (!sortDown) {
+      memes.sort(
+        (memeA, memeB) =>
+          Moment(memeA.creationDate) - Moment(memeB.creationDate)
+      );
+    } else {
+      memes.sort(
+        (memeA, memeB) =>
+          Moment(memeB.creationDate) - Moment(memeA.creationDate)
+      );
     }
-
-
+  };
 
     /* Search*/
      /*
@@ -292,10 +300,10 @@ function MemeScrollList() {
             onChange={() => {
               handleClickSortDirection();
             }}
-          >
-            {" "}
-            {sortDown ? <ArrowUpward /> : <ArrowDownward />}
-          </ToggleButton>
+          > {" "}
+          {sortDown ? <ArrowUpward /> : <ArrowDownward />}
+        </ToggleButton>
+       
                 </Grid>
 
             </Grid>

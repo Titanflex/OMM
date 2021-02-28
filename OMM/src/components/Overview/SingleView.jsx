@@ -6,12 +6,10 @@ import {
   IconButton,
   Typography,
   TextField,
-  Box,
   makeStyles,
   Select,
   FormControl,
   InputLabel,
-  Modal,
   Snackbar,
 } from "@material-ui/core";
 
@@ -23,34 +21,22 @@ import {
   PlayArrow,
   Pause,
   Shuffle,
-  Close,
   Tune,
-  ArrowDownward,
-  ArrowUpward,
   ChevronLeft,
   ChevronRight,
+  ArrowDownward,
+  ArrowUpward,
 } from "@material-ui/icons";
-
-//chart library to visualize data
-import { Chart } from "react-google-charts";
 
 import Moment from "moment";
 
 import AuthService from "../../services/auth.service";
 import Filter from "./Filter";
+import InfoModal from "./InfoModal";
 import MemeView from "./MemeView";
+import Comments from "./Comments";
 import "./../../css/Overview/singleView.css";
 
-//create Styles
-function getModalStyle() {
-  const top = 50;
-  const left = 50;
-  return {
-    top: `${top}%`,
-    left: `${left}%`,
-    transform: `translate(-${top}%, -${left}%)`,
-  };
-}
 
 const useStyles = makeStyles((theme) => ({
   spacing: {
@@ -145,16 +131,13 @@ const SingleView = () => {
     },
   ]);
 
-  const [sortOpt, setSortOpt] = useState(null);
+  const [sortOpt, setSortOpt] = useState("none");
   const [sortDown, setSortDown] = useState(false);
-
-
 
   const [open, setOpen] = useState(false);
   const [openSnack, setOpenSnack] = useState(false);
 
   const [moreModuleOpen, setMoreModuleOpen] = useState(false);
-  const [modalStyle] = useState(getModalStyle);
 
   const [isVideoLoading, setIsVideoLoading] = useState(true);
 
@@ -162,7 +145,6 @@ const SingleView = () => {
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  let canvasRecorder = null;
 
   const requestRef = React.useRef();
   let ind = 0;
@@ -192,73 +174,73 @@ const SingleView = () => {
     setOpen(false);
   };
 
-  /*
-  getDaysOffMonths returns a list of dates from the actual to 2 months back.
-  */
-  const getDaysOfMonth = () => {
-    const today = new Date(Date.now());
-    let dateThreeMonths = new Date(today);
-    dateThreeMonths.setMonth(dateThreeMonths.getMonth() - 2);
-    let dateArray = [];
-    let currentDate = dateThreeMonths;
-    while (currentDate <= today) {
-      dateArray.push(new Date(currentDate));
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-    return dateArray;
-  }
 
-  /* 
-    Modal
-    handels opening and closing of the filter Modal.
-    When opend it sets the filtered Memelist to the originalMemes from the database.
-    */
-  const handleMoreModuleOpen = () => {
-    getUpdatedMemes();
-    const datesArray = getDaysOfMonth();
-    let likeList = memes[currentMemeIndex].listlikes;
-    let dislikeList = memes[currentMemeIndex].dislikes;
-    console.log(dislikeList);
-
-    datesArray.forEach(date => {
-      const dateDate = new Date(date);
-      let likeCount = 0;
-      let dislikeCount = 0;
-
-      likeList.forEach(like => {
-        const likeDate = new Date(like.date);
-        likeCount = (likeDate.setHours(0, 0, 0, 0) === dateDate.setHours(0, 0, 0, 0)) ? likeCount + 1 : likeCount;
-      })
-
-      dislikeList.forEach(dislike => {
-        const dislikeDate = new Date(dislike.date);
-        dislikeCount = (dislikeDate.setHours(0, 0, 0, 0) === dateDate.setHours(0, 0, 0, 0)) ? dislikeCount + 1 : dislikeCount;
-      })
-      likeDf.push({ "date": dateDate, "likeCount": likeCount, "dislikeCount": dislikeCount });
-    })
-
-    const columns = [
-      { type: 'date', label: 'date' },
-      { type: 'number', label: 'likeCount' },
-      { type: 'number', label: 'dislikeCount' },
-    ]
-    let rows = []
-    const nonNullData = likeDf.filter(row => row.likeCount !== null)
-    for (let row of nonNullData) {
-      const { date, likeCount, dislikeCount } = row
-      rows.push([new Date(Date.parse(date)), likeCount, dislikeCount])
-    }
-    console.log(rows);
-    setDataLoading(true);
-    setChartData([columns, ...rows]);
-
-    setMoreModuleOpen(true);
-  };
 
   const handleMoreModuleClose = () => {
     setMoreModuleOpen(false);
   };
+   /*
+  getDaysOffMonths returns a list of dates from the actual to 2 months back.
+  */
+ const getDaysOfMonth = () => {
+  const today = new Date(Date.now());
+  let dateThreeMonths = new Date(today);
+  dateThreeMonths.setMonth(dateThreeMonths.getMonth() - 2);
+  let dateArray = [];
+  let currentDate = dateThreeMonths;
+  while (currentDate <= today) {
+    dateArray.push(new Date(currentDate));
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+  return dateArray;
+}
 
+
+/* 
+  Modal
+  handels opening and closing of the filter Modal.
+  When opend it sets the filtered Memelist to the originalMemes from the database.
+  */
+const handleMoreModuleOpen = () => {
+  getUpdatedMemes();
+  const datesArray = getDaysOfMonth();
+  let likeList = memes[currentMemeIndex].listlikes;
+  let dislikeList = memes[currentMemeIndex].dislikes;
+  console.log(dislikeList);
+
+  datesArray.forEach(date => {
+    const dateDate = new Date(date);
+    let likeCount = 0;
+    let dislikeCount = 0;
+
+    likeList.forEach(like => {
+      const likeDate = new Date(like.date);
+      likeCount = (likeDate.setHours(0, 0, 0, 0) === dateDate.setHours(0, 0, 0, 0)) ? likeCount + 1 : likeCount;
+    })
+
+    dislikeList.forEach(dislike => {
+      const dislikeDate = new Date(dislike.date);
+      dislikeCount = (dislikeDate.setHours(0, 0, 0, 0) === dateDate.setHours(0, 0, 0, 0)) ? dislikeCount + 1 : dislikeCount;
+    })
+    likeDf.push({ "date": dateDate, "likeCount": likeCount, "dislikeCount": dislikeCount });
+  })
+
+  const columns = [
+    { type: 'date', label: 'date' },
+    { type: 'number', label: 'likeCount' },
+    { type: 'number', label: 'dislikeCount' },
+  ]
+  let rows = []
+  const nonNullData = likeDf.filter(row => row.likeCount !== null)
+  for (let row of nonNullData) {
+    const { date, likeCount, dislikeCount } = row
+    rows.push([new Date(Date.parse(date)), likeCount, dislikeCount])
+  }
+  console.log(rows);
+  setDataLoading(true);
+  setChartData([columns, ...rows]);
+  setMoreModuleOpen(true);
+};
 
   /*
     SnackBar
@@ -272,7 +254,8 @@ const SingleView = () => {
     setOpenSnack(false);
   };
 
-  // Sort
+ 
+ // Sort
   /*
    The method handleSortOptChange is called when the user changes the value.
    It then calls the method which sorts the memes based on the selected value.
@@ -305,13 +288,15 @@ const SingleView = () => {
     It sets the currentMemeIndex to the first meme of the new arranged list.
     */
   const sortMemesByVote = () => {
+
     if (!sortDown) {
-      memes.sort(
+     memes.sort(
         (memeA, memeB) =>
           memeA.listlikes.length -
           memeA.dislikes.length -
           (memeB.listlikes.length - memeB.dislikes.length)
       );
+      
     } else {
       memes.sort(
         (memeA, memeB) =>
@@ -321,7 +306,7 @@ const SingleView = () => {
       );
     }
     setCurrentMemeIndex(0);
-  };
+   };
 
   /*
     The method sortMemesByDate is called when the user changes the Sort by value or the direction.
@@ -449,32 +434,8 @@ const SingleView = () => {
     });
   }
 
-  /*
-    The method handleDeleteCommentClick calls removeComment when the user clicks x button on his/her comment.
-    */
-  const handleDeleteCommentClick = (comment) => {
-    console.log("delete comment");
-    removeComment(comment);
-    getUpdatedMemes();
-  };
 
-  /*
-   The method removeComment pulls the comment by the user from the server.
-   */
-  async function removeComment(comment) {
-    const currentMemeId = memes[currentMemeIndex]._id;
-    await fetch("http://localhost:3030/memeIO/remove-comment", {
-      method: "POST",
-      mode: "cors",
-      headers: AuthService.getTokenHeader(),
-      body: JSON.stringify({
-        id: currentMemeId,
-        commenttext: comment.commenttext,
-      }),
-    }).then((response) => {
-      console.log(response);
-    });
-  }
+
 
   /*
    The method loadMemes gets all public memes from the server.
@@ -535,16 +496,24 @@ const SingleView = () => {
   };
 
   /*
-  The tick loadMemes changes the image in the canvas every 2 seconds.
+  The tick loadMemes changes the image in the canvas every 3 seconds.
   */
   const tick = () => {
     let img = new Image();
+    let vid = document.createElement('video');
 
     const checkVideoState = setInterval(() => {
       if (vidMemes) {
-        img.src = vidMemes[ind];
-        img.crossOrigin = "anonymous";
-        if (img.src) {
+        if(vidMemes[ind].includes("webm")){
+          vid.src = vidMemes[ind];
+          vid.width="100";
+          vid.height="100";
+          vid.crossOrigin = "anonymous";
+        } else {
+          img.src = vidMemes[ind];
+          img.crossOrigin = "anonymous";
+        }
+        if (img.src|| vid.src) {
           clearInterval(checkVideoState);
           const canvas = canvasRef.current;
           if (canvas) {
@@ -564,20 +533,25 @@ const SingleView = () => {
             canvas.style.width = `${width}px`;
             canvas.style.height = `${height}px`;
 
-            context.drawImage(
-              img,
-              0,
-              0,
-              canvas.width,
-              canvas.height
-            );
+            if(vidMemes[ind].includes("webm")){
+              vid.play();
+              vid.addEventListener('canplaythrough', function () {
+                context.drawImage(vid, 0, 0,canvas.width,
+                  canvas.height);
+            });
+            }else {
+              context.drawImage(
+                img,
+                0,
+                0,
+                canvas.width,
+                canvas.height
+              );
+            }
           }
-
           if (vidMemes.length > 1) {
-
             ind = (ind === vidMemes.length - 1) ? 0 : ind + 1;
           }
-
           requestAnimationFrame(tick);
         }
       }
@@ -589,7 +563,6 @@ const SingleView = () => {
       It loads the memes of the server and starts the animation video.
       */
   useEffect(() => {
-
     loadMemes();
   }, []);
 
@@ -598,16 +571,11 @@ const SingleView = () => {
   const startRecording = useCallback(() => {
     if (canvasRef !== null) {
       const canv = document.querySelector('canvas');
-
-
-
-      const vid = document.querySelector('video');
+      const vid = document.getElementById("vid");
       const stream = canv.captureStream();
       vid.srcObject = stream;
     }
   })
-
-
 
   /*
    The method useInterval checks if autoplay is selected.
@@ -631,69 +599,13 @@ const SingleView = () => {
   //Meme Component
   const SingleMeme = () => {
     return (
-      (memes[currentMemeIndex].publicOpt == "public") ?
+      (memes[currentMemeIndex].publicOpt === "public") ?
         <MemeView
           memeInfo={memes[currentMemeIndex]}
           isAccessible={isAccessible}
           getUpdatedMemes={getUpdatedMemes}
         />
         : null
-    );
-  };
-
-  //Comments Component
-  const ListComments = ({ currentMeme }) => {
-    return (
-      <Grid container spacing={1}>
-        {currentMeme.hasOwnProperty("comments")
-          ? currentMeme.comments.map((comment) => (
-            <div
-              className={classes.spacing}
-              key={comment._id}
-              style={{ width: "90%" }}
-            >
-              <Box
-                border={1}
-                className={classes.commentBox}
-                borderRadius="borderRadius"
-              >
-                <Grid container spacing={2}>
-                  <Grid item xs={9}>
-                    <Typography variant="body2">
-                      Comment from{" "}
-                      {comment.hasOwnProperty("user")
-                        ? comment.user
-                        : "Anonymous"}{" "}
-                        on the{" "}
-                      {comment.hasOwnProperty("date")
-                        ? Moment(comment.date).format("MMM Do YY")
-                        : "No date"}
-                        :
-                      </Typography>
-                    <Typography variant="body1" className={classes.spacing}>
-                      {comment.hasOwnProperty("commenttext")
-                        ? comment.commenttext
-                        : "No text"}
-                    </Typography>
-                  </Grid>
-
-                  {comment.user === localStorage.user ? (
-                    <Grid item xs container justify="flex-end">
-                      <IconButton
-                        onClick={() => handleDeleteCommentClick(comment)}
-                        variant="contained"
-                        edge="end"
-                      >
-                        <Close />
-                      </IconButton>
-                    </Grid>
-                  ) : null}
-                </Grid>
-              </Box>
-            </div>
-          ))
-          : null}
-      </Grid>
     );
   };
 
@@ -811,7 +723,7 @@ const SingleView = () => {
         </Grid>
       </Grid>
 
-      <Grid container className={classes.spacing} spacing={3}>
+      <Grid container className={classes.spacing} spacing={2}>
         <Grid item xs={1}>
           <IconButton
             className="arrows"
@@ -821,15 +733,18 @@ const SingleView = () => {
             <ChevronLeft fontSize="large" />
           </IconButton>
         </Grid>
-        <Grid item xs={8}>
+
+        <Grid item xs={7}>
           <SingleMeme listmemes={memes} />
         </Grid>
+
         <Grid item xs={1}>
           <IconButton className="arrows" onClick={nextMeme} aria-label="next">
             <ChevronRight fontSize="large" />
           </IconButton>
         </Grid>
-        <Grid item xs >
+
+        <Grid item xs={3}>
 
           <Button
             className="classes.buttonStyle selection"
@@ -839,66 +754,29 @@ const SingleView = () => {
           >
             More infos
           </Button>
-          <Modal
-            open={moreModuleOpen}
-            onClose={handleMoreModuleClose}
-            aria-labelledby="simple-modal-title"
-            aria-describedby="simple-modal-description"
-          >
-            <div style={modalStyle} className={classes.paper}>
-              <Typography variant="h5">Graph</Typography>
-              <Grid>
-                <Chart
-                  width={"500px"}
-                  height={"300px"}
-                  chartType="PieChart"
-                  loader={<div>Loading Chart</div>}
-                  data={[
-                    ["Likes and Dislikes", "Number"],
-                    [
-                      "Likes",
-                      memes[currentMemeIndex].hasOwnProperty("listlikes")
-                        ? memes[currentMemeIndex].listlikes.length
-                        : 0,
-                    ],
-                    [
-                      "Dislikes",
-                      memes[currentMemeIndex].hasOwnProperty("dislikes")
-                        ? memes[currentMemeIndex].dislikes.length
-                        : 0,
-                    ],
-                  ]}
-                  options={{
-                    title: "Distribution of likes",
-                  }}
-                  rootProps={{ "data-testid": "1" }}
-                />
-
-                {dataLoading ? (
-                  <Chart
-                    chartType="LineChart"
-                    data={chartData}
-                    options={{
-                      hAxis: {
-                        format: 'd MMM',
-                      },
-                      vAxis: {
-                        format: 'short',
-                      },
-                      title: 'Likes and dislikes over time.',
-                    }}
-                    rootProps={{ 'data-testid': '3' }}
-                  />
-                ) : (
-                    <div>Fetching data from API</div>
-                  )}
-
-              </Grid>
+         <InfoModal
+         
+         open={moreModuleOpen}
+         onInfosClose={handleMoreModuleClose}
+         memes={memes}
+         chartData={chartData}
+         dataLoading={dataLoading}
+         currentMemeIndex={currentMemeIndex}
+         />
+       
+            <div>
+              <Button onClick={() => startRecording()} >Stream Video</Button>
             </div>
-          </Modal>
+            <div>
 
+              <video ref={videoRef} crossOrigin="anonymous" id="vid" controls autoplay muted></video>
+              {isVideoLoading && (
+                <p>Please wait while we load the video stream.</p>
 
-        </Grid>
+              )}
+              <canvas ref={canvasRef} crossOrigin="anonymous" style={{ display: "none", width: '150px', height: '150px' }} />
+            </div>
+            </Grid>
       </Grid>
 
       <Grid container className={classes.spacing} spacing={3}>
@@ -933,33 +811,15 @@ const SingleView = () => {
               </Button>
             </Grid>
           </Grid>
-          <ListComments
+          <Comments
             className={classes.spacing}
             currentMeme={memes[currentMemeIndex]}
+           getUpdatedMemes={getUpdatedMemes}
           />
         </Grid>
         <Grid item xs={1}></Grid>
       </Grid>
-      <Grid container spacing={3}>
-        <Grid item xs={1}></Grid>
-        <Grid container item xs={8}>
-
-          <Grid item xs>
-            <div>
-              <Button onClick={() => startRecording()} >Stream Video</Button>
-            </div>
-            <div>
-
-              <video ref={videoRef} crossOrigin="anonymous" id="vid" controls autoplay muted></video>
-              {isVideoLoading && (
-                <p>Please wait while we load the video stream.</p>
-
-              )}
-              <canvas ref={canvasRef} crossOrigin="anonymous" style={{ display: "none", width: '200px', height: '200px' }} />
-            </div>
-          </Grid>
-        </Grid>
-      </Grid>
+      
     </Container>
   );
 };

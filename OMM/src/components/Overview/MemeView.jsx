@@ -24,7 +24,11 @@ import Moment from 'moment';
 import "./../../css/Overview/memeView.css";
 
 const useStyles = makeStyles((theme) => ({
-    rateMemeButtons: {
+    video: {
+        marginRight: theme.spacing(5),
+    },
+    image: {
+        marginLeft: theme.spacing(10),
     },
 }));
 
@@ -177,13 +181,12 @@ const MemeView = props => {
         });
     }
 
+    //navigate to singleView of that meme
     const handleClickPic = () => {
         if (memeInfo.publicOpt == "public") {
             window.open(`/singleview/${memeInfo._id}`, "_self");
 
         }
-
-
     }
 
     const synth = window.speechSynthesis;
@@ -221,10 +224,12 @@ const MemeView = props => {
                     <div className="imageDiv">
                         {memeInfo.hasOwnProperty("url") ? (memeInfo.url.includes("webm") ?
 
-                            <video width="320" height="240" controls autoplay loop src={memeInfo.url} >
+                            <video width="360" height="250" controls autoPlay loop src={memeInfo.url}  
+                            className={classes.video} onClick={handleClickPic} >
                             </video>
                             :
                             <img
+                            className={classes.image}
                                 id={"imageid"}
                                 src={memeInfo.url}
                                 alt={"meme image"}

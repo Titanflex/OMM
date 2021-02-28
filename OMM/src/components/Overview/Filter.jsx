@@ -56,6 +56,13 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2, 4, 3),
   },
 
+  numberField: {
+    width: `${15}%`,
+    marginTop: theme.spacing(1),
+    marginRight: theme.spacing(2),
+  },
+ 
+
 }));
 
 const Filter = props => {
@@ -193,10 +200,9 @@ const Filter = props => {
       console.log("No number to filter by.");
       return;
     }
-    console.log(memes);
     if (voteEquals === "equals") {
       filteredList = memes.filter(
-        (meme) => meme.listlikes.length - meme.dislikes.length == voteNumber
+        (meme) => meme.listlikes.length - meme.dislikes.length === voteNumber
       );
     } else if (voteEquals === "greater") {
       filteredList = memes.filter(
@@ -222,9 +228,6 @@ const Filter = props => {
   const handleModuleClose = () => {
     props.handleFilterClose();
   };
-
-
-
 
   return (
     <Modal
