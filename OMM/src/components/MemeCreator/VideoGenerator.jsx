@@ -214,11 +214,31 @@ function VideoGenerator() {
     }
 
     /**
-     * Toggles the download button
+     * Toggles the download button and starts download
      */
     function toggleDownload() {
         if (canvasRecorder === null) {
             download ? setDownload(false) : setDownload(true);
+            if (file !== null) {
+                let datafile = file
+                console.log(datafile)
+                const recUrl = window.URL.createObjectURL(
+                    datafile,
+                );
+                const link = document.createElement('a');
+                link.href = recUrl;
+                link.setAttribute(
+                    'download',
+                    memeName + `.webm`,
+                );
+                document.body.appendChild(link);
+
+                // Start download
+                link.click();
+
+                // Clean up and remove the link
+                link.parentNode.removeChild(link);
+            }
         } else
             alert("This option is not available during recordings")
 
@@ -278,7 +298,7 @@ function VideoGenerator() {
         }
         if (canvasRef !== null) {
             let canvas = canvasRef.getCanvas()._canvas;
-            canvasRecorder = createCanvasRecorder(canvas, { filename: memeName, download: download });
+            canvasRecorder = createCanvasRecorder(canvas, { filename: memeName, download: download, recorderOptions: { mimeType: "video/webm" } });
             canvasRecorder.start();
         }
     })
@@ -553,13 +573,13 @@ function VideoGenerator() {
                         value={memeName}
                         onChange={(event) => setMemeName(event.target.value)}
                     />
-                        <Button onClick={() => upload()} >Upload</Button>
+                        <Button onClick={() => upload()} >Upload to our server</Button>
                     </div>
 
                     <div>
                         <Button onClick={() => startRecording()} >Start recording</Button>
                         <Button onClick={() => stopRecording()} >Stop recording</Button>
-                        <ToggleButton selected={download} onChange={() => toggleDownload()}>Download after rec</ToggleButton>
+                        <ToggleButton selected={download} onChange={() => toggleDownload()}>Download</ToggleButton>
 
 
                     </div>

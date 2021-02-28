@@ -11,11 +11,7 @@ import {
     makeStyles,
     IconButton,
     FormControlLabel,
-    Modal,
 } from "@material-ui/core";
-
-
-import { Chart } from "react-google-charts";
 
 import ArrowRight from "@material-ui/icons/ChevronRight";
 import ArrowLeft from "@material-ui/icons/ChevronLeft";
@@ -41,17 +37,7 @@ import AuthService from "../../services/auth.service";
 import DraftPreview from "./DraftPreview";
 
 import domtoimage from "dom-to-image";
-
-//align modal in center of screen
-function getModalStyle() {
-    const top = 10;
-    const left = 10;
-    return {
-        "margin-top": `${top}%`,
-        "margin-left": `${left}%`,
-        width: `${70}%`,
-    };
-}
+import StatisticsChart from "./StatisticsChart";
 
 /**
  * component allows to create new static memes
@@ -84,15 +70,7 @@ function MemeCreator() {
 
     const [draftIndex, setDraftIndex] = useState(0);
 
-    let likeDf = [];
-    const [chartData, setChartData] = useState(null);
-    const [dataLoading, setDataLoading] = useState(true);
-    let usedDf = [];
-    const [chartUsedData, setChartUsedData] = useState(null);
-    const [dataUsedLoading, setDataUsedLoading] = useState(true);
-    const [moreModuleOpen, setMoreModuleOpen] = useState(false);
 
-    const [modalStyle] = useState(getModalStyle);
 
     const [displayColorPicker, setDisplayColorPicker] = useState(false);
     const fontSizes = [
@@ -144,13 +122,6 @@ function MemeCreator() {
             "max-width": maxWidth + "px",
             "max-height": maxHeight + "px",
             "overflow": "hidden",
-        },
-        paper: {
-            position: "absolute",
-            width: `${50}%`,
-            backgroundColor: theme.palette.background.paper,
-            boxShadow: theme.shadows[5],
-            padding: theme.spacing(2, 4, 3),
         },
         memeCanvas: {
             "width": isFreestyle ? canvasWidth + "px" : "350px",
@@ -287,7 +258,7 @@ function MemeCreator() {
                     <img
                         className={classes.memeImg}
                         src={selectedImage.url}
-                        alt={"meme image"}
+
                         style={{ position: "absolute", left: x, top: y }}
                     />
                 );
@@ -365,7 +336,7 @@ function MemeCreator() {
                 setCanvasWidth(drafts[draftIndex].canvasWidth);
                 setImages([]);
                 drafts[draftIndex].imageProperties.forEach((imageProperty) => {
-                    const img = <img className={classes.memeImg} src={imageProperty[2]} alt={"meme image"}
+                    const img = <img className={classes.memeImg} src={imageProperty[2]}
                                      style={{
                                          position: "absolute",
                                          left: imageProperty[0],
@@ -376,97 +347,8 @@ function MemeCreator() {
             }
             ;
         },
-
         [draftIndex],
     );
-
-
-
-    const getDaysOfMonth = () => {
-        const today = new Date(Date.now());
-        let dateThreeMonths = new Date(today);
-        dateThreeMonths.setMonth(dateThreeMonths.getMonth() - 2);
-        let dateArray = [];
-        let currentDate = dateThreeMonths;
-        while (currentDate <= today) {
-            dateArray.push(new Date(currentDate));
-            currentDate.setDate(currentDate.getDate() + 1);
-        }
-        return dateArray;
-    }
-
-    /* 
-   Modal
-   handles opening and closing of the Chart Modal.
-   */
-    const handleMoreModuleOpen = () => {
-        const datesArray = getDaysOfMonth();
-
-        //likes
-        let likeList = templates[currentTemplateIndex].likes;
-
-        datesArray.forEach(date => {
-            const dateDate = new Date(date);
-            let likeCount = 0;
-
-            likeList.forEach(like => {
-                const likeDate = new Date(like.date);
-                likeCount = (likeDate.setHours(0, 0, 0, 0) === dateDate.setHours(0, 0, 0, 0)) ? likeCount + 1 : likeCount;
-            })
-
-            likeDf.push({ "date": dateDate, "likeCount": likeCount });
-        })
-
-        const columns = [
-            { type: 'date', label: 'date' },
-            { type: 'number', label: 'likeCount' },
-        ]
-        let rows = []
-        const nonNullData = likeDf.filter(row => row.likeCount !== null)
-        for (let row of nonNullData) {
-            const { date, likeCount } = row
-            rows.push([new Date(Date.parse(date)), likeCount])
-        }
-
-        setChartData([columns, ...rows]);
-
-        //used
-        console.log(templates[currentTemplateIndex]);
-        let usedList = templates[currentTemplateIndex].used;
-
-        datesArray.forEach(date => {
-            const dateDate = new Date(date);
-            let usedCount = 0;
-
-            usedList.forEach(used => {
-                const usedDate = new Date(used.date);
-                usedCount = (usedDate.setHours(0, 0, 0, 0) === dateDate.setHours(0, 0, 0, 0)) ? usedCount + 1 : usedCount;
-            })
-
-            usedDf.push({ "date": dateDate, "usedCount": usedCount });
-        })
-        const usedcolumns = [
-            { type: 'date', label: 'date' },
-            { type: 'number', label: 'usedCount' },
-        ]
-        let usedrows = []
-        const usednonNullData = usedDf.filter(row => row.usedCount !== null)
-        for (let row of usednonNullData) {
-            const { date, usedCount } = row
-            usedrows.push([new Date(Date.parse(date)), usedCount])
-        }
-        console.log(usedrows);
-        setDataLoading(true);
-        setChartUsedData([usedcolumns, ...usedrows]);
-
-        setMoreModuleOpen(true);
-    };
-
-    const handleMoreModuleClose = () => {
-        setMoreModuleOpen(false);
-    };
-
-
 
 
     return (
@@ -474,7 +356,7 @@ function MemeCreator() {
             <Typography className={classes.heading} variant="h4">
                 Hello {localStorage.user}!
             </Typography>
-            <Grid container alignItems="start" spacing={3}>
+            <Grid container alignItems="flex-start" spacing={3}>
                 <Grid item s={1}>
                     <IconButton
                         className="arrows"
@@ -549,7 +431,6 @@ function MemeCreator() {
                     <div className={classes.canvas}>
                         <div className="memeContainer" id={"memeContainer"}>
                             <div
-                                id="memeDiv"
                                 className={classes.memeCanvas}
                                 id={"memeCanvas"}
                             >
@@ -557,7 +438,6 @@ function MemeCreator() {
                                     <img
                                         className={classes.memeImg}
                                         src={templates[currentTemplateIndex].url}
-                                        alt={"meme image"}
                                     />
                                 )}
                                 {isFreestyle && (
@@ -578,64 +458,7 @@ function MemeCreator() {
                             </div>
                         </div>
                     </div>
-                    <Button
-                        className="classes.buttonStyle selection"
-                        onClick={handleMoreModuleOpen}
-                        variant="contained"
-                        color="secondary"
-                    >
-                        More template infos
-          </Button>
-                    <Modal
-                        open={moreModuleOpen}
-                        onClose={handleMoreModuleClose}
-                        aria-labelledby="simple-modal-title"
-                        aria-describedby="simple-modal-description"
-                    >
-                        <div style={modalStyle} className={classes.paper}>
-                            <Typography variant="h5">Graph</Typography>
-                            <Grid>
-
-                                {dataLoading ? (
-                                    <div>
-
-                                        <Chart
-                                            chartType="LineChart"
-                                            data={chartData}
-                                            options={{
-                                                hAxis: {
-                                                    format: 'd MMM',
-                                                },
-                                                vAxis: {
-                                                    format: 'short',
-                                                },
-                                                title: 'Likes over time.',
-                                            }}
-                                            rootProps={{ 'data-testid': '2' }}
-                                        />
-                                        <Chart
-                                            chartType="LineChart"
-                                            data={chartUsedData}
-                                            options={{
-                                                hAxis: {
-                                                    format: 'd MMM',
-                                                },
-                                                vAxis: {
-                                                    format: 'short',
-                                                },
-                                                title: 'Used over time.',
-                                            }}
-                                            rootProps={{ 'data-testid': '2' }}
-                                        />
-                                    </div>
-                                ) : (
-                                        <div>Fetching data from API</div>
-                                    )}
-                            </Grid>
-                        </div>
-
-                    </Modal>
-
+                    <StatisticsChart template={templates[currentTemplateIndex]}/>
                 </Grid>
                 <Grid item s={1}>
                     <IconButton
@@ -655,7 +478,6 @@ function MemeCreator() {
                         setTemplates={setTemplates}
                         setSelectedImage={setSelectedImage}
                         setCurrentTemplateIndex={setCurrentTemplateIndex}
-                        isFreestyle={isFreestyle}
                     />
                     <SpeechInput setCaption={setUpper} />
                     <Accordion>
@@ -702,6 +524,7 @@ function MemeCreator() {
                                 title="Click on canvas to place your selected template"
                                 arrow
                             >
+                                <span>
                                 <Button
                                     className="classes.buttonStyle selection"
                                     variant="contained"
@@ -710,7 +533,7 @@ function MemeCreator() {
                                     disabled={selectedImage === null}
                                 >
                                     Place Template
-                                </Button>
+                                </Button></span>
                             </Tooltip>
 
                             <Button

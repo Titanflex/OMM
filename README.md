@@ -10,6 +10,11 @@
 
 ## Installation and SetUp Instructions
 
+### Prerequisites
+Docker
+Browser: Google Chrome (Version 88.0.4324.190)
+
+
 ### DataBase
 Old:
 - start mongod
@@ -21,7 +26,7 @@ Old:
 
 
 
-New:
+Now:
 - No need to start db manually, it gets automatically generated and populated with the start of OMMExpressApp
 
 You will need `node` and `npm` installed globally on your machine. 
@@ -61,14 +66,6 @@ The API Documentation for this application can be found here:
 https://documenter.getpostman.com/view/14051059/TW76E5FW
 
 ## Implemented Features
-| Feature  | Status |Points|
-| -------------- | -------------------- |-----|
-|Provide images stored locally on the server AND uploaded by the user|in progress|1|
-|Provide images downloaded from ImgFlip API|done|1|
-|Display available images/options to the user (slide show)|done|1|
-||||
-|Show the current state of the meme to th user|done|1|
-|Provide two text inputs for top and bottom and corresponding coordinate fields to adjust the position. Additionally one textbox for an image title|in progress|1|
-|Next / Previous button to cycle through templates (keep other settings, e.g. already entered text)|done|1|
-||||
-| |  sum |6 |
+
+See excel chart
+

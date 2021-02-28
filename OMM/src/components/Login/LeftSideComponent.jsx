@@ -17,7 +17,7 @@ const LeftSideComponent = (props) => {
   return (
     <div className="container">
       <Typography className={classes.spacing} variant="h3">
-        Welcome to MemeCreator!
+        Welcome to the Best Meme Generator!
       </Typography>
       <Typography className={classes.spacing} variant="subtitle1">
         {props.subtitle}
