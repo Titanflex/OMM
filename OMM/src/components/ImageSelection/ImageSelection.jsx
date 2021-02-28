@@ -101,16 +101,16 @@ const ImageSelection = params => {
     }
 
     /**
-     * 
-     * @param {*} image 
+     * changes the shown template in the generator to the given tempalte template
+     * @param {object} template 
      */
-    function changeShownTemplate(image) {
-        addUsedTemplate(image);
+    function changeShownTemplate(template) {
+        addUsedTemplate(template);
         if (params.isFreestyle) {
-            params.setSelectedImage({url: image.url})
+            params.setSelectedImage({url: template.url})
         }
         params.setCurrentTemplateIndex(params.memeTemplates.findIndex(function (item) {
-            return item._id === image._id
+            return item._id === template._id
         }))
         handleClose();
     }
@@ -131,6 +131,10 @@ const ImageSelection = params => {
         setFiles([]);
     }
 
+    /**
+     * 
+     * @param {object} template 
+     */
     async function addUsedTemplate(template) {
         await fetch("http://localhost:3030/memeIO/add-used-template", {
             method: "POST",

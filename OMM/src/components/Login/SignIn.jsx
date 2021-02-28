@@ -88,7 +88,7 @@ export default function SignIn() {
       AuthService.login(values.name, values.password).then((data) => {
         if (data.token) {
           //SUCCESSFUL LOGIN -> navigate to landing page
-          window.location.reload();
+          //window.location.reload();
           navigate("/");
         } else {
           if (data.msg) {

@@ -7,7 +7,7 @@ import NavBar from "./components/NavBar/NavBar";
 import AuthService from "./services/auth.service";
 import MyOverview from "./components/MyOverview/MyOverview";
 import VideoGenerator from "./components/MemeCreator/VideoGenerator";
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 
 import "./css/global_style.css";
 
@@ -23,15 +23,18 @@ const routes = {
 function App() {
   const routeResults = useRoutes(routes);
 
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(true);
 
-
-  useEffect(() => {
+  /**
+   * 
+   */
+  useLayoutEffect(() => {
     setLoggedIn(true);
     // check if there is a token
     if (localStorage.token) {
       AuthService.getUser().then((successful) => {
         if (successful) {
+          console.log("Loggein IN")
           setLoggedIn(true);
         } else {
           setLoggedIn(false);
@@ -43,7 +46,7 @@ function App() {
       setLoggedIn(false);
       navigate("/login");
     }
-  }, []);
+  },);
 
   return (
 
