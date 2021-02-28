@@ -11,11 +11,27 @@
 ## Installation and SetUp Instructions
 
 ### Prerequisites
-Docker
-Browser: Google Chrome (Version 88.0.4324.190)
+Docker is installed
+works best in Google Chrome (Version 88.0.4324.190)
 
 
-### DataBase
+### With Docker
+`cd <root folder of project>`
+
+`docker-compose build`
+
+`docker-compose up`
+
+`docker-compose build`
+
+`docker-compose exec -T mongo`
+
+`mongorestore --drop`
+
+
+### Without Docker
+You will need `node` and `npm` installed globally on your machine. 
+#### DataBase
 Old:
 - start mongod
 - start mongo
@@ -27,11 +43,27 @@ Old:
 
 
 Now:
+- change 
+`"scripts": {
+        "start": "node ./bin/www",
+        "poststart": "start mongo"
+    },`
+    in OMMExpressApp/package.json to
+`"scripts": {
+        "prestart": "start mongod && mongorestore --drop -d memes_db ../dump/memes_db",
+        "start": "node ./bin/www",
+        "poststart": "start mongo"
+    },`
+- change
+`//mongoose.connect('mongodb://mongo:27017/memes_db', { useNewUrlParser: true, useUnifiedTopology: true });`
+ in OMMExpressApp/app.js to
+ `mongoose.connect('mongodb://localhost/memes_db', { useNewUrlParser: true, useUnifiedTopology: true });`
+ 
 - No need to start db manually, it gets automatically generated and populated with the start of OMMExpressApp
 
-You will need `node` and `npm` installed globally on your machine. 
 
-### Back-End
+
+#### Back-End
 
 `cd OMMExpressApp`
 
@@ -43,7 +75,7 @@ To Start Server:
 
 `npm start`
 
-### Front-End
+#### Front-End
 
 `cd OMM`
 

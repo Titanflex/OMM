@@ -326,7 +326,8 @@ function MemeCreator() {
                 setItalic(drafts[draftIndex].italic);
                 setColor(drafts[draftIndex].color);
                 setFontSize(drafts[draftIndex].fontSize);
-                setTemplates([{ url: String(drafts[draftIndex].src), name: "draft" }]);
+                setTemplates(prev => [{url: String(drafts[draftIndex].src), name: "draft" }, ...prev]);
+                setCurrentTemplateIndex(0);
                 if ((drafts[draftIndex].isFreestyle && !isFreestyle) || isFreestyle && !drafts[draftIndex].isFreestyle) {
                     accordion.current.click();
                 }

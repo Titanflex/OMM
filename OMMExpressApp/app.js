@@ -11,9 +11,10 @@ var indexRouter = require('./routes/index');
 var authRouter = require('./routes/auth');
 var memeRouter = require('./routes/memeIO');
 
-//for docker
+//with docker
 //mongoose.connect('mongodb://mongo:27017/memes_db', { useNewUrlParser: true, useUnifiedTopology: true });
 
+//without docker
 mongoose.connect('mongodb://localhost/memes_db', { useNewUrlParser: true, useUnifiedTopology: true });
 
 
