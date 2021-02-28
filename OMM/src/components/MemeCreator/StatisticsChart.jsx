@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 /**
- * component generates the meme
+ * component generates statistics chart for templates
  * gets params in MemeCreator component
  */
 const StatisticsChart= params => {
@@ -51,6 +51,9 @@ const StatisticsChart= params => {
         setOpen(false);
     };
 
+    /**
+     * @returns array with dates of the last two months
+     */
     const getDaysOfMonth = () => {
         const today = new Date(Date.now());
         let dateThreeMonths = new Date(today);
@@ -63,10 +66,10 @@ const StatisticsChart= params => {
         }
         return dateArray;
     }
-    /*
-      Modal
-      handles opening and closing of the Chart Modal.
-      */
+
+    /**
+     * sets likes/usages of the template in the last two months
+     */
     const showStatistics = () => {
         const datesArray = getDaysOfMonth();
         //likes

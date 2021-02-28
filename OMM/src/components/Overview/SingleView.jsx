@@ -506,6 +506,7 @@ const SingleView = () => {
     let vid = document.createElement('video');
 
     const checkVideoState = setInterval(() => {
+      //checks if meme is video or image
       if (vidMemes) {
         if (vidMemes[ind].includes("webm")) {
           vid.src = vidMemes[ind];
@@ -516,6 +517,7 @@ const SingleView = () => {
           img.src = vidMemes[ind];
           img.crossOrigin = "anonymous";
         }
+
         if (img.src || vid.src) {
           clearInterval(checkVideoState);
           const canvas = canvasRef.current;
@@ -555,7 +557,7 @@ const SingleView = () => {
           requestAnimationFrame(tick);
         }
       }
-    }, 4000);
+    }, 3000);
   };
 
   /*

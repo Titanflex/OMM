@@ -22,6 +22,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+/**
+ * Sign Up Component 
+ * Form and Form Validation for User Login
+ */
 export default function SignUp() {
   const classes = useStyles();
 

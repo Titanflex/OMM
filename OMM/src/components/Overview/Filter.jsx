@@ -65,6 +65,12 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
+
+/**
+ * Filter component provides an interface to filter memes.
+* When filter is applied  memes in SingleView and MemeScrollList are set to the filter list of memes.
+ * @param {memes[]} props 
+ */
 const Filter = props => {
   const memes = props.memes;
   const [isFilteredByVote, setIsFilteredByVote] = useState(false);

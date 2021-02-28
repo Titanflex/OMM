@@ -18,6 +18,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+/**
+ * Login / Registation Container
+ */
 const LoginContainer = () => {
   const classes = useStyles();
   const [signIn, setSignIn] = useState(true);
