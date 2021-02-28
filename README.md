@@ -22,11 +22,13 @@ works best in Google Chrome (Version 88.0.4324.190)
 
 `docker-compose up`
 
-`docker-compose build`
-
 `docker-compose exec -T mongo`
 
 `mongorestore --drop`
+
+To Visit App:
+
+localhost:3000
 
 
 ### Without Docker
@@ -100,4 +102,6 @@ https://documenter.getpostman.com/view/14051059/TW76E5FW
 ## Implemented Features
 
 See excel chart
+
+https://drive.google.com/file/d/1JoyqjeFuu9qlxZFnYdSxD-fhD2grNw55/view?usp=sharing
 
