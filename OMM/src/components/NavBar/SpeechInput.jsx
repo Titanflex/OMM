@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
 import Mic from "@material-ui/icons/Mic";
-import CircularProgress from "@material-ui/core/CircularProgress";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
@@ -15,23 +14,20 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SpeechInput = (params) => {
+const SpeechInput = () => {
   const classes = useStyles();
-  const [speaking, setSpeaking] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   //using the react-speech-recognition React hook
   //for more information, see https://www.npmjs.com/package/react-speech-recognition
-  const { transcript, finalTranscript } = useSpeechRecognition();
+  const { transcript, finalTranscript, listening } = useSpeechRecognition();
 
   /**
    * gets called if the finalTranscript of the speech hook was changed
    */
-  useEffect(() => {
-    handleSpeech();
-  }, [finalTranscript]);
+  useEffect(handleSpeech, [finalTranscript]);
 
   if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
+    console.log("No Speech Support because of your Browser, please use Chrome!")
     return null;
   }
 
@@ -40,25 +36,22 @@ const SpeechInput = (params) => {
    */
   const toggleSpeech = () => {
     console.log("Start Listening....");
-    if (speaking) {
+    if (listening) {
       SpeechRecognition.stopListening();
     } else {
       SpeechRecognition.startListening({ language: "en-US" });
       //if the user does not stop the speech input manually -> end it after 5 seconds
       setTimeout(function() {
         SpeechRecognition.stopListening();
-        setSpeaking(false);
       }, 3000);
     }
-    setSpeaking(!speaking);
   };
 
   /**
    * triggers the actions based on the speech transcript
    */
-  const handleSpeech = () => {
+  function handleSpeech ()  {
     console.log(transcript);
-    setLoading(false);
     switch (transcript) {
       case "navigate to overview":
         navigate("/overview");
@@ -70,7 +63,13 @@ const SpeechInput = (params) => {
       case "navigate to generator":
         navigate("/");
         return;
+      case "navigate to motion generator":
+        navigate("/videoGen");
+        return;
       case "navigate to my memes":
+        navigate("/my-memes");
+        return;
+      case "navigate to my niecenavigate to my niece":
         navigate("/my-memes");
         return;
       case "logout":
@@ -87,19 +86,15 @@ const SpeechInput = (params) => {
 
   return (
     <div>
-      {!loading ? (
         <IconButton
           aria-label="mic for speech input"
-          onClick={toggleSpeech}
+          onClick={() => toggleSpeech()}
           edge="end"
           className={classes.iconButton}
-          color={speaking ? "secondary" : "inherit"}
+          color={listening ? "secondary" : "inherit"}
         >
           <Mic />
         </IconButton>
-      ) : (
-        <CircularProgress color="secondary" />
-      )}
     </div>
   );
 };

@@ -26,17 +26,18 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(true);
 
   /**
-   * 
+   * checks if there is a valid user logged in after every render and navigates to the login in page if not
    */
   useLayoutEffect(() => {
     setLoggedIn(true);
     // check if there is a token
     if (localStorage.token) {
+      //check if there is a valid user for the token
       AuthService.getUser().then((successful) => {
-        if (successful) {
-          console.log("Loggein IN")
+        if (successful) { //there is a user logged in
           setLoggedIn(true);
         } else {
+          //navigate to the login page if there is no user logged in
           setLoggedIn(false);
           navigate("/login");
         }

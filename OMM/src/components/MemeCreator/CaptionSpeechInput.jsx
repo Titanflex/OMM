@@ -1,61 +1,43 @@
 import React, { useState, useEffect } from "react";
-import { makeStyles } from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import Mic from "@material-ui/icons/Mic";
-import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
+import { useSpeechRecognition } from "react-speech-kit";
 
 import "./../../css/MemeCreator/speechInput.css";
 
 const SpeechInput = (params) => {
-  const [speaking, setSpeaking] = useState(false);
-  const [waitForResponse, setWaitForResponse] = useState(false);
+  const [value, setValue] = useState("");
+  const { listen, listening, stop } = useSpeechRecognition({
+    onResult: (result) => {
+      setValue(result);
+    },
+  });
 
-  //using the react-speech-recognition React hook
-  //for more information, see https://www.npmjs.com/package/react-speech-recognition
-  const { transcript, finalTranscript } = useSpeechRecognition();
+  //using the react-speech-kit 
+  //for more information, see https://www.npmjs.com/package/react-speech-kit#usespeechrecognition
   /**
-   * gets called if the transcript of the SpeechRecognition changes -> understands something the user is saying
+   * gets called if the value of the speechRecognition changes -> understands something the user is saying
    */
   useEffect(() => {
-    //only when this component is actively waiting for a response set the caption
-    if (waitForResponse) {
-      params.setCaption(transcript);
-    }
-  }, [transcript]);
-
-  /**
-   * gets called if the finalTranscript of the speech hook was changed -> sets the caption to the final transcript
-   */
-  useEffect(() => {
-    if (waitForResponse) {
-      console.log("final caption: " + finalTranscript);
-      params.setCaption(finalTranscript);
-      setWaitForResponse(false);
-    }
-  }, [finalTranscript]);
-
-
-  if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
-    return null;
-  }
+    //send caption to the parent 
+    params.setCaption(value);
+  }, [value]);
 
 
   /**
-   * toggles if the SpeechRecognition listening / the speech input
+   * toggles the speech recognition listening
    */
-  const toggleSpeech = () => {
-    if (speaking) {
-      SpeechRecognition.stopListening();
+  const toggleCaptionSpeech = () => {
+    if (listening) {
+      stop();
     } else {
-      SpeechRecognition.startListening({ language: "en-US" });
-      setWaitForResponse(true);
+      console.log("Start Listening for the Caption...");
+      listen();
       //if the user does not stop the speech input manually -> end it after 5 seconds
-      setTimeout(function () {
-        SpeechRecognition.stopListening();
-        setSpeaking(false);
+      setTimeout(function() {
+        stop();
       }, 3000);
     }
-    setSpeaking(!speaking);
   };
 
   return (
@@ -63,8 +45,8 @@ const SpeechInput = (params) => {
       className="classes.buttonStyle button modal"
       startIcon={<Mic />}
       variant="contained"
-      onClick={() => toggleSpeech()}
-      color={speaking ? "primary" : "secondary"}
+      color={listening ? "primary" : "secondary"}
+      onClick={() => toggleCaptionSpeech()}
     >
       Tell me your caption!
     </Button>

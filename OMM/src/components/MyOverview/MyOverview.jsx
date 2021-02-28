@@ -118,7 +118,7 @@ function MyOverview() {
         </Container>
       ) : (
         // Loading Circle
-        <div classNa me="loading">
+        <div className="loading">
           <CircularProgress />
         </div>
       )}

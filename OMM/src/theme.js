@@ -8,6 +8,9 @@ const theme = createMuiTheme({
         },
         secondary: {
             main: "#333333" // Grey
+        },
+        white: {
+            main: '#FFFFFF' //White
         }
     },
     typography: {
@@ -35,19 +38,17 @@ const theme = createMuiTheme({
                 backgroundColor: '#333333',
                 color: 'white',
             },
-            
+
             // Override the styling for selected toggle buttons
             root: {
-               
-
-              '&$selected': {
-                backgroundColor: "#1BBAB0", // Greenish
-                color: 'white',
-              }
+                '&$selected': {
+                    backgroundColor: "#1BBAB0", // Greenish
+                    color: 'white',
+                }
             },
         },
     }
-    
+
 });
 
 

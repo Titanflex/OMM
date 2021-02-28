@@ -717,7 +717,7 @@ memeIO.get('/get-memes-by', (req, res) => {
     let creationDate_latest;
 
     //apply DEFAULT values if the search params are not defined in the request
-    req.body.likes_min ? likes_min = req.body.likes_min : likes_min = 0;
+    req.body.likes_min ? likes_min = req.body.likes_min : likes_min = -100;
     req.body.likes_max ? likes_max = req.body.likes_max : likes_max = 100;
     req.body.searchTerm ? searchTerm = req.body.searchTerm : searchTerm = '.*';
     req.body.creationDate_earliest ? creationDate_earliest = req.body.creationDate_earliest : creationDate_earliest = '1970-01-01T00:00:00.000Z';
@@ -737,7 +737,6 @@ memeIO.get('/get-memes-by', (req, res) => {
                         }
                     }
                 ],
-                title: { $regex: searchTerm },
                 creationDate: { $gt: Date.parse(creationDate_earliest), $lt: Date.parse(creationDate_latest) },
                 isPublic: true,
             }]
@@ -747,12 +746,18 @@ memeIO.get('/get-memes-by', (req, res) => {
                 return res.status(500).send(err);
             }
 
+            //filtered the memes by min and max likes
+            let docs_filtered = docs.filter(function(meme) {
+                let votes = meme.listlikes.length - meme.dislikes.length;
+                return votes > likes_min && votes < likes_max;
+            });
+
             //slice the array to a MAX File number size of 20
-            docs.slice(0, 20)
+            docs_filtered.slice(0, 20)
 
             //create an array of the found files for zip creation
             let memes = []
-            docs.forEach((doc, index) => {
+            docs_filtered.forEach((doc, index) => {
                 memes[index] = {
                     path: 'public/images/memes/' + doc.title + '.jpeg',
                     name: doc.title + '.jpeg'
