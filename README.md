@@ -22,13 +22,15 @@
 
 `docker-compose up`
 
+In new terminal:
+
 `docker-compose exec -T mongo`
 
 `mongorestore --drop`
 
 To Visit App:
 
-localhost:3000
+`localhost:3000`
 
 
 ### Without Docker
