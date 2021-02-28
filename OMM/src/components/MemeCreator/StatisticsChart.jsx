@@ -28,9 +28,12 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+
 /**
  * component generates statistics chart for templates
- * gets params in MemeCreator component
+ * @param params, set in MemeGenerator
+ * @returns {JSX.Element}
+ * @constructor
  */
 const StatisticsChart= params => {
     const[open, setOpen] = useState(false);
