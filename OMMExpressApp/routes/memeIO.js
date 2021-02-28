@@ -652,7 +652,6 @@ memeIO.get('/get-meme', (req, res) => {
 /* returns base64 file to be downloaded */
 memeIO.post('/download-meme', (req, res) => {
     try {
-        console.log(req.body.title);
         let base64 = fs.readFileSync("./public/images/memes/" + req.body.title + ".jpeg").toString('base64');
         res.status(200).send({ "data": base64 });
     } catch (error) {

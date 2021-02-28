@@ -42,7 +42,7 @@ import DraftPreview from "./DraftPreview";
 
 import domtoimage from "dom-to-image";
 
-///create Styles
+//align modal in center of screen
 function getModalStyle() {
     const top = 10;
     const left = 10;
@@ -53,6 +53,9 @@ function getModalStyle() {
     };
 }
 
+/**
+ * component allows to create new static memes
+ */
 function MemeCreator() {
     const [upper, setUpper] = useState("");
     const [templates, setTemplates] = useState([
@@ -74,6 +77,12 @@ function MemeCreator() {
 
     const [isFreestyle, setIsFreestyle] = useState(false);
     const [images, setImages] = useState([]);
+    const [imageProperties, setImageProperties] = useState([]);
+
+    const [drafts, setDrafts] = useState([])
+    const [preview, setPreview] = useState(false);
+
+    const [draftIndex, setDraftIndex] = useState(0);
 
     let likeDf = [];
     const [chartData, setChartData] = useState(null);
@@ -113,6 +122,7 @@ function MemeCreator() {
     const maxHeight = 1000;
     const minWidth = 200;
     const minHeight = 200;
+
 
     const useStyles = makeStyles((theme) => ({
         textFormat: {
@@ -174,12 +184,32 @@ function MemeCreator() {
         },
     }));
 
+
+    const popover = {
+        position: "absolute",
+        zIndex: "2",
+    };
+    const cover = {
+        position: "fixed",
+        top: "0px",
+        right: "0px",
+        bottom: "0px",
+        left: "0px",
+    };
+
+
     const classes = useStyles();
 
+    /**
+     * calls get Templates after every render
+     */
     useEffect(() => {
         getTemplates();
     }, []);
 
+    /**
+     * gets already existing templates from server/db
+     */
     async function getTemplates() {
         const res = await fetch("http://localhost:3030/memeIO/get-templates");
         const json = await res.json();
@@ -188,7 +218,10 @@ function MemeCreator() {
         }
     }
 
-    function nextMeme() {
+    /**
+     * selects next next template by changing currentTemplateIndex
+     */
+    function nextTemplate() {
         let current = currentTemplateIndex;
         if (templates.length > 1) {
             current =
@@ -199,7 +232,10 @@ function MemeCreator() {
         }
     }
 
-    function previousMeme() {
+    /**
+     * selects previous next template by changing currentTemplateIndex
+     */
+    function previousTemplate() {
         let current = currentTemplateIndex;
         if (templates.length > 1) {
             current =
@@ -210,22 +246,21 @@ function MemeCreator() {
         }
     }
 
+    //Text styling options
     function toggleBold() {
         bold ? setBold(false) : setBold(true);
     }
-
     function toggleItalic() {
         italic ? setItalic(false) : setItalic(true);
     }
-
     const changeFontSize = (event) => {
         setFontSize(event.target.value);
     };
-
     const handleColorChange = (color) => {
         setColor(color.hex);
     };
 
+    //expand/collapse accordion with additional option
     function handleFreestyle(event) {
         setIsFreestyle(event.target.checked);
         if (isFreestyle) {
@@ -233,12 +268,14 @@ function MemeCreator() {
         }
     }
 
-    const [imageProperties, setImageProperties] = useState([]);
+    /**
+     * add selected template to canvas at clicked position
+     * only possible in advanced options
+     */
     const addImage = () => {
         window.addEventListener(
             "mousedown",
             function getPosition(e) {
-                console.log(e.target.type);
                 if (e.target.type !== "textarea") {
                     alert("Place image on Canvas or increase size of Canvas");
                     return addImage();
@@ -256,25 +293,16 @@ function MemeCreator() {
                 );
                 setImages((prev) => [...prev, img]);
                 setImageProperties((prev) => [...prev, [x, y, selectedImage.url]]);
-                console.log(imageProperties);
                 setSelectedImage(null);
             },
             { once: true }
         );
     };
 
-    const popover = {
-        position: "absolute",
-        zIndex: "2",
-    };
-    const cover = {
-        position: "fixed",
-        top: "0px",
-        right: "0px",
-        bottom: "0px",
-        left: "0px",
-    };
-
+    /**
+     * save current state as draft
+     * creates preview image of draft with domtoimage
+     */
     const saveAsDraft = async () => {
         let meme = document.getElementById("memeContainer");
         let previewJpeg = await domtoimage.toJpeg(meme, { quality: 20 }).then(function (jpeg) {
@@ -300,6 +328,59 @@ function MemeCreator() {
         });
     };
 
+    /**
+     * gets all drafts created by the user from server/db
+     * opens preview where user can select draft
+     */
+    async function getDraft() {
+        let res = await fetch("http://localhost:3030/memeIO/get-drafts", {
+            method: "POST",
+            mode: "cors",
+            headers: AuthService.getTokenHeader(),
+        });
+        let json = await res.json()
+        setDrafts(json.docs);
+        setPreview(true);
+    }
+
+    const accordion = React.useRef(null)
+
+    /**
+     * updates meme canvas every time a draft is selected
+     */
+    useEffect(() => {
+            if (drafts.length > 0) {
+                setBold(drafts[draftIndex].bold);
+                setItalic(drafts[draftIndex].italic);
+                setColor(drafts[draftIndex].color);
+                setFontSize(drafts[draftIndex].fontSize);
+                setTemplates([{ url: String(drafts[draftIndex].src), name: "draft" }]);
+                if ((drafts[draftIndex].isFreestyle && !isFreestyle) || isFreestyle && !drafts[draftIndex].isFreestyle) {
+                    accordion.current.click();
+                }
+                setIsFreestyle(drafts[draftIndex].isFreestyle);
+                setUpper(drafts[draftIndex].text);
+                setImageProperties(drafts[draftIndex].imageProperties);
+                setCanvasHeight(drafts[draftIndex].canvasHeight);
+                setCanvasWidth(drafts[draftIndex].canvasWidth);
+                setImages([]);
+                drafts[draftIndex].imageProperties.forEach((imageProperty) => {
+                    const img = <img className={classes.memeImg} src={imageProperty[2]} alt={"meme image"}
+                                     style={{
+                                         position: "absolute",
+                                         left: imageProperty[0],
+                                         top: imageProperty[1],
+                                     }} />;
+                    setImages((prev) => [...prev, img]);
+                });
+            }
+            ;
+        },
+
+        [draftIndex],
+    );
+
+
 
     const getDaysOfMonth = () => {
         const today = new Date(Date.now());
@@ -314,10 +395,9 @@ function MemeCreator() {
         return dateArray;
     }
 
-
     /* 
    Modal
-   handels opening and closing of the Chart Modal.
+   handles opening and closing of the Chart Modal.
    */
     const handleMoreModuleOpen = () => {
         const datesArray = getDaysOfMonth();
@@ -386,58 +466,9 @@ function MemeCreator() {
         setMoreModuleOpen(false);
     };
 
-    const [drafts, setDrafts] = useState([])
-    const [preview, setPreview] = useState(false);
 
-    const [draftIndex, setDraftIndex] = useState(0);
 
-    async function getDraft() {
-        console.log("getDraft");
-        let res = await fetch("http://localhost:3030/memeIO/get-drafts", {
-            method: "POST",
-            mode: "cors",
-            headers: AuthService.getTokenHeader(),
-        });
-        let json = await res.json()
-        console.log(json.docs);
-        setDrafts(json.docs);
-        setPreview(true);
-    }
 
-    const accordion = React.useRef(null)
-    useEffect(() => {
-        if (drafts.length > 0) {
-            console.log(drafts);
-            setBold(drafts[draftIndex].bold);
-            setItalic(drafts[draftIndex].italic);
-            setColor(drafts[draftIndex].color);
-            setFontSize(drafts[draftIndex].fontSize);
-            console.log(drafts[draftIndex].src)
-            setTemplates([{ url: String(drafts[draftIndex].src), name: "draft" }]);
-            if ((drafts[draftIndex].isFreestyle && !isFreestyle) || isFreestyle && !drafts[draftIndex].isFreestyle) {
-                accordion.current.click();
-            }
-            setIsFreestyle(drafts[draftIndex].isFreestyle);
-            setUpper(drafts[draftIndex].text);
-            setImageProperties(drafts[draftIndex].imageProperties);
-            setCanvasHeight(drafts[draftIndex].canvasHeight);
-            setCanvasWidth(drafts[draftIndex].canvasWidth);
-            setImages([]);
-            drafts[draftIndex].imageProperties.forEach((imageProperty) => {
-                const img = <img className={classes.memeImg} src={imageProperty[2]} alt={"meme image"}
-                    style={{
-                        position: "absolute",
-                        left: imageProperty[0],
-                        top: imageProperty[1],
-                    }} />;
-                setImages((prev) => [...prev, img]);
-            });
-        }
-        ;
-    },
-
-        [draftIndex],
-    );
     return (
         <Container className="memeCreatorContainer">
             <Typography className={classes.heading} variant="h4">
@@ -447,7 +478,7 @@ function MemeCreator() {
                 <Grid item s={1}>
                     <IconButton
                         className="arrows"
-                        onClick={previousMeme}
+                        onClick={previousTemplate}
                         aria-label="previous"
                         disabled={isFreestyle}
                     >
@@ -609,7 +640,7 @@ function MemeCreator() {
                 <Grid item s={1}>
                     <IconButton
                         className="arrows"
-                        onClick={nextMeme}
+                        onClick={nextTemplate}
                         aria-label="next"
                         disabled={isFreestyle}
                     >
