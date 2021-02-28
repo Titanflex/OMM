@@ -106,6 +106,9 @@ function useInterval(callback, delay) {
   }, [delay]);
 }
 
+/**
+ * Shows a meme and extra functionality for inteacting with said meme.
+ */
 const SingleView = () => {
   const [memes, setMemes] = useState([
     {
@@ -179,68 +182,68 @@ const SingleView = () => {
   const handleMoreModuleClose = () => {
     setMoreModuleOpen(false);
   };
-   /*
-  getDaysOffMonths returns a list of dates from the actual to 2 months back.
-  */
- const getDaysOfMonth = () => {
-  const today = new Date(Date.now());
-  let dateThreeMonths = new Date(today);
-  dateThreeMonths.setMonth(dateThreeMonths.getMonth() - 2);
-  let dateArray = [];
-  let currentDate = dateThreeMonths;
-  while (currentDate <= today) {
-    dateArray.push(new Date(currentDate));
-    currentDate.setDate(currentDate.getDate() + 1);
+  /*
+ getDaysOffMonths returns a list of dates from the actual to 2 months back.
+ */
+  const getDaysOfMonth = () => {
+    const today = new Date(Date.now());
+    let dateThreeMonths = new Date(today);
+    dateThreeMonths.setMonth(dateThreeMonths.getMonth() - 2);
+    let dateArray = [];
+    let currentDate = dateThreeMonths;
+    while (currentDate <= today) {
+      dateArray.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return dateArray;
   }
-  return dateArray;
-}
 
 
-/* 
-  Modal
-  handels opening and closing of the filter Modal.
-  When opend it sets the filtered Memelist to the originalMemes from the database.
-  */
-const handleMoreModuleOpen = () => {
-  getUpdatedMemes();
-  const datesArray = getDaysOfMonth();
-  let likeList = memes[currentMemeIndex].listlikes;
-  let dislikeList = memes[currentMemeIndex].dislikes;
-  console.log(dislikeList);
+  /* 
+    Modal
+    handels opening and closing of the filter Modal.
+    When opend it sets the filtered Memelist to the originalMemes from the database.
+    */
+  const handleMoreModuleOpen = () => {
+    getUpdatedMemes();
+    const datesArray = getDaysOfMonth();
+    let likeList = memes[currentMemeIndex].listlikes;
+    let dislikeList = memes[currentMemeIndex].dislikes;
+    console.log(dislikeList);
 
-  datesArray.forEach(date => {
-    const dateDate = new Date(date);
-    let likeCount = 0;
-    let dislikeCount = 0;
+    datesArray.forEach(date => {
+      const dateDate = new Date(date);
+      let likeCount = 0;
+      let dislikeCount = 0;
 
-    likeList.forEach(like => {
-      const likeDate = new Date(like.date);
-      likeCount = (likeDate.setHours(0, 0, 0, 0) === dateDate.setHours(0, 0, 0, 0)) ? likeCount + 1 : likeCount;
+      likeList.forEach(like => {
+        const likeDate = new Date(like.date);
+        likeCount = (likeDate.setHours(0, 0, 0, 0) === dateDate.setHours(0, 0, 0, 0)) ? likeCount + 1 : likeCount;
+      })
+
+      dislikeList.forEach(dislike => {
+        const dislikeDate = new Date(dislike.date);
+        dislikeCount = (dislikeDate.setHours(0, 0, 0, 0) === dateDate.setHours(0, 0, 0, 0)) ? dislikeCount + 1 : dislikeCount;
+      })
+      likeDf.push({ "date": dateDate, "likeCount": likeCount, "dislikeCount": dislikeCount });
     })
 
-    dislikeList.forEach(dislike => {
-      const dislikeDate = new Date(dislike.date);
-      dislikeCount = (dislikeDate.setHours(0, 0, 0, 0) === dateDate.setHours(0, 0, 0, 0)) ? dislikeCount + 1 : dislikeCount;
-    })
-    likeDf.push({ "date": dateDate, "likeCount": likeCount, "dislikeCount": dislikeCount });
-  })
-
-  const columns = [
-    { type: 'date', label: 'date' },
-    { type: 'number', label: 'likeCount' },
-    { type: 'number', label: 'dislikeCount' },
-  ]
-  let rows = []
-  const nonNullData = likeDf.filter(row => row.likeCount !== null)
-  for (let row of nonNullData) {
-    const { date, likeCount, dislikeCount } = row
-    rows.push([new Date(Date.parse(date)), likeCount, dislikeCount])
-  }
-  console.log(rows);
-  setDataLoading(true);
-  setChartData([columns, ...rows]);
-  setMoreModuleOpen(true);
-};
+    const columns = [
+      { type: 'date', label: 'date' },
+      { type: 'number', label: 'likeCount' },
+      { type: 'number', label: 'dislikeCount' },
+    ]
+    let rows = []
+    const nonNullData = likeDf.filter(row => row.likeCount !== null)
+    for (let row of nonNullData) {
+      const { date, likeCount, dislikeCount } = row
+      rows.push([new Date(Date.parse(date)), likeCount, dislikeCount])
+    }
+    console.log(rows);
+    setDataLoading(true);
+    setChartData([columns, ...rows]);
+    setMoreModuleOpen(true);
+  };
 
   /*
     SnackBar
@@ -254,8 +257,8 @@ const handleMoreModuleOpen = () => {
     setOpenSnack(false);
   };
 
- 
- // Sort
+
+  // Sort
   /*
    The method handleSortOptChange is called when the user changes the value.
    It then calls the method which sorts the memes based on the selected value.
@@ -290,13 +293,13 @@ const handleMoreModuleOpen = () => {
   const sortMemesByVote = () => {
 
     if (!sortDown) {
-     memes.sort(
+      memes.sort(
         (memeA, memeB) =>
           memeA.listlikes.length -
           memeA.dislikes.length -
           (memeB.listlikes.length - memeB.dislikes.length)
       );
-      
+
     } else {
       memes.sort(
         (memeA, memeB) =>
@@ -306,7 +309,7 @@ const handleMoreModuleOpen = () => {
       );
     }
     setCurrentMemeIndex(0);
-   };
+  };
 
   /*
     The method sortMemesByDate is called when the user changes the Sort by value or the direction.
@@ -504,10 +507,10 @@ const handleMoreModuleOpen = () => {
 
     const checkVideoState = setInterval(() => {
       if (vidMemes) {
-        if(vidMemes[ind].includes("webm")){
+        if (vidMemes[ind].includes("webm")) {
           vid.src = vidMemes[ind];
-          vid.width="100";
-          vid.height="100";
+          vid.width = "100";
+          vid.height = "100";
           vid.crossOrigin = "anonymous";
         } else {
           img.src = vidMemes[ind];
@@ -533,10 +536,10 @@ const handleMoreModuleOpen = () => {
             canvas.style.width = `${width}px`;
             canvas.style.height = `${height}px`;
 
-            if(vidMemes[ind].includes("webm")){
-                context.drawImage(vid, 0, 0,canvas.width, canvas.height);
-            
-            }else {
+            if (vidMemes[ind].includes("webm")) {
+              context.drawImage(vid, 0, 0, canvas.width, canvas.height);
+
+            } else {
               context.drawImage(
                 img,
                 0,
@@ -751,29 +754,29 @@ const handleMoreModuleOpen = () => {
           >
             More infos
           </Button>
-         <InfoModal
-         
-         open={moreModuleOpen}
-         onInfosClose={handleMoreModuleClose}
-         memes={memes}
-         chartData={chartData}
-         dataLoading={dataLoading}
-         currentMemeIndex={currentMemeIndex}
-         />
-       
-            <div>
-              <Button onClick={() => startRecording()} >Stream Video</Button>
-            </div>
-            <div>
+          <InfoModal
 
-              <video ref={videoRef} crossOrigin="anonymous" id="vid" controls autoPlay muted></video>
-              {isVideoLoading && (
-                <p>Please wait while we load the video stream.</p>
+            open={moreModuleOpen}
+            onInfosClose={handleMoreModuleClose}
+            memes={memes}
+            chartData={chartData}
+            dataLoading={dataLoading}
+            currentMemeIndex={currentMemeIndex}
+          />
 
-              )}
-              <canvas ref={canvasRef} crossOrigin="anonymous" style={{ display: "none", width: '150px', height: '150px' }} />
-            </div>
-            </Grid>
+          <div>
+            <Button onClick={() => startRecording()} >Stream Video</Button>
+          </div>
+          <div>
+
+            <video ref={videoRef} crossOrigin="anonymous" id="vid" controls autoPlay muted></video>
+            {isVideoLoading && (
+              <p>Please wait while we load the video stream.</p>
+
+            )}
+            <canvas ref={canvasRef} crossOrigin="anonymous" style={{ display: "none", width: '150px', height: '150px' }} />
+          </div>
+        </Grid>
       </Grid>
 
       <Grid container className={classes.spacing} spacing={3}>
@@ -811,12 +814,12 @@ const handleMoreModuleOpen = () => {
           <Comments
             className={classes.spacing}
             currentMeme={memes[currentMemeIndex]}
-           getUpdatedMemes={getUpdatedMemes}
+            getUpdatedMemes={getUpdatedMemes}
           />
         </Grid>
         <Grid item xs={1}></Grid>
       </Grid>
-      
+
     </Container>
   );
 };
