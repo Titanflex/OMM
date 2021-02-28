@@ -280,23 +280,6 @@ memeIO.post('/upload-Meme', uploadMeme.single("file"), auth, async (req, res) =>
     })
 });
 
-var gm = require("gm");
-
-/* POST /memeIO/upload-Gif */
-/* upload Gif to server */
-memeIO.get('/upload-Gif', (req, res) => {
-    gm('./public/images/templates/Maus.gif').stroke("#000000")
-        .fill('#ffffff')
-        .font("./public/assets/impact.ttf", 42)
-        .dither(false)
-        .drawText(0, 0, "text", 'South')
-        .write('result.gif', function (err) {
-            if (!err) {
-                console.log('Image processing done.');
-            } else console.log(err);
-        });
-})
-
 
 /* POST /memeIO/upload-mim */
 /* Uploads an webm to the server and saves it in the memeDB */
@@ -525,7 +508,7 @@ memeIO.post('/create-simple-meme', async (req, res) => {
         }
         //analyze meme with computer vision to get descirption
         const analysis = await analyze(req.body.title);
-        
+
         //save the meme to the data base
         const newMeme = new Meme({
             title: req.body.title,
@@ -718,5 +701,4 @@ memeIO.get('/get-memes-by', (req, res) => {
         })
 });
 
-module.exports = memeIO;
 module.exports = memeIO;
