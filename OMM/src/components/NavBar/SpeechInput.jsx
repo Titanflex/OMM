@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { makeStyles } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
 import Mic from "@material-ui/icons/Mic";
@@ -50,7 +50,7 @@ const SpeechInput = () => {
   /**
    * triggers the actions based on the speech transcript
    */
-  function handleSpeech ()  {
+  function handleSpeech()  {
     console.log(transcript);
     switch (transcript) {
       case "navigate to overview":
