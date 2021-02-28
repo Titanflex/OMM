@@ -101,7 +101,6 @@ export default function SignUp() {
         if (data.token) {
           //SUCCESSFUL Registration -> navigate to landing page
           navigate("/");
-          window.location.reload();
         } else {
           if (data.msg) {
             setNameError({

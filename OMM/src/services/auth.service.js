@@ -51,7 +51,7 @@ const register = (name, password) => {
             }
             //Something went wrong -> probably the username is already taken
             console.log(data.msg)
-            return true;
+            return data;
         })
         .catch(err => {
             console.log("Error occurred during the login: ", err)
