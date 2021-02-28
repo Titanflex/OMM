@@ -5,6 +5,11 @@ import { useSpeechRecognition } from "react-speech-kit";
 
 import "./../../css/MemeCreator/speechInput.css";
 
+
+/**
+ * Speech Input that allows dictating a caption
+ * Recevied the call back function setCaption to change the caption in the parent
+ */
 const SpeechInput = (params) => {
   const [value, setValue] = useState("");
   const { listen, listening, stop } = useSpeechRecognition({

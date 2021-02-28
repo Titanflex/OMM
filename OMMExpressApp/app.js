@@ -11,6 +11,7 @@ var indexRouter = require('./routes/index');
 var authRouter = require('./routes/auth');
 var memeRouter = require('./routes/memeIO');
 
+
 //with docker
 //mongoose.connect('mongodb://mongo:27017/memes_db', { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -18,9 +19,11 @@ var memeRouter = require('./routes/memeIO');
 mongoose.connect('mongodb://localhost/memes_db', { useNewUrlParser: true, useUnifiedTopology: true });
 
 
+
+
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function () {
+db.once('open', function() {
     // we're connected!
 });
 
@@ -30,7 +33,7 @@ db.once('open', function () {
 var app = express();
 
 
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
     // Website you wish to allow to connect
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
 
@@ -68,12 +71,12 @@ app.use('/memeIO', memeRouter);
 app.use('/auth', authRouter);
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
     next(createError(404));
 });
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use(function(err, req, res, next) {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
