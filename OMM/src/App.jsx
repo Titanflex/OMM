@@ -24,7 +24,7 @@ function App() {
   const routeResults = useRoutes(routes);
 
   const [loggedIn, setLoggedIn] = useState(true);
-  console.log = console.warn = () => { };
+  console.log = console.warn = console.error = () => { };
 
   /**
    * checks if there is a valid user logged in after every render and navigates to the login in page if not

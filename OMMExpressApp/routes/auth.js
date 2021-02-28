@@ -4,10 +4,10 @@ const bcrypt = require('bcryptjs');
 const config = require('config');
 const jwt = require('jsonwebtoken')
 const auth = require('../middleware/auth')
-    // User Model
+// User Model
 const User = require('../models/userSchema')
 
-router.use(function(req, res, next) {
+router.use(function (req, res, next) {
     // Website you wish to allow to connect
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
 
@@ -27,7 +27,7 @@ router.use(function(req, res, next) {
 
 /* POST /auth/login */
 /* Authenticate the User by name and password*/
-router.post('/login', async(req, res) => {
+router.post('/login', async (req, res) => {
     const { name, password } = req.body;
 
     try {
@@ -69,7 +69,7 @@ router.get('/user', auth, (req, res) => {
 
 /* POST /auth/register */
 /* Registers a new the User */
-router.post('/register', async(req, res) => {
+router.post('/register', async (req, res) => {
     const { name, password } = req.body;
 
     try {
