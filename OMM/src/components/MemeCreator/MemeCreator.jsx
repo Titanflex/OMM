@@ -69,7 +69,7 @@ function MemeCreator() {
     const [drafts, setDrafts] = useState([])
     const [preview, setPreview] = useState(false);
 
-    const [draftIndex, setDraftIndex] = useState(0);
+    const [draftIndex, setDraftIndex] = useState(null);
 
 
 
