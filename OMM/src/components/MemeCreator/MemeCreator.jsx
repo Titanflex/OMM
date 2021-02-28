@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import {
     Typography,
     Grid,
@@ -21,9 +21,9 @@ import ArrowRight from "@material-ui/icons/ChevronRight";
 import ArrowLeft from "@material-ui/icons/ChevronLeft";
 import FormatColorTextIcon from "@material-ui/icons/FormatColorText";
 
-import {FormatBold, FormatItalic} from "@material-ui/icons";
+import { FormatBold, FormatItalic } from "@material-ui/icons";
 
-import {TwitterPicker} from "react-color";
+import { TwitterPicker } from "react-color";
 
 import ImageSelection from "../ImageSelection/ImageSelection";
 import Generator from "../MemeCreator/Generator";
@@ -42,17 +42,20 @@ import DraftPreview from "./DraftPreview";
 
 import domtoimage from "dom-to-image";
 
-///create Styles
+//align modal in center of screen
 function getModalStyle() {
     const top = 10;
     const left = 10;
     return {
         "margin-top": `${top}%`,
-      "margin-left": `${left}%`,
-      width: `${70}%`,
+        "margin-left": `${left}%`,
+        width: `${70}%`,
     };
-  }
+}
 
+/**
+ * component allows to create new static memes
+ */
 function MemeCreator() {
     const [upper, setUpper] = useState("");
     const [templates, setTemplates] = useState([
@@ -72,22 +75,25 @@ function MemeCreator() {
     const [canvasWidth, setCanvasWidth] = useState(350);
     const [canvasHeight, setCanvasHeight] = useState(250);
 
-    const [posUpperTop, setPosUpperTop] = useState(20);
-    const [posUpperLeft, setPosUpperLeft] = useState(10);
-
     const [isFreestyle, setIsFreestyle] = useState(false);
     const [images, setImages] = useState([]);
-    
-  let likeDf= [];
-  const [chartData, setChartData] = useState(null);
-  const [dataLoading, setDataLoading] = useState(true);
-  let usedDf = [];
-  const [chartUsedData, setChartUsedData] = useState(null);
-  const [dataUsedLoading, setDataUsedLoading] = useState(true);
-  const [moreModuleOpen, setMoreModuleOpen] = useState(false);
+    const [imageProperties, setImageProperties] = useState([]);
 
-  const [modalStyle] = useState(getModalStyle);
-  
+    const [drafts, setDrafts] = useState([])
+    const [preview, setPreview] = useState(false);
+
+    const [draftIndex, setDraftIndex] = useState(0);
+
+    let likeDf = [];
+    const [chartData, setChartData] = useState(null);
+    const [dataLoading, setDataLoading] = useState(true);
+    let usedDf = [];
+    const [chartUsedData, setChartUsedData] = useState(null);
+    const [dataUsedLoading, setDataUsedLoading] = useState(true);
+    const [moreModuleOpen, setMoreModuleOpen] = useState(false);
+
+    const [modalStyle] = useState(getModalStyle);
+
     const [displayColorPicker, setDisplayColorPicker] = useState(false);
     const fontSizes = [
         10,
@@ -117,6 +123,7 @@ function MemeCreator() {
     const minWidth = 200;
     const minHeight = 200;
 
+
     const useStyles = makeStyles((theme) => ({
         textFormat: {
             "fontWeight": bold ? "bold" : "normal",
@@ -144,7 +151,7 @@ function MemeCreator() {
             backgroundColor: theme.palette.background.paper,
             boxShadow: theme.shadows[5],
             padding: theme.spacing(2, 4, 3),
-          },
+        },
         memeCanvas: {
             "width": isFreestyle ? canvasWidth + "px" : "350px",
             "min-width": minWidth + "px",
@@ -177,94 +184,6 @@ function MemeCreator() {
         },
     }));
 
-    const classes = useStyles();
-
-    useEffect(() => {
-        getTemplates();
-    }, []);
-
-    async function getTemplates() {
-        const res = await fetch("http://localhost:3030/memeIO/get-templates");
-        const json = await res.json();
-        if (json.docs.length > 0) {
-            setTemplates(json.docs);
-        }
-    }
-
-    function nextMeme() {
-        let current = currentTemplateIndex;
-        if (templates.length > 1) {
-            current =
-                currentTemplateIndex === templates.length - 1
-                    ? 0
-                    : currentTemplateIndex + 1;
-            setCurrentTemplateIndex(current);
-        }
-    }
-
-    function previousMeme() {
-        let current = currentTemplateIndex;
-        if (templates.length > 1) {
-            current =
-                currentTemplateIndex === 0
-                    ? templates.length - 1
-                    : currentTemplateIndex - 1;
-            setCurrentTemplateIndex(current);
-        }
-    }
-
-    function toggleBold() {
-        bold ? setBold(false) : setBold(true);
-    }
-
-    function toggleItalic() {
-        italic ? setItalic(false) : setItalic(true);
-    }
-
-    const changeFontSize = (event) => {
-        setFontSize(event.target.value);
-    };
-
-    const handleColorChange = (color) => {
-        setColor(color.hex);
-    };
-
-    function handleFreestyle(event) {
-        setIsFreestyle(event.target.checked);
-        if (isFreestyle) {
-            event.stopPropagation();
-        }
-    }
-
-    const [imageProperties, setImageProperties] = useState([]);
-    const addImage = () => {
-        window.addEventListener(
-            "mousedown",
-            function getPosition(e) {
-                console.log(e.target.type);
-                if (e.target.type !== "textarea") {
-                    alert("Place image on Canvas or increase size of Canvas");
-                    return addImage();
-                }
-                let rect = e.target.getBoundingClientRect();
-                let x = e.clientX - rect.x;
-                let y = e.clientY - rect.y;
-                let img = (
-                    <img
-                        className={classes.memeImg}
-                        src={selectedImage.url}
-                        alt={"meme image"}
-                        style={{position: "absolute", left: x, top: y}}
-                    />
-                );
-                setImages((prev) => [...prev, img]);
-                setImageProperties((prev) => [...prev, [x, y, selectedImage.url]]);
-                console.log(imageProperties);
-                setSelectedImage(null);
-            },
-            {once: true}
-        );
-    };
 
     const popover = {
         position: "absolute",
@@ -278,9 +197,115 @@ function MemeCreator() {
         left: "0px",
     };
 
+
+    const classes = useStyles();
+
+    /**
+     * calls get Templates after every render
+     */
+    useEffect(() => {
+        getTemplates();
+    }, []);
+
+    /**
+     * gets already existing templates from server/db
+     */
+    async function getTemplates() {
+        const res = await fetch("http://localhost:3030/memeIO/get-templates");
+        const json = await res.json();
+        if (json.docs.length > 0) {
+            setTemplates(json.docs);
+        }
+    }
+
+    /**
+     * selects next next template by changing currentTemplateIndex
+     */
+    function nextTemplate() {
+        let current = currentTemplateIndex;
+        if (templates.length > 1) {
+            current =
+                currentTemplateIndex === templates.length - 1
+                    ? 0
+                    : currentTemplateIndex + 1;
+            setCurrentTemplateIndex(current);
+        }
+    }
+
+    /**
+     * selects previous next template by changing currentTemplateIndex
+     */
+    function previousTemplate() {
+        let current = currentTemplateIndex;
+        if (templates.length > 1) {
+            current =
+                currentTemplateIndex === 0
+                    ? templates.length - 1
+                    : currentTemplateIndex - 1;
+            setCurrentTemplateIndex(current);
+        }
+    }
+
+    //Text styling options
+    function toggleBold() {
+        bold ? setBold(false) : setBold(true);
+    }
+    function toggleItalic() {
+        italic ? setItalic(false) : setItalic(true);
+    }
+    const changeFontSize = (event) => {
+        setFontSize(event.target.value);
+    };
+    const handleColorChange = (color) => {
+        setColor(color.hex);
+    };
+
+    //expand/collapse accordion with additional option
+    function handleFreestyle(event) {
+        setIsFreestyle(event.target.checked);
+        if (isFreestyle) {
+            event.stopPropagation();
+        }
+    }
+
+    /**
+     * add selected template to canvas at clicked position
+     * only possible in advanced options
+     */
+    const addImage = () => {
+        window.addEventListener(
+            "mousedown",
+            function getPosition(e) {
+                if (e.target.type !== "textarea") {
+                    alert("Place image on Canvas or increase size of Canvas");
+                    return addImage();
+                }
+                let rect = e.target.getBoundingClientRect();
+                let x = e.clientX - rect.x;
+                let y = e.clientY - rect.y;
+                let img = (
+                    <img
+                        className={classes.memeImg}
+                        src={selectedImage.url}
+                        alt={"meme image"}
+                        style={{ position: "absolute", left: x, top: y }}
+                    />
+                );
+                setImages((prev) => [...prev, img]);
+                setImageProperties((prev) => [...prev, [x, y, selectedImage.url]]);
+                setSelectedImage(null);
+            },
+            { once: true }
+        );
+    };
+
+    /**
+     * save current state as draft
+     * creates preview image of draft with domtoimage
+     */
     const saveAsDraft = async () => {
         let meme = document.getElementById("memeContainer");
-        let previewJpeg = await domtoimage.toJpeg(meme, {quality: 20}).then(function (jpeg) {
+        let previewJpeg = await domtoimage.toJpeg(meme, { quality: 20 }).then(function (jpeg) {
             return jpeg
         });
         fetch("http://localhost:3030/memeIO/save-draft", {
@@ -303,120 +328,33 @@ function MemeCreator() {
         });
     };
 
-
-    const getDaysOfMonth = () => {
-        const today = new Date (Date.now());
-        let dateThreeMonths = new Date(today);
-        dateThreeMonths.setMonth(dateThreeMonths.getMonth() - 2);
-        let dateArray = [];
-        let currentDate = dateThreeMonths;
-        while (currentDate <= today) {
-            dateArray.push(new Date (currentDate));
-            currentDate.setDate(currentDate.getDate() + 1);
-        }
-        return dateArray;
-      }
-
-      
-     /* 
-    Modal
-    handels opening and closing of the Chart Modal.
-    */
-  const handleMoreModuleOpen = () => {
-    const datesArray = getDaysOfMonth();
-
-    //likes
-    let likeList = templates[currentTemplateIndex].likes;
-  
-    datesArray.forEach(date =>{
-      const dateDate = new Date(date);
-      let likeCount=0;
-
-      likeList.forEach(like => {
-      const likeDate = new Date(like.date);
-      likeCount = (likeDate.setHours(0,0,0,0) === dateDate.setHours(0,0,0,0))? likeCount+1 : likeCount;
-      })
-
-      likeDf.push({"date": dateDate, "likeCount": likeCount});
-    })
-
-    const columns = [
-      { type: 'date', label: 'date' },
-      { type: 'number', label: 'likeCount' },
-    ]
-    let rows = []
-    const nonNullData = likeDf.filter(row => row.likeCount !== null)
-    for (let row of nonNullData) {
-      const { date, likeCount } = row
-      rows.push([new Date(Date.parse(date)), likeCount])
-    }
-   
-    setChartData([columns, ...rows]);
-
-    //used
-    console.log(templates[currentTemplateIndex]);
-    let usedList = templates[currentTemplateIndex].used;
-  
-    datesArray.forEach(date =>{
-      const dateDate = new Date(date);
-      let usedCount=0;
-
-      usedList.forEach(used => {
-      const usedDate = new Date(used.date);
-      usedCount = (usedDate.setHours(0,0,0,0) === dateDate.setHours(0,0,0,0))? usedCount+1 : usedCount;
-      })
-
-      usedDf.push({"date": dateDate, "usedCount": usedCount});
-    })
-    const usedcolumns = [
-      { type: 'date', label: 'date' },
-      { type: 'number', label: 'usedCount'},
-    ]
-    let usedrows = []
-    const usednonNullData = usedDf.filter(row => row.usedCount !== null)
-    for (let row of usednonNullData) {
-      const { date, usedCount } = row
-      usedrows.push([new Date(Date.parse(date)),  usedCount])
-    }
-    console.log(usedrows);
-    setDataLoading(true);
-    setChartUsedData([usedcolumns, ...usedrows]);
-    
-    setMoreModuleOpen(true);
-  };
-
-  const handleMoreModuleClose = () => {
-    setMoreModuleOpen(false);
-  };
-
-    const [drafts, setDrafts] = useState([])
-    const [preview, setPreview] = useState(false);
-
-    const [draftIndex, setDraftIndex] = useState(0);
-
+    /**
+     * gets all drafts created by the user from server/db
+     * opens preview where user can select draft
+     */
     async function getDraft() {
-        console.log("getDraft");
         let res = await fetch("http://localhost:3030/memeIO/get-drafts", {
             method: "POST",
             mode: "cors",
             headers: AuthService.getTokenHeader(),
         });
         let json = await res.json()
-        console.log(json.docs);
         setDrafts(json.docs);
         setPreview(true);
     }
 
     const accordion = React.useRef(null)
+
+    /**
+     * updates meme canvas every time a draft is selected
+     */
     useEffect(() => {
             if (drafts.length > 0) {
-                console.log(drafts);
                 setBold(drafts[draftIndex].bold);
                 setItalic(drafts[draftIndex].italic);
                 setColor(drafts[draftIndex].color);
                 setFontSize(drafts[draftIndex].fontSize);
-                console.log(drafts[draftIndex].src)
-                setTemplates([{url: String(drafts[draftIndex].src), name: "draft"}]);
+                setTemplates([{ url: String(drafts[draftIndex].src), name: "draft" }]);
                 if ((drafts[draftIndex].isFreestyle && !isFreestyle) || isFreestyle && !drafts[draftIndex].isFreestyle) {
                     accordion.current.click();
                 }
@@ -432,7 +370,7 @@ function MemeCreator() {
                                          position: "absolute",
                                          left: imageProperty[0],
                                          top: imageProperty[1],
-                                     }}/>;
+                                     }} />;
                     setImages((prev) => [...prev, img]);
                 });
             }
@@ -441,6 +379,96 @@ function MemeCreator() {
 
         [draftIndex],
     );
+
+
+
+    const getDaysOfMonth = () => {
+        const today = new Date(Date.now());
+        let dateThreeMonths = new Date(today);
+        dateThreeMonths.setMonth(dateThreeMonths.getMonth() - 2);
+        let dateArray = [];
+        let currentDate = dateThreeMonths;
+        while (currentDate <= today) {
+            dateArray.push(new Date(currentDate));
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        return dateArray;
+    }
+
+    /* 
+   Modal
+   handles opening and closing of the Chart Modal.
+   */
+    const handleMoreModuleOpen = () => {
+        const datesArray = getDaysOfMonth();
+
+        //likes
+        let likeList = templates[currentTemplateIndex].likes;
+
+        datesArray.forEach(date => {
+            const dateDate = new Date(date);
+            let likeCount = 0;
+
+            likeList.forEach(like => {
+                const likeDate = new Date(like.date);
+                likeCount = (likeDate.setHours(0, 0, 0, 0) === dateDate.setHours(0, 0, 0, 0)) ? likeCount + 1 : likeCount;
+            })
+
+            likeDf.push({ "date": dateDate, "likeCount": likeCount });
+        })
+
+        const columns = [
+            { type: 'date', label: 'date' },
+            { type: 'number', label: 'likeCount' },
+        ]
+        let rows = []
+        const nonNullData = likeDf.filter(row => row.likeCount !== null)
+        for (let row of nonNullData) {
+            const { date, likeCount } = row
+            rows.push([new Date(Date.parse(date)), likeCount])
+        }
+
+        setChartData([columns, ...rows]);
+
+        //used
+        console.log(templates[currentTemplateIndex]);
+        let usedList = templates[currentTemplateIndex].used;
+
+        datesArray.forEach(date => {
+            const dateDate = new Date(date);
+            let usedCount = 0;
+
+            usedList.forEach(used => {
+                const usedDate = new Date(used.date);
+                usedCount = (usedDate.setHours(0, 0, 0, 0) === dateDate.setHours(0, 0, 0, 0)) ? usedCount + 1 : usedCount;
+            })
+
+            usedDf.push({ "date": dateDate, "usedCount": usedCount });
+        })
+        const usedcolumns = [
+            { type: 'date', label: 'date' },
+            { type: 'number', label: 'usedCount' },
+        ]
+        let usedrows = []
+        const usednonNullData = usedDf.filter(row => row.usedCount !== null)
+        for (let row of usednonNullData) {
+            const { date, usedCount } = row
+            usedrows.push([new Date(Date.parse(date)), usedCount])
+        }
+        console.log(usedrows);
+        setDataLoading(true);
+        setChartUsedData([usedcolumns, ...usedrows]);
+
+        setMoreModuleOpen(true);
+    };
+
+    const handleMoreModuleClose = () => {
+        setMoreModuleOpen(false);
+    };
+
+
+
+
     return (
         <Container className="memeCreatorContainer">
             <Typography className={classes.heading} variant="h4">
@@ -450,27 +478,27 @@ function MemeCreator() {
                 <Grid item s={1}>
                     <IconButton
                         className="arrows"
-                        onClick={previousMeme}
+                        onClick={previousTemplate}
                         aria-label="previous"
                         disabled={isFreestyle}
                     >
-                        <ArrowLeft fontSize="large"/>
+                        <ArrowLeft fontSize="large" />
                     </IconButton>
                 </Grid>
-                <Grid item s={8} style={{overflow: "hidden"}}>
+                <Grid item s={8} style={{ overflow: "hidden" }}>
                     <IconButton
                         className={"textFormatButton"}
                         onClick={toggleBold}
-                        style={bold ? {background: "grey"} : {background: "white"}}
+                        style={bold ? { background: "grey" } : { background: "white" }}
                     >
-                        <FormatBold/>
+                        <FormatBold />
                     </IconButton>
                     <IconButton
                         className={"textFormatButton"}
                         onClick={toggleItalic}
-                        style={italic ? {background: "grey"} : {background: "white"}}
+                        style={italic ? { background: "grey" } : { background: "white" }}
                     >
-                        <FormatItalic/>
+                        <FormatItalic />
                     </IconButton>
                     <IconButton
                         className={"textFormatButton"}
@@ -482,12 +510,12 @@ function MemeCreator() {
                             }
                         }}
                     >
-                        <FormatColorTextIcon/>
+                        <FormatColorTextIcon />
                     </IconButton>
 
                     {displayColorPicker ? (
                         <div style={popover}>
-                            <div style={cover} onClick={() => setDisplayColorPicker(false)}/>
+                            <div style={cover} onClick={() => setDisplayColorPicker(false)} />
                             <TwitterPicker
                                 className="colorPicker"
                                 triangle={"hide"}
@@ -551,72 +579,72 @@ function MemeCreator() {
                         </div>
                     </div>
                     <Button
-            className="classes.buttonStyle selection"
-            onClick={handleMoreModuleOpen}
-            variant="contained"
-            color="secondary"
-          >
-            More template infos 
+                        className="classes.buttonStyle selection"
+                        onClick={handleMoreModuleOpen}
+                        variant="contained"
+                        color="secondary"
+                    >
+                        More template infos
           </Button>
-          <Modal
-            open={moreModuleOpen}
-            onClose={handleMoreModuleClose}
-            aria-labelledby="simple-modal-title"
-            aria-describedby="simple-modal-description"
-            >
-             <div style={modalStyle} className={classes.paper}>
-             <Typography variant="h5">Graph</Typography>
-             <Grid>
-              
-               {dataLoading? (
-                   <div>
-                       
-                 <Chart
-                 chartType="LineChart"
-                 data={chartData}
-                 options={{
-                   hAxis: {
-                    format: 'd MMM',
-                   },
-                   vAxis: {
-                     format: 'short',
-                   },
-                   title: 'Likes over time.',
-                 }}
-                 rootProps={{ 'data-testid': '2' }}
-               />
-               <Chart
-               chartType="LineChart"
-               data={chartUsedData}
-               options={{
-                 hAxis: {
-                    format: 'd MMM',
-                 },
-                 vAxis: {
-                   format: 'short',
-                 },
-                 title: 'Used over time.',
-               }}
-               rootProps={{ 'data-testid': '2' }}
-             />
-            </div>
-               ):(
-               <div>Fetching data from API</div>
-               )}
-                  </Grid>
-            </div>
-            
-          </Modal>
+                    <Modal
+                        open={moreModuleOpen}
+                        onClose={handleMoreModuleClose}
+                        aria-labelledby="simple-modal-title"
+                        aria-describedby="simple-modal-description"
+                    >
+                        <div style={modalStyle} className={classes.paper}>
+                            <Typography variant="h5">Graph</Typography>
+                            <Grid>
+
+                                {dataLoading ? (
+                                    <div>
+
+                                        <Chart
+                                            chartType="LineChart"
+                                            data={chartData}
+                                            options={{
+                                                hAxis: {
+                                                    format: 'd MMM',
+                                                },
+                                                vAxis: {
+                                                    format: 'short',
+                                                },
+                                                title: 'Likes over time.',
+                                            }}
+                                            rootProps={{ 'data-testid': '2' }}
+                                        />
+                                        <Chart
+                                            chartType="LineChart"
+                                            data={chartUsedData}
+                                            options={{
+                                                hAxis: {
+                                                    format: 'd MMM',
+                                                },
+                                                vAxis: {
+                                                    format: 'short',
+                                                },
+                                                title: 'Used over time.',
+                                            }}
+                                            rootProps={{ 'data-testid': '2' }}
+                                        />
+                                    </div>
+                                ) : (
+                                        <div>Fetching data from API</div>
+                                    )}
+                            </Grid>
+                        </div>
+
+                    </Modal>
 
                 </Grid>
                 <Grid item s={1}>
                     <IconButton
                         className="arrows"
-                        onClick={nextMeme}
+                        onClick={nextTemplate}
                         aria-label="next"
                         disabled={isFreestyle}
                     >
-                        <ArrowRight fontSize="large"/>
+                        <ArrowRight fontSize="large" />
                     </IconButton>
                 </Grid>
                 <Grid item s={2}>
@@ -629,9 +657,10 @@ function MemeCreator() {
                         setCurrentTemplateIndex={setCurrentTemplateIndex}
                         isFreestyle={isFreestyle}
                     />
-                    <SpeechInput setCaption={setUpper}/>
+                    <SpeechInput setCaption={setUpper} />
                     <Accordion>
                         <AccordionSummary
+                            data-testid="advanced"
                             aria-label="Expand"
                             aria-controls="additional-actions1-content"
                             id="additional-actions1-header"
@@ -641,7 +670,7 @@ function MemeCreator() {
                             <FormControlLabel
                                 aria-label="Acknowledge"
                                 control={
-                                    <Checkbox checked={isFreestyle} onChange={handleFreestyle}/>
+                                    <Checkbox checked={isFreestyle} onChange={handleFreestyle} />
                                 }
                                 label="Advanced Options"
                             />
@@ -654,7 +683,7 @@ function MemeCreator() {
                                 label="Canvas Height"
                                 placeholder="Canvas Height"
                                 value={canvasHeight}
-                                InputProps={{inputProps: {max: maxHeight, min: minHeight}}}
+                                InputProps={{ inputProps: { max: maxHeight, min: minHeight } }}
                                 onChange={(event) => setCanvasHeight(event.target.value)}
                             />
                             <TextField
@@ -664,7 +693,7 @@ function MemeCreator() {
                                 label="Canvas Width"
                                 placeholder="Canvas Width"
                                 value={canvasWidth}
-                                InputProps={{inputProps: {max: maxWidth, min: minWidth}}}
+                                InputProps={{ inputProps: { max: maxWidth, min: minWidth } }}
                                 onChange={(event) => setCanvasWidth(event.target.value)}
                             />
                         </AccordionDetails>
@@ -705,7 +734,7 @@ function MemeCreator() {
                         text={upper}
                     />
                     <DraftPreview drafts={drafts} preview={preview} setPreview={setPreview}
-                                  setDraftIndex={setDraftIndex}/>
+                        setDraftIndex={setDraftIndex} />
                     <Button
                         className="classes.buttonStyle draft"
                         variant="contained"
