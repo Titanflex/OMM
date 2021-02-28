@@ -4,7 +4,6 @@ import { navigate } from "hookrouter";
 
 import MemeView from "../Overview/MemeView";
 
-import Filter from "../Overview/Filter";
 import emptyState from "../../img/emptyState.jpg";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
@@ -12,35 +11,35 @@ import "./../../css/Overview/myoverview.css";
 
 const useStyles = makeStyles((theme) => ({
   spacing: {
-      marginTop: theme.spacing(2),
-      marginRight: theme.spacing(2),
+    marginTop: theme.spacing(2),
+    marginRight: theme.spacing(2),
   },
   selectEmpty: {
-      marginTop: theme.spacing(2),
+    marginTop: theme.spacing(2),
   },
-      
-      formControl: {
-        marginTop: theme.spacing(1),
-        marginRight: theme.spacing(2),
-      },
-      paper: {
-        position: "absolute",
-        width: `${50}%`,
-        backgroundColor: theme.palette.background.paper,
-        boxShadow: theme.shadows[5],
-        padding: theme.spacing(2, 4, 3),
-      },
-      numberField: {
-        width: `${15}%`,
-        marginTop: theme.spacing(1),
-        marginRight: theme.spacing(2),
-      },
-      filterButton: {
-        height: `${70}%`,
-        marginTop: theme.spacing(2),
-        marginRight: theme.spacing(2),
-      },
-    
+
+  formControl: {
+    marginTop: theme.spacing(1),
+    marginRight: theme.spacing(2),
+  },
+  paper: {
+    position: "absolute",
+    width: `${50}%`,
+    backgroundColor: theme.palette.background.paper,
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+  },
+  numberField: {
+    width: `${15}%`,
+    marginTop: theme.spacing(1),
+    marginRight: theme.spacing(2),
+  },
+  filterButton: {
+    height: `${70}%`,
+    marginTop: theme.spacing(2),
+    marginRight: theme.spacing(2),
+  },
+
 
 }));
 
@@ -80,7 +79,7 @@ function MyOverview() {
     await fetch("http://localhost:3030/memeIO/get-memes").then((res) => {
       res.json().then((json) => {
         let fetchedMemes = json.docs;
-        let myMemes = fetchedMemes.filter(function(meme) {
+        let myMemes = fetchedMemes.filter(function (meme) {
           return meme.author && meme.author == localStorage.user;
         });
         setMemes(myMemes);
@@ -102,26 +101,26 @@ function MyOverview() {
               <ListMemes className={classes.spacing} listmemes={memes} />
             </Grid>
           ) : (
-            <div class="empty-state">
-              <img src={emptyState} />
-              <Button
-                variant="contained"
-                onClick={() => {
-                  navigate("/");
-                }}
-                color="secondary"
-              >
-                Create Meme
+              <div class="empty-state">
+                <img src={emptyState} />
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    navigate("/");
+                  }}
+                  color="secondary"
+                >
+                  Create Meme
               </Button>
-            </div>
-          )}
+              </div>
+            )}
         </Container>
       ) : (
-        // Loading Circle
-        <div className="loading">
-          <CircularProgress />
-        </div>
-      )}
+          // Loading Circle
+          <div className="loading">
+            <CircularProgress />
+          </div>
+        )}
     </div>
   );
 }

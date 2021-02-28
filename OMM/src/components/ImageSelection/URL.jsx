@@ -31,9 +31,11 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+
 /**
  * component for uploading image from URL/screenshot from URL
- * gets params from ImageSelection component
+ * @param params, set in ImageSelection component
+ * @returns {JSX.Element}
  */
 const URL = params => {
     const classes = useStyles();

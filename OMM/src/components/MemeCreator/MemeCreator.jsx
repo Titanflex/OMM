@@ -41,6 +41,7 @@ import StatisticsChart from "./StatisticsChart";
 
 /**
  * component allows to create new static memes
+ * @returns {JSX.Element}
  */
 function MemeCreator() {
     const [upper, setUpper] = useState("");

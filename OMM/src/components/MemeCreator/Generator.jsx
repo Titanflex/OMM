@@ -52,7 +52,9 @@ const useStyles = makeStyles((theme) => ({
 
 /**
  * component generates the meme
- * gets params in MemeCreator component
+ * @param params, set in in MemeCreator component
+ * @returns {JSX.Element}
+ * @constructor
  */
 const Generator = params => {
     const classes = useStyles();

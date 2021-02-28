@@ -49,6 +49,10 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
+/**
+ * Comments provides a list of all comments for the given meme.
+ * @param {meme} props 
+ */
 const Comments = props => {
 
 const currentMeme = props.currentMeme;

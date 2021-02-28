@@ -32,6 +32,10 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
+/**
+ * Creates a view with all informations about a meme.
+ * @param {meme[]} props Contains infos about a specific meme. 
+ */
 const MemeView = props => {
     const [memeInfo] = useState(props.memeInfo);
 
@@ -224,12 +228,12 @@ const MemeView = props => {
                     <div className="imageDiv">
                         {memeInfo.hasOwnProperty("url") ? (memeInfo.url.includes("webm") ?
 
-                            <video width="360" height="250" controls autoPlay loop src={memeInfo.url}  
-                            className={classes.video} onClick={handleClickPic} >
+                            <video width="360" height="250" controls autoPlay loop src={memeInfo.url}
+                                className={classes.video} onClick={handleClickPic} >
                             </video>
                             :
                             <img
-                            className={classes.image}
+                                className={classes.image}
                                 id={"imageid"}
                                 src={memeInfo.url}
                                 alt={"meme image"}
@@ -274,20 +278,20 @@ const MemeView = props => {
 
 
                         <Box component="div" display="inline" className={classes.rateMemeButtons}>
-                        {memeInfo.hasOwnProperty("url") ? (!memeInfo.url.includes("webm") ?
-                        <Button
-                                className="classes.buttonStyle selection"
-                                startIcon={<CloudDownload />}
-                                variant="contained"
-                                color="secondary"
-                                disabled={!memeInfo}
-                                onClick={download}
-                            >
-                                <i className="fa fa-download" />
+                            {memeInfo.hasOwnProperty("url") ? (!memeInfo.url.includes("webm") ?
+                                <Button
+                                    className="classes.buttonStyle selection"
+                                    startIcon={<CloudDownload />}
+                                    variant="contained"
+                                    color="secondary"
+                                    disabled={!memeInfo}
+                                    onClick={download}
+                                >
+                                    <i className="fa fa-download" />
                                 Download
                             </Button>
-                            : null) :null }
-                            
+                                : null) : null}
+
                             {(memeInfo.publicOpt == "public" || memeInfo.publicOpt == "unlisted") ?
                                 <Box component="div" display="inline" className={classes.rateMemeButtons}>
                                     <Button

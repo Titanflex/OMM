@@ -41,6 +41,9 @@ const useStyles = makeStyles({
   },
 });
 
+/**
+ * Contains navigation for the website.
+ */
 const NavBar = () => {
   const classes = useStyles();
   const [currentRoute, setCurrentRoute] = useState("/");
