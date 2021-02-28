@@ -458,7 +458,7 @@ function MemeCreator() {
                             </div>
                         </div>
                     </div>
-                    <StatisticsChart template={templates[currentTemplateIndex]}/>
+                    {!isFreestyle &&  <StatisticsChart template={templates[currentTemplateIndex]}/>}
                 </Grid>
                 <Grid item s={1}>
                     <IconButton
@@ -547,7 +547,6 @@ function MemeCreator() {
                             </Button>
                         </AccordionDetails>
                     </Accordion>
-
                     <Generator
                         isFreestyle={isFreestyle}
                         canvasHeight={canvasHeight}

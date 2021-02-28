@@ -508,13 +508,12 @@ const handleMoreModuleOpen = () => {
           vid.src = vidMemes[ind];
           vid.width="100";
           vid.height="100";
-          vid.play();
           vid.crossOrigin = "anonymous";
         } else {
           img.src = vidMemes[ind];
           img.crossOrigin = "anonymous";
         }
-        if (img.src|| vid.src) {
+        if (img.src || vid.src) {
           clearInterval(checkVideoState);
           const canvas = canvasRef.current;
           if (canvas) {
@@ -535,10 +534,8 @@ const handleMoreModuleOpen = () => {
             canvas.style.height = `${height}px`;
 
             if(vidMemes[ind].includes("webm")){
-              vid.addEventListener('canplaythrough', function () {
-                context.drawImage(vid, 0, 0,canvas.width,
-                  canvas.height);
-            });
+                context.drawImage(vid, 0, 0,canvas.width, canvas.height);
+            
             }else {
               context.drawImage(
                 img,
