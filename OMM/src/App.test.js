@@ -36,11 +36,3 @@ describe('Templates', () => {
         expect(getByText('Draw your own')).toBeInTheDocument();
     });
 });
-
-/*
-describe('Header', () => {
-    it('Tests if Header gets shown', () => {
-        render(<NavBar />);
-        expect(screen.getByText('Good ol')).toBeInTheDocument();
-    });
-});*/
