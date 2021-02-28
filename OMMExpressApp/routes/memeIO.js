@@ -288,7 +288,7 @@ memeIO.post('/upload-mim', uploadMim.single("file"), auth, async (req, res) => {
     //get the user from the db
     let user = await User.findById(req.user.id);
     let author = user.name
-    url = "http://localhost:3030/images/memes/" + req.file.originalname;
+    url = "http://localhost:3030/images/mims/" + req.file.originalname;
     const newMeme = {
         title: req.headers.title,
         url: url,
