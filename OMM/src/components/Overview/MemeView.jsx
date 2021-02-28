@@ -219,14 +219,19 @@ const MemeView = props => {
             <Grid container spacing={2}>
                 <Grid item xs >
                     <div className="imageDiv">
-                        <img
-                            id={"imageid"}
-                            src={memeInfo.url}
-                            alt={"meme image"}
-                            isAccessible={props.isAccessible}
-
-                            onClick={handleClickPic}
-                        />
+                        {memeInfo.hasOwnProperty("url")? (memeInfo.url.includes("webm") ?
+                         
+                            <video width="320" height="240" controls autoplay src={memeInfo.url} >
+                            </video>
+                            :
+                            <img
+                                id={"imageid"}
+                                src={memeInfo.url}
+                                alt={"meme image"}
+                                isAccessible={props.isAccessible}
+                                onClick={handleClickPic}
+                            />): null
+    }
                     </div>
                 </Grid>
                 <Grid container item xs direction="column" spacing={1}>
