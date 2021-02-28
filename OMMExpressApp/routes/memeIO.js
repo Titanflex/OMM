@@ -265,7 +265,6 @@ memeIO.post('/upload-Meme', uploadMeme.single("file"), auth, async(req, res) => 
         isPublic: req.headers.ispublic,
         publicOpt: req.headers.publicopt,
         creationDate: Date.now(),
-        likes: 0,
         tags: analysis.tags,
         description: analysis.description.captions[0].text,
         caption: req.headers.upper,
@@ -296,7 +295,6 @@ memeIO.post('/upload-mim', uploadMim.single("file"), auth, async(req, res) => {
         isPublic: true,
         publicOpt: "public",
         creationDate: Date.now(),
-        likes: 0,
         tags: "video",
         description: "",
         caption: "",
@@ -468,6 +466,8 @@ memeIO.post('/remove-dislike-meme', auth, async(req, res) => {
 /* POST /memeIO/create-simple-meme */
 /* creates simple meme with given lower and upper text */
 memeIO.post('/create-simple-meme', async(req, res) => {
+    const meme = await Meme.findOne({ title: req.body.title });
+    if (meme) return res.status(500).send("A meme with this title does already exist. Please choose another one");
     try {
         const url = "http://localhost:3030/images/memes/" + req.body.title + ".jpeg";
         let image;
@@ -522,8 +522,7 @@ memeIO.post('/create-simple-meme', async(req, res) => {
             creationDate: Date.now(),
             url: url,
             isPublic: true,
-            publicOpt: req.body.publicOpt,
-            likes: 0,
+            publicOpt: "public",
             tags: analysis.tags,
             description: analysis.description.captions[0].text,
             caption: req.body.upper + " " + req.body.lower,
@@ -544,6 +543,8 @@ memeIO.post('/create-simple-meme', async(req, res) => {
 /* POST /memeIO/create-meme */
 /* create meme from the given image url and prints the defined textboxes on it*/
 memeIO.post('/create-meme', async(req, res) => {
+    const meme = await Meme.findOne({ title: req.body.title });
+    if (meme) return res.status(500).send("A meme with this title does already exist. Please choose another one");
     try {
         //image url
         const url = "http://localhost:3030/images/memes/" + req.body.title + ".jpeg";
@@ -599,6 +600,8 @@ memeIO.post('/create-memes', async(req, res) => {
 
         //loop over all the given template urls
         for (const template of req.body.templates) {
+            const meme = await Meme.findOne({ title: template.name });
+            if (meme) return res.status(500).send("A meme with the title " + template.name + " does already exist.Please choose another one ");
             //get image URL
             const url = "http://localhost:3030/images/memes/" + template.name + ".jpeg";
 
