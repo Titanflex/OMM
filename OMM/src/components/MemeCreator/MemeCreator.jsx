@@ -11,11 +11,7 @@ import {
     makeStyles,
     IconButton,
     FormControlLabel,
-    Modal,
 } from "@material-ui/core";
-
-
-import { Chart } from "react-google-charts";
 
 import ArrowRight from "@material-ui/icons/ChevronRight";
 import ArrowLeft from "@material-ui/icons/ChevronLeft";
@@ -42,17 +38,6 @@ import DraftPreview from "./DraftPreview";
 
 import domtoimage from "dom-to-image";
 import StatisticsChart from "./StatisticsChart";
-
-//align modal in center of screen
-function getModalStyle() {
-    const top = 10;
-    const left = 10;
-    return {
-        "margin-top": `${top}%`,
-        "margin-left": `${left}%`,
-        width: `${70}%`,
-    };
-}
 
 /**
  * component allows to create new static memes
@@ -273,7 +258,7 @@ function MemeCreator() {
                     <img
                         className={classes.memeImg}
                         src={selectedImage.url}
-                        alt={"meme image"}
+
                         style={{ position: "absolute", left: x, top: y }}
                     />
                 );
@@ -351,7 +336,7 @@ function MemeCreator() {
                 setCanvasWidth(drafts[draftIndex].canvasWidth);
                 setImages([]);
                 drafts[draftIndex].imageProperties.forEach((imageProperty) => {
-                    const img = <img className={classes.memeImg} src={imageProperty[2]} alt={"meme image"}
+                    const img = <img className={classes.memeImg} src={imageProperty[2]}
                                      style={{
                                          position: "absolute",
                                          left: imageProperty[0],
@@ -362,7 +347,6 @@ function MemeCreator() {
             }
             ;
         },
-
         [draftIndex],
     );
 
@@ -372,7 +356,7 @@ function MemeCreator() {
             <Typography className={classes.heading} variant="h4">
                 Hello {localStorage.user}!
             </Typography>
-            <Grid container alignItems="start" spacing={3}>
+            <Grid container alignItems="flex-start" spacing={3}>
                 <Grid item s={1}>
                     <IconButton
                         className="arrows"
@@ -447,7 +431,6 @@ function MemeCreator() {
                     <div className={classes.canvas}>
                         <div className="memeContainer" id={"memeContainer"}>
                             <div
-                                id="memeDiv"
                                 className={classes.memeCanvas}
                                 id={"memeCanvas"}
                             >
@@ -455,7 +438,6 @@ function MemeCreator() {
                                     <img
                                         className={classes.memeImg}
                                         src={templates[currentTemplateIndex].url}
-                                        alt={"meme image"}
                                     />
                                 )}
                                 {isFreestyle && (
@@ -496,7 +478,6 @@ function MemeCreator() {
                         setTemplates={setTemplates}
                         setSelectedImage={setSelectedImage}
                         setCurrentTemplateIndex={setCurrentTemplateIndex}
-                        isFreestyle={isFreestyle}
                     />
                     <SpeechInput setCaption={setUpper} />
                     <Accordion>
@@ -543,6 +524,7 @@ function MemeCreator() {
                                 title="Click on canvas to place your selected template"
                                 arrow
                             >
+                                <span>
                                 <Button
                                     className="classes.buttonStyle selection"
                                     variant="contained"
@@ -551,7 +533,7 @@ function MemeCreator() {
                                     disabled={selectedImage === null}
                                 >
                                     Place Template
-                                </Button>
+                                </Button></span>
                             </Tooltip>
 
                             <Button

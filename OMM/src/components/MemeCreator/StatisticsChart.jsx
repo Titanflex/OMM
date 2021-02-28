@@ -128,7 +128,7 @@ const StatisticsChart= params => {
         setChartUsedData([usedColumns, ...usedrows]);
         setOpen(true);
     };
-    
+
     return (
         <div>
             <Button
