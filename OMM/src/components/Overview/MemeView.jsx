@@ -10,7 +10,7 @@ import {
     Box,
 } from "@material-ui/core";
 
-import { TwitterShareButton, RedditShareButton, WhatsappShareButton, FacebookIcon, TwitterIcon, RedditIcon, WhatsappIcon } from "react-share";
+import { TwitterShareButton, RedditShareButton, WhatsappShareButton, TwitterIcon, RedditIcon, WhatsappIcon } from "react-share";
 
 import AuthService from "../../services/auth.service";
 import { makeStyles } from "@material-ui/core";
@@ -33,10 +33,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const MemeView = props => {
-    const [memeInfo, setMemeInfo] = useState(props.memeInfo);
+    const [memeInfo] = useState(props.memeInfo);
 
-    const [likes, setLikes] = useState(props.memeInfo.hasOwnProperty('listlikes') ? props.memeInfo.listlikes : null);
-    const [dislikes, setDislikes] = useState(props.memeInfo.hasOwnProperty('dislikes') ? props.memeInfo.dislikes : null);
+    const [likes] = useState(props.memeInfo.hasOwnProperty('listlikes') ? props.memeInfo.listlikes : null);
+    const [dislikes] = useState(props.memeInfo.hasOwnProperty('dislikes') ? props.memeInfo.dislikes : null);
 
     const [liked, setLiked] = useState(likes ? likes.some(like => like.user === localStorage.user) : null);
     const [disliked, setDisliked] = useState(dislikes ? dislikes.some(dislike => dislike.user === localStorage.user) : null);
@@ -286,7 +286,7 @@ const MemeView = props => {
                                 <i className="fa fa-download" />
                                 Download
                             </Button>
-: null) :null }
+                            : null) :null }
                             
                             {(memeInfo.publicOpt == "public" || memeInfo.publicOpt == "unlisted") ?
                                 <Box component="div" display="inline" className={classes.rateMemeButtons}>
