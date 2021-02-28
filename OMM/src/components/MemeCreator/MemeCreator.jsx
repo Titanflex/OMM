@@ -402,19 +402,22 @@ function MemeCreator() {
     const handleMoreModuleOpen = () => {
         const datesArray = getDaysOfMonth();
         //likes
-        let likeList = templates[currentTemplateIndex].likes;
+        if (templates[currentTemplateIndex].hasOwnProperty("likes")) {
+            let likeList = templates[currentTemplateIndex].likes;
 
-        datesArray.forEach(date => {
-            const dateDate = new Date(date);
-            let likeCount = 0;
-
-            likeList.forEach(like => {
-                const likeDate = new Date(like.date);
-                likeCount = (likeDate.setHours(0, 0, 0, 0) === dateDate.setHours(0, 0, 0, 0)) ? likeCount + 1 : likeCount;
+            datesArray.forEach(date => {
+                const dateDate = new Date(date);
+                let likeCount = 0;
+    
+                likeList.forEach(like => {
+                    const likeDate = new Date(like.date);
+                    likeCount = (likeDate.setHours(0, 0, 0, 0) === dateDate.setHours(0, 0, 0, 0)) ? likeCount + 1 : likeCount;
+                })
+    
+                likeDf.push({ "date": dateDate, "likeCount": likeCount });
             })
-
-            likeDf.push({ "date": dateDate, "likeCount": likeCount });
-        })
+        }
+       
 
         const columns = [
             { type: 'date', label: 'date' },
@@ -431,6 +434,7 @@ function MemeCreator() {
 
         //used
         console.log(templates[currentTemplateIndex]);
+        if (templates[currentTemplateIndex].hasOwnProperty("used")) {
         let usedList = templates[currentTemplateIndex].used;
 
         datesArray.forEach(date => {
@@ -444,6 +448,7 @@ function MemeCreator() {
 
             usedDf.push({ "date": dateDate, "usedCount": usedCount });
         })
+    }
         const usedcolumns = [
             { type: 'date', label: 'date' },
             { type: 'number', label: 'usedCount' },

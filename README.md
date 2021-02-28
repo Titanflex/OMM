@@ -26,7 +26,7 @@ Old:
 
 
 
-New:
+Now:
 - No need to start db manually, it gets automatically generated and populated with the start of OMMExpressApp
 
 You will need `node` and `npm` installed globally on your machine. 
@@ -66,4 +66,6 @@ The API Documentation for this application can be found here:
 https://documenter.getpostman.com/view/14051059/TW76E5FW
 
 ## Implemented Features
-see project features checklist excel sheet
+
+See excel chart
+
