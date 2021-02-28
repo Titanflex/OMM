@@ -216,7 +216,6 @@ function MemeScrollList() {
             res.json().then(json => {
                 setMemes(json.docs);
                 setOriginalMemes(json.docs);
-                console.log(json.docs)
                 return json;
             })
         })
