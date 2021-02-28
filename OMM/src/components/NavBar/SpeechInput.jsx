@@ -14,6 +14,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+/**
+ * Creates and handles the speech input.
+ */
 const SpeechInput = () => {
   const classes = useStyles();
 
@@ -41,7 +44,7 @@ const SpeechInput = () => {
     } else {
       SpeechRecognition.startListening({ language: "en-US" });
       //if the user does not stop the speech input manually -> end it after 5 seconds
-      setTimeout(function() {
+      setTimeout(function () {
         SpeechRecognition.stopListening();
       }, 3000);
     }
@@ -50,7 +53,7 @@ const SpeechInput = () => {
   /**
    * triggers the actions based on the speech transcript
    */
-  function handleSpeech()  {
+  function handleSpeech() {
     console.log(transcript);
     switch (transcript) {
       case "navigate to overview":
@@ -86,15 +89,15 @@ const SpeechInput = () => {
 
   return (
     <div>
-        <IconButton
-          aria-label="mic for speech input"
-          onClick={() => toggleSpeech()}
-          edge="end"
-          className={classes.iconButton}
-          color={listening ? "secondary" : "inherit"}
-        >
-          <Mic />
-        </IconButton>
+      <IconButton
+        aria-label="mic for speech input"
+        onClick={() => toggleSpeech()}
+        edge="end"
+        className={classes.iconButton}
+        color={listening ? "secondary" : "inherit"}
+      >
+        <Mic />
+      </IconButton>
     </div>
   );
 };

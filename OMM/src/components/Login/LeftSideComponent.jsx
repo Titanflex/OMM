@@ -11,6 +11,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+/**
+ * Left Side Component of the Login/Registration Page 
+ * toggles view depending on registration or login
+ * @param {*} props receives the following props from the LoginContaine
+ * subtitle: Title displayed above button 
+ * button: Button Text (Sign up/ Sign in)
+ */
 const LeftSideComponent = (props) => {
   const classes = useStyles();
 
