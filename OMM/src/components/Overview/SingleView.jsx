@@ -16,8 +16,6 @@ import {
 } from "@material-ui/core";
 
 
-import createCanvasRecorder from "canvas-record";
-
 import { ToggleButton, Alert } from "@material-ui/lab";
 
 import {
@@ -33,10 +31,8 @@ import {
   ChevronRight,
 } from "@material-ui/icons";
 
-
+//chart library to visualize data
 import { Chart } from "react-google-charts";
-
-
 
 import Moment from "moment";
 
@@ -222,6 +218,7 @@ const SingleView = () => {
     const datesArray = getDaysOfMonth();
     let likeList = memes[currentMemeIndex].listlikes;
     let dislikeList = memes[currentMemeIndex].dislikes;
+    console.log(dislikeList);
 
     datesArray.forEach(date => {
       const dateDate = new Date(date);
@@ -493,7 +490,7 @@ const SingleView = () => {
         const url = window.location.pathname;
         const memeId = url.substring(url.lastIndexOf("/") + 1);
         const curMeme = json.docs.find((element) => element._id === memeId);
-        if(!curMeme){
+        if (!curMeme) {
           console.log("it is private");
           return;
         }
@@ -523,7 +520,7 @@ const SingleView = () => {
   };
 
 
-//provides the right ratio
+  //provides the right ratio
   const getPixelRatio = context => {
     var backingStore =
       context.backingStorePixelRatio ||
@@ -544,46 +541,47 @@ const SingleView = () => {
     let img = new Image();
 
     const checkVideoState = setInterval(() => {
-      if(vidMemes){
-      img.src = vidMemes[ind];
-      img.crossOrigin="anonymous";
-      if (img.src) {
-        clearInterval(checkVideoState);
-        const canvas = canvasRef.current;
-        if (canvas) {
-          setIsVideoLoading(false);
+      if (vidMemes) {
+        img.src = vidMemes[ind];
+        img.crossOrigin = "anonymous";
+        if (img.src) {
+          clearInterval(checkVideoState);
+          const canvas = canvasRef.current;
+          if (canvas) {
+            setIsVideoLoading(false);
 
-          let context = canvas.getContext('2d');
-          let ratio = getPixelRatio(canvas);
+            let context = canvas.getContext('2d');
+            let ratio = getPixelRatio(canvas);
 
-          let width = getComputedStyle(canvas)
-            .getPropertyValue('width')
-            .slice(0, -2);
-          let height = getComputedStyle(canvas)
-            .getPropertyValue('height')
-            .slice(0, -2);
-          canvas.width = width * ratio;
-          canvas.height = height * ratio;
-          canvas.style.width = `${width}px`;
-          canvas.style.height = `${height}px`;
+            let width = getComputedStyle(canvas)
+              .getPropertyValue('width')
+              .slice(0, -2);
+            let height = getComputedStyle(canvas)
+              .getPropertyValue('height')
+              .slice(0, -2);
+            canvas.width = width * ratio;
+            canvas.height = height * ratio;
+            canvas.style.width = `${width}px`;
+            canvas.style.height = `${height}px`;
 
-          context.drawImage(
-            img,
-            0,
-            0,
-            canvas.width,
-            canvas.height
-          );
+            context.drawImage(
+              img,
+              0,
+              0,
+              canvas.width,
+              canvas.height
+            );
+          }
+
+          if (vidMemes.length > 1) {
+
+            ind = (ind === vidMemes.length - 1) ? 0 : ind + 1;
+          }
+
+          requestAnimationFrame(tick);
         }
-
-        if (vidMemes.length > 1) {
-
-          ind = (ind === vidMemes.length - 1) ? 0 : ind + 1;
-        }
-
-        requestAnimationFrame(tick);
       }
-    }}, 3000);
+    }, 3000);
   };
 
   /*
@@ -591,23 +589,23 @@ const SingleView = () => {
       It loads the memes of the server and starts the animation video.
       */
   useEffect(() => {
-    
+
     loadMemes();
   }, []);
 
 
-//starts streaming canvas to video
+  //starts streaming canvas to video
   const startRecording = useCallback(() => {
     if (canvasRef !== null) {
       const canv = document.querySelector('canvas');
-   
 
-    
+
+
       const vid = document.querySelector('video');
       const stream = canv.captureStream();
       vid.srcObject = stream;
-}
-})
+    }
+  })
 
 
 
@@ -947,17 +945,17 @@ const SingleView = () => {
         <Grid container item xs={8}>
 
           <Grid item xs>
-          <div>
-                        <Button onClick={() => startRecording()} >Stream Video</Button>
-                    </div>
             <div>
-            
-            <video ref={videoRef} crossOrigin="anonymous" id="vid" controls autoplay muted></video>
+              <Button onClick={() => startRecording()} >Stream Video</Button>
+            </div>
+            <div>
+
+              <video ref={videoRef} crossOrigin="anonymous" id="vid" controls autoplay muted></video>
               {isVideoLoading && (
                 <p>Please wait while we load the video stream.</p>
 
               )}
-              <canvas ref={canvasRef} crossOrigin="anonymous" style={{display: "none", width: '200px', height: '200px' }} />    
+              <canvas ref={canvasRef} crossOrigin="anonymous" style={{ display: "none", width: '200px', height: '200px' }} />
             </div>
           </Grid>
         </Grid>

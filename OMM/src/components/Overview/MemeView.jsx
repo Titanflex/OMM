@@ -10,7 +10,7 @@ import {
     Box,
 } from "@material-ui/core";
 
-import { FacebookShareButton, TwitterShareButton, RedditShareButton, WhatsappShareButton, FacebookIcon, TwitterIcon, RedditIcon, WhatsappIcon } from "react-share";
+import { TwitterShareButton, RedditShareButton, WhatsappShareButton, FacebookIcon, TwitterIcon, RedditIcon, WhatsappIcon } from "react-share";
 
 import AuthService from "../../services/auth.service";
 import { makeStyles } from "@material-ui/core";
@@ -24,17 +24,15 @@ import Moment from 'moment';
 import "./../../css/Overview/memeView.css";
 
 const useStyles = makeStyles((theme) => ({
-    rateMemeButtons:{
-    
-        
+    rateMemeButtons: {
     },
 }));
 
 const MemeView = props => {
     const [memeInfo, setMemeInfo] = useState(props.memeInfo);
 
-    const [likes, setLikes] = useState(props.memeInfo.hasOwnProperty('listlikes')? props.memeInfo.listlikes : null);
-    const [dislikes, setDislikes] = useState(props.memeInfo.hasOwnProperty('dislikes')? props.memeInfo.dislikes : null);
+    const [likes, setLikes] = useState(props.memeInfo.hasOwnProperty('listlikes') ? props.memeInfo.listlikes : null);
+    const [dislikes, setDislikes] = useState(props.memeInfo.hasOwnProperty('dislikes') ? props.memeInfo.dislikes : null);
 
     const [liked, setLiked] = useState(likes ? likes.some(like => like.user === localStorage.user) : null);
     const [disliked, setDisliked] = useState(dislikes ? dislikes.some(dislike => dislike.user === localStorage.user) : null);
@@ -75,17 +73,17 @@ const MemeView = props => {
         }).then((res) => {
             return (res.json())
         }).then(json => {
-                fetch("data:image/jpeg;base64," + json.data)
-                    .then(res => res.blob())
-                    .then(data => {
-                        let a = document.createElement("a");
-                        let url = window.URL.createObjectURL(data);
-                        a.style = "display: none";
-                        a.href = url;
-                        a.download = memeInfo.title + ".jpeg";
-                        a.click();
-                    });
-            }
+            fetch("data:image/jpeg;base64," + json.data)
+                .then(res => res.blob())
+                .then(data => {
+                    let a = document.createElement("a");
+                    let url = window.URL.createObjectURL(data);
+                    a.style = "display: none";
+                    a.href = url;
+                    a.download = memeInfo.title + ".jpeg";
+                    a.click();
+                });
+        }
         )
     };
 
@@ -104,7 +102,7 @@ const MemeView = props => {
         props.getUpdatedMemes();
     }
 
-//handles click on dislike
+    //handles click on dislike
     const handleDislikeClick = (event) => {
         if (disliked) {
             removedislikeMeme();
@@ -120,7 +118,7 @@ const MemeView = props => {
     }
 
 
-//post like by user to a meme
+    //post like by user to a meme
     async function likeMeme() {
         await fetch("http://localhost:3030/memeIO/like-meme", {
             method: "POST",
@@ -132,7 +130,7 @@ const MemeView = props => {
             }),
         }).then((response) => {
             console.log(response);
-         
+
         });
     }
 
@@ -150,7 +148,7 @@ const MemeView = props => {
         });
     }
 
-   //post dislike by user to a meme
+    //post dislike by user to a meme
     async function dislikeMeme() {
         await fetch("http://localhost:3030/memeIO/dislike-meme", {
             method: "POST",
@@ -158,7 +156,7 @@ const MemeView = props => {
             headers: AuthService.getTokenHeader(),
             body: JSON.stringify({
                 id: memeInfo._id,
-                date: Date.now,
+                date: Date.now(),
             }),
         }).then((response) => {
             console.log("disliked");
@@ -180,12 +178,12 @@ const MemeView = props => {
     }
 
     const handleClickPic = () => {
-        if (memeInfo.publicOpt == "public"){
+        if (memeInfo.publicOpt == "public") {
             window.open(`/singleview/${memeInfo._id}`, "_self");
 
         }
-        
-        
+
+
     }
 
     const synth = window.speechSynthesis;
@@ -226,7 +224,7 @@ const MemeView = props => {
                             src={memeInfo.url}
                             alt={"meme image"}
                             isAccessible={props.isAccessible}
-                          
+
                             onClick={handleClickPic}
                         />
                     </div>
@@ -253,19 +251,19 @@ const MemeView = props => {
                     </Grid>
 
                     <Grid item xs>
-                        {memeInfo.publicOpt=="unlisted" ? 
-                        <div>
-                            <Typography variant="body2">
-                                unlisted link:
+                        {memeInfo.publicOpt == "unlisted" ?
+                            <div>
+                                <Typography variant="body2">
+                                    unlisted link:
                             </Typography>
-                            <Typography variant="body2">
-                               <Link href={memeInfo.url}>{memeInfo.url}</Link> 
-                            </Typography>
+                                <Typography variant="body2">
+                                    <Link href={memeInfo.url}>{memeInfo.url}</Link>
+                                </Typography>
                             </div>
-                        :null}
-                        
-                  
-                          <Box  component="div" display="inline" className={classes.rateMemeButtons}>
+                            : null}
+
+
+                        <Box component="div" display="inline" className={classes.rateMemeButtons}>
                             <Button
                                 className="classes.buttonStyle selection"
                                 startIcon={<CloudDownload />}
@@ -277,57 +275,57 @@ const MemeView = props => {
                                 <i className="fa fa-download" />
                                 Download
                             </Button>
-                            {(memeInfo.publicOpt=="public" || memeInfo.publicOpt=="unlisted")  ? 
-                            <Box  component="div" display="inline" className={classes.rateMemeButtons}>
-                            <Button
+                            {(memeInfo.publicOpt == "public" || memeInfo.publicOpt == "unlisted") ?
+                                <Box component="div" display="inline" className={classes.rateMemeButtons}>
+                                    <Button
 
-                                className="classes.buttonStyle selection"
-                                startIcon={<Mail />}
-                                variant="contained"
-                                color="secondary"
-                                onClick={handleClick}
-                                disabled={!memeInfo}
-                            >
-                                Share
+                                        className="classes.buttonStyle selection"
+                                        startIcon={<Mail />}
+                                        variant="contained"
+                                        color="secondary"
+                                        onClick={handleClick}
+                                        disabled={!memeInfo}
+                                    >
+                                        Share
                             </Button>
-                            <Popover
-                                id={id}
-                                open={popOpen}
-                                anchorEl={anchorEl}
-                                onClose={handlePopClose}
-                                anchorOrigin={{
-                                    vertical: 'top',
-                                    horizontal: 'center',
-                                }}
-                                transformOrigin={{
-                                    vertical: 'bottom',
-                                    horizontal: 'center',
-                                }}
-                            >
-                                <TwitterShareButton
-                                    title={"OMMemes = Stonks"}
-                                    url={memeInfo.url}
-                                    hashtags={["OMMeme"]}
-                                    className={classes.socialMediaButton}>
-                                    <TwitterIcon size={36} round />
-                                </TwitterShareButton>
-                                <RedditShareButton
-                                    title={"OMMemes = Stonks"}
-                                    url={memeInfo.url}
-                                    className={classes.socialMediaButton}>
-                                    <RedditIcon size={36} round />
-                                </RedditShareButton>
-                                <WhatsappShareButton
-                                    title={"OMMemes = Stonks"}
-                                    url={memeInfo.url}
-                                    separator={"\r\n"}
-                                    className={classes.socialMediaButton}>
-                                    <WhatsappIcon size={36} round />
-                                </WhatsappShareButton>
-                            </Popover>
-                        </Box>
+                                    <Popover
+                                        id={id}
+                                        open={popOpen}
+                                        anchorEl={anchorEl}
+                                        onClose={handlePopClose}
+                                        anchorOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'center',
+                                        }}
+                                        transformOrigin={{
+                                            vertical: 'bottom',
+                                            horizontal: 'center',
+                                        }}
+                                    >
+                                        <TwitterShareButton
+                                            title={"OMMemes = Stonks"}
+                                            url={memeInfo.url}
+                                            hashtags={["OMMeme"]}
+                                            className={classes.socialMediaButton}>
+                                            <TwitterIcon size={36} round />
+                                        </TwitterShareButton>
+                                        <RedditShareButton
+                                            title={"OMMemes = Stonks"}
+                                            url={memeInfo.url}
+                                            className={classes.socialMediaButton}>
+                                            <RedditIcon size={36} round />
+                                        </RedditShareButton>
+                                        <WhatsappShareButton
+                                            title={"OMMemes = Stonks"}
+                                            url={memeInfo.url}
+                                            separator={"\r\n"}
+                                            className={classes.socialMediaButton}>
+                                            <WhatsappIcon size={36} round />
+                                        </WhatsappShareButton>
+                                    </Popover>
+                                </Box>
 
-                        :null}
+                                : null}
                         </Box>
                     </Grid>
                     <Grid item xs>
