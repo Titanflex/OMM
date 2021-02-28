@@ -25,7 +25,7 @@ function App() {
 
   const [loggedIn, setLoggedIn] = useState(true);
 
-  //console.log = console.warn = console.error = () => { };
+  console.log = console.warn = console.error = () => { };
 
 
   /**
