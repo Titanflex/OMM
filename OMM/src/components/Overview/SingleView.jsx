@@ -503,6 +503,7 @@ const handleMoreModuleOpen = () => {
     let vid = document.createElement('video');
 
     const checkVideoState = setInterval(() => {
+      //checks if meme is video or image
       if (vidMemes) {
         if(vidMemes[ind].includes("webm")){
           vid.src = vidMemes[ind];
@@ -513,6 +514,7 @@ const handleMoreModuleOpen = () => {
           img.src = vidMemes[ind];
           img.crossOrigin = "anonymous";
         }
+
         if (img.src || vid.src) {
           clearInterval(checkVideoState);
           const canvas = canvasRef.current;
@@ -532,7 +534,7 @@ const handleMoreModuleOpen = () => {
             canvas.height = height * ratio;
             canvas.style.width = `${width}px`;
             canvas.style.height = `${height}px`;
-
+          //draw image or video on canvas
             if(vidMemes[ind].includes("webm")){
                 context.drawImage(vid, 0, 0,canvas.width, canvas.height);
             
@@ -552,7 +554,7 @@ const handleMoreModuleOpen = () => {
           requestAnimationFrame(tick);
         }
       }
-    }, 4000);
+    }, 3000);
   };
 
   /*
