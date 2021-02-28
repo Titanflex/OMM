@@ -24,7 +24,7 @@ function App() {
   const routeResults = useRoutes(routes);
 
   const [loggedIn, setLoggedIn] = useState(false);
-
+  //  console.log = console.warn = console.error = () => { };
 
   useEffect(() => {
     setLoggedIn(true);
