@@ -131,10 +131,7 @@ const ImageSelection = params => {
         setFiles([]);
     }
 
-    /**
-     * 
-     * @param {object} template 
-     */
+
     async function addUsedTemplate(template) {
         await fetch("http://localhost:3030/memeIO/add-used-template", {
             method: "POST",
@@ -180,7 +177,7 @@ const ImageSelection = params => {
     }
 
     /**
-     * returns the templates in a grid list
+     * returns the given templates showtemplates in a grid list
      * @param {array} showtemplates 
      */
     const ShowTemplates = ({ showtemplates }) => (
@@ -279,6 +276,7 @@ const ImageSelection = params => {
                 I want more templates!
             </Button>
 
+            {/*Image Selection Modal*/}
             <Modal
                 open={open}
                 onClose={handleClose}

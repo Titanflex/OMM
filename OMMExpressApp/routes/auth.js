@@ -26,21 +26,24 @@ router.use(function(req, res, next) {
 });
 
 /* POST /auth/login */
-/* Authenticate the User */
+/* Authenticate the User by name and password*/
 router.post('/login', async(req, res) => {
     const { name, password } = req.body;
 
     try {
-        // Check for existing user
+        // Check if user name exists
         const user = await User.findOne({ name });
         if (!user) throw Error('User does not exist. Please Sign Up!');
 
+        //compare the given password with the password in the db 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) throw Error('Invalid password');
 
+        //create jwt token and sign the user id to it
         const token = jwt.sign({ id: user._id }, config.get('jwtSecret'), { expiresIn: 3600 });
         if (!token) throw Error('Couldnt sign the token');
 
+        //return the token and user as JSON
         res.status(200).json({
             token,
             user: {
@@ -56,26 +59,27 @@ router.post('/login', async(req, res) => {
 
 
 /* Get /auth/user */
-/* Gets user data */
+/* Gets the user */
 router.get('/user', auth, (req, res) => {
     User.findById(req.user.id)
-        //remove password for security reasons
+        //remove password due to security reasons
         .select('-password')
         .then(user => res.json(user));
 })
 
 /* POST /auth/register */
-/* Registers a New the User */
+/* Registers a new the User */
 router.post('/register', async(req, res) => {
     const { name, password } = req.body;
 
     try {
+        //check if the username is alreay taken
         const user = await User.findOne({ name });
         if (user) throw Error('User already exists');
 
+        //encrypt the password
         const salt = await bcrypt.genSalt(10);
         if (!salt) throw Error('Something went wrong with bcrypt');
-
         const hash = await bcrypt.hash(password, salt);
         if (!hash) throw Error('Something went wrong hashing the password');
 
@@ -84,13 +88,16 @@ router.post('/register', async(req, res) => {
             password: hash
         });
 
+        //save the user to the db
         const savedUser = await newUser.save();
         if (!savedUser) throw Error('Something went wrong saving the user');
 
+        //create jwt token and sign the user id to it
         const token = jwt.sign({ id: savedUser._id }, config.get('jwtSecret'), {
             expiresIn: 3600
         });
 
+        //return the token and the user as JSON
         res.status(200).json({
             token,
             user: {

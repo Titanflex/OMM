@@ -2,13 +2,13 @@ const config = require('config');
 const jwt = require('jsonwebtoken');
 
 /**
- * middleware that can be added to any request to authenticate the user
+ * Authentication MIDDLEWARE -> can be added to a request to authenticate the user
  * returns the id of the user in the body request
  */
 function auth(req, res, next) {
     const token = req.header('x-auth-token');
 
-    //Check for token
+    //Check for token -> if note deny authorization
     if (!token) return res.status(401).json({
         msg: 'No token, authorization denied'
     });
