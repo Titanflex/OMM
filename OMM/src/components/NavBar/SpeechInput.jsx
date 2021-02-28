@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 /**
- * Creates and handles the speech input.
+ * Creates and handles speech input to navigate to different pages
  */
 const SpeechInput = () => {
   const classes = useStyles();

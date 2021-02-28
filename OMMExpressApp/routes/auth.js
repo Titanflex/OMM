@@ -40,7 +40,7 @@ router.post('/login', async (req, res) => {
         if (!isMatch) throw Error('Invalid password');
 
         //create jwt token and sign the user id to it
-        const token = jwt.sign({ id: user._id }, config.get('jwtSecret'), { expiresIn: '24h' });
+        const token = jwt.sign({ id: user._id }, config.get('jwtSecret'));
         if (!token) throw Error('Couldnt sign the token');
 
         //return the token and user as JSON
@@ -93,9 +93,7 @@ router.post('/register', async (req, res) => {
         if (!savedUser) throw Error('Something went wrong saving the user');
 
         //create jwt token that lasts 24 hour and sign the user id to it
-        const token = jwt.sign({ id: savedUser._id }, config.get('jwtSecret'), {
-            expiresIn: '24h'
-        });
+        const token = jwt.sign({ id: savedUser._id }, config.get('jwtSecret'));
 
         //return the token and the user as JSON
         res.status(200).json({
