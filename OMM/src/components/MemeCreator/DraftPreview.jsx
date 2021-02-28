@@ -61,7 +61,7 @@ const DraftPreview = params => {
                     <div style={{maxHeight: window.innerHeight-100, overflow:"auto"}}>
                         <GridList cellHeight={180} className={classes.gridList} cols={3} style={{ height: 450 }}>
                             {params.drafts.map((draft, index) => (
-                                <GridListTile key={draft.url} style={{ 'cursor': 'pointer' }} cols={draft.cols || 1}
+                                <GridListTile key={draft.url} style={{ 'cursor': 'pointer' }} cols={1}
                                               onClick={() => selectDraft(index)}
                                 >
                                     <img src={draft.preview} alt={draft.creationDate} />
