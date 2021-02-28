@@ -298,7 +298,7 @@ function VideoGenerator() {
         }
         if (canvasRef !== null) {
             let canvas = canvasRef.getCanvas()._canvas;
-            canvasRecorder = createCanvasRecorder(canvas, { filename: memeName, download: download });
+            canvasRecorder = createCanvasRecorder(canvas, { filename: memeName, download: download, recorderOptions: { mimeType: "video/webm" } });
             canvasRecorder.start();
         }
     })
