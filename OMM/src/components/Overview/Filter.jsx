@@ -208,7 +208,7 @@ const Filter = props => {
     }
     if (voteEquals === "equals") {
       filteredList = memes.filter(
-        (meme) => meme.listlikes.length - meme.dislikes.length === voteNumber
+        (meme) => meme.listlikes.length - meme.dislikes.length == voteNumber
       );
     } else if (voteEquals === "greater") {
       filteredList = memes.filter(
